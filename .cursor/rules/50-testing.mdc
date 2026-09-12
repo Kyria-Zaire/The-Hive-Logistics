@@ -1,0 +1,7 @@
+---
+description: "Tests et preuves obligatoires pour les changements frontend et backend"
+globs: "apps/**/*.{py,ts,tsx},packages/**/*.{py,ts,tsx},tests/**/*,e2e/**/*"
+alwaysApply: false
+---
+
+Appliquer intégralement `@.claude/rules/testing.md`.

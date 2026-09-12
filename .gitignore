@@ -1,0 +1,44 @@
+# Secrets — keep templates only
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.*.example
+**/secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local agent settings and memory
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/settings*.bak
+.cursor/*.local.json
+.cursor/hooks.json.disabled
+.cursor/hooks.disabled.json
+.cursor/hooks*.disabled*
+
+# Governance pack scratch (local only)
+_governance_extract/
+_governance_patch/
+
+# JavaScript / Next.js
+node_modules/
+.next/
+out/
+coverage/
+.turbo/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+
+# Local runtime data
+*.log
+.DS_Store
+Thumbs.db

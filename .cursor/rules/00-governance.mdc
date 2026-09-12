@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+Appliquer `@AGENTS.md` comme constitution du projet et `@CURSOR.md` pour les consignes spécifiques à Cursor. Ne jamais contourner les règles projet, les permissions natives, les validations humaines, les contrôles CI/CD ou les restrictions d'environnement définis par AGENTS.md. Ne pas élargir un ticket sans validation CTO.

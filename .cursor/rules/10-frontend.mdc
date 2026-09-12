@@ -1,0 +1,7 @@
+---
+description: "Règles frontend Next.js, design premium, responsive et accessibilité de THE HIVE LOGISTICS"
+globs: "apps/web/**/*.{ts,tsx,css,scss},packages/ui/**/*.{ts,tsx,css,scss}"
+alwaysApply: false
+---
+
+Appliquer intégralement `@.claude/rules/frontend.md`.

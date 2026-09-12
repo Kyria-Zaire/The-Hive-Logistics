@@ -1,0 +1,7 @@
+---
+description: "Règles backend Python FastAPI, contrats, transactions et persistance"
+globs: "apps/api/**/*.py,packages/backend/**/*.py,tests/backend/**/*.py"
+alwaysApply: false
+---
+
+Appliquer intégralement `@.claude/rules/backend.md`.

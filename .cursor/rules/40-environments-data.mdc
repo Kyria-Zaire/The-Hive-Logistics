@@ -1,0 +1,7 @@
+---
+description: "Isolation DEV RECETTE PREPROD PROD, migrations, données et sauvegardes"
+globs: "infra/**/*,deploy/**/*,.github/workflows/**/*,**/alembic/**/*,**/migrations/**/*,**/*docker*,**/*.sql"
+alwaysApply: false
+---
+
+Appliquer intégralement `@.claude/rules/environments-data.md`.

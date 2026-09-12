@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+Appliquer intégralement `@.claude/rules/security.md`. La sécurité est une contrainte de conception et de validation, pas une étape finale.

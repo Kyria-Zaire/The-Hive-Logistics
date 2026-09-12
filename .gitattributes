@@ -1,0 +1,23 @@
+# Text normalization (LF in repository)
+* text=auto eol=lf
+
+# Explicit text
+*.md text eol=lf
+*.mdc text eol=lf
+*.py text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+
+# Binaries
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.mp4 binary
+*.webm binary
