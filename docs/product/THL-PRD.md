@@ -1,10 +1,10 @@
 # PRD produit — THE HIVE LOGISTICS
 
-> **PRODUCT_ID** = THL-PRODUCT-001  
-> **VERSION** = 0.1.2  
-> **STATUS** = DRAFT_FOR_HUMAN_APPROVAL  
-> **Document** = `docs/product/THL-PRD.md`  
-> **Modèle** = [`PRD-TEMPLATE.md`](../../PRD-TEMPLATE.md) (structure canonique, non modifiée)  
+> **PRODUCT_ID** = THL-PRODUCT-001
+> **VERSION** = 0.1.4
+> **STATUS** = DRAFT_FOR_HUMAN_APPROVAL
+> **Document** = `docs/product/THL-PRD.md`
+> **Modèle** = [`PRD-TEMPLATE.md`](../../PRD-TEMPLATE.md) (structure canonique, non modifiée)
 > **Méthode** = [`METHODE-BMAD.md`](../../METHODE-BMAD.md)
 
 ---
@@ -45,8 +45,10 @@ Instruction humaine actuelle → décisions registre → PRD approuvé → archi
 |---|---|
 | Produit | THE HIVE LOGISTICS — site vitrine V1 |
 | Référence | THL-PRODUCT-001 |
-| Version | 0.1.2 |
+| Version | 0.1.4 |
 | Statut | DRAFT_FOR_HUMAN_APPROVAL |
+| Gate architecture API | `READY_FOR_API_ARCHITECTURE = YES` (THL-PRODUCT-002, 2026-09-12) |
+| Gate production | `READY_FOR_PRODUCTION = NO` |
 | Sponsor métier | Jores |
 | Product Owner | Jores |
 | Responsable contenu | Jores |
@@ -56,7 +58,7 @@ Instruction humaine actuelle → décisions registre → PRD approuvé → archi
 | Date de création | 2026-09-12 |
 | Dernière révision | 2026-09-12 |
 | Horizon couvert | V1 (vitrine + leads) ; V1.1 / V2+ distingués §19 |
-| Documents sources | THL-PRODUCT-001 / 001A / 001B ; `AGENTS.md` ; gouvernance 1.0.2 |
+| Documents sources | THL-PRODUCT-001 / 001A / 001B / **002** / **002A** ; `AGENTS.md` ; gouvernance 1.0.2 |
 
 ### Historique des versions
 
@@ -65,6 +67,8 @@ Instruction humaine actuelle → décisions registre → PRD approuvé → archi
 | 0.1.0 | 2026-09-12 | Agent + Kyria | Première rédaction produit à partir du template | THL-PRODUCT-001 |
 | 0.1.1 | 2026-09-12 | Agent + Kyria | Corrections post-revue CTO (rôles, portfolio, leads, Turnstile, vie privée, CWV, TBD/gates) | THL-PRODUCT-001A |
 | 0.1.2 | 2026-09-12 | Agent + Kyria | Closeout intégrité Markdown, budgets perf/a11y, DEC/TBD, gates médias | THL-PRODUCT-001B |
+| 0.1.3 | 2026-09-12 | Agent + Kyria | Fermeture gates architecture API : champs devis, Contact/Devis, référence publique, catégories véhicules (DEC-005–008) | THL-PRODUCT-002 |
+| 0.1.4 | 2026-09-12 | Agent + Kyria | Workflow transactionnel leads, idempotence/Turnstile, référence non-auth, rate limit Contact, traçabilité FR-025, alignement Hero mobile, NFR 19 | THL-PRODUCT-002A |
 
 ### Approbations
 
@@ -119,6 +123,9 @@ Formaliser l’offre premium, préparer évolutions futures (location premium, c
 | EVD-001 | Décision produit | Périmètre V1 vitrine sans auth/paiement/booking | AGENTS.md + ticket | 2026-09-12 | Fort |
 | EVD-002 | Décision stack | Next.js TS, FastAPI, PostgreSQL monolithe modulaire | AGENTS.md / PRD template §7.4 | 2026-09-12 | Fort |
 | EVD-003 | Brief Sponsor | Positionnement convoyage, flotte, logistique, préparation | THL-PRODUCT-001 | 2026-09-12 | Fort |
+| EVD-004 | Validation ciblée | Champs devis, séparation Contact/Devis, catégories véhicules (Jores) ; format référence publique (Kyria) | THL-PRODUCT-002 | 2026-09-12 | Fort |
+
+Validation du 2026-09-12 : arbitrages métier Jores et format référence Kyria pour l’architecture API — **sans** approbation intégrale du PRD ni autorisation PROD.
 
 ### 3.4 Contraintes héritées
 
@@ -172,11 +179,11 @@ THE HIVE LOGISTICS devient la référence perçue de la mobilité automobile pre
 
 ### 5.2 Persona de référence
 
-**Nom :** Alex (fictif)  
-**Profil :** Responsable flotte PME  
-**Objectif :** Qualifier un prestataire pour convoyage récurrent  
-**Freins :** Peur de l’amateurisme, délais flous  
-**Confiance :** Processus clair, coordonnées vérifiables, réponse humaine  
+**Nom :** Alex (fictif)
+**Profil :** Responsable flotte PME
+**Objectif :** Qualifier un prestataire pour convoyage récurrent
+**Freins :** Peur de l’amateurisme, délais flous
+**Confiance :** Processus clair, coordonnées vérifiables, réponse humaine
 **Contexte :** Mobile en déplacement
 
 ### 5.3 Parties prenantes
@@ -236,7 +243,7 @@ Volume de code, nombre d’animations, pages créées sans parcours validé, tra
 | CAP-005 | Réalisations `/realisations` (conditionnel) | Preuves réelles publiées si contenu validé | SHOULD_CONDITIONAL |
 | CAP-006 | Contact `/contact` | Multicanal validé | MUST |
 | CAP-007 | Pages légales | Conformité | MUST |
-| CAP-008 | API FastAPI devis + validation | Backend autoritaire | MUST |
+| CAP-008 | API FastAPI publiques Contact et Devis (contrats distincts) + validation | Backend autoritaire | MUST |
 | CAP-009 | Persistance PostgreSQL + migrations | Traçabilité demandes | MUST |
 | CAP-010 | Médias photo optimisés | Performance et crédibilité | MUST |
 | CAP-011 | Notifications internes fiables + reprise opérationnelle | Aucune perte de demande acceptée | MUST |
@@ -282,7 +289,7 @@ Reprise du bloc canonique template §7.4, confirmé pour ce PRD : vitrine convoy
 |---|---|---|---|---|---|
 | 1 | Arrive sur `/` | Hero, slogan, CTA devis | — | Lenteur | Contenu prioritaire |
 | 2 | Consulte `/services` | 4 services | — | — | Nav |
-| 3 | Ouvre `/demande-de-devis` | Formulaire | Champs TBD-003 | Validation | Messages a11y |
+| 3 | Ouvre `/demande-de-devis` | Formulaire structuré (DEC-006) | Champs obligatoires §9.2 | Validation | Messages a11y |
 | 4 | Soumet | Turnstile + validation | DATA-* | Rate limit | Message neutre |
 | 5 | Succès | Référence + confirmation | Référence | 5xx | Retry + contact |
 
@@ -308,7 +315,7 @@ Formulaire contact, sujet partenariat ; pas de collecte d’investissement sans 
 
 **Acteur :** USR-001 mobile | **Résultat :** Soumission réussie sur matrice §10.3
 
-Même JRN-001 ; structure mono-page ou multi-étapes décidée en THL-UX-001 avec conservation des données.
+Même JRN-001 ; structure mono-page ou multi-étapes : **[À produire — spécification UX dédiée du formulaire Devis]**, avec conservation des données entre étapes si multi-étapes.
 
 ### JRN-006 — Spam / invalide → rejet
 
@@ -332,13 +339,13 @@ Chargement, succès, erreur validation, erreur technique, réseau lent, clavier,
 
 | ID | Capacité | Exigence | Priorité | Critère d’acceptation | Source |
 |---|---|---|---|---|---|
-| FR-001 | CAP-001 | Page `/` avec Hero photo, marque THE HIVE LOGISTICS, synthèse services, confiance, processus, CTA final | MUST | Hero + 2 CTA visibles mobile | Ticket |
+| FR-001 | CAP-001 | Page `/` avec Hero photo, marque THE HIVE LOGISTICS, synthèse services, confiance, processus, CTA final | MUST | Les 2 CTA présents et accessibles sur mobile ; **390×844** : H1, paragraphe et CTA primaire sans défilement ; **320×568** : H1 et CTA primaire sans défilement (CTA secondaire peut être immédiatement sous le premier viewport) | Ticket, docs/ux |
 | FR-002 | CAP-002 | `/services` : convoyage premium, flotte, logistique, préparation automobile | MUST | 4 blocs distincts | Ticket |
-| FR-003 | CAP-003 | `/demande-de-devis` formulaire qualifié (non réservation instantanée) | MUST | Champs obligatoires identifiés | Ticket |
-| FR-004 | CAP-003 | Champs : identité, coordonnées, entreprise opt., type demande, départ, arrivée, date/période, type véhicule, roulant/non, contraintes ; **prise de connaissance** de la politique de confidentialité (pas consentement marketing) | MUST | Persistance champs validés ; case/info non ambiguë | TBD-003 |
+| FR-003 | CAP-003 | `/demande-de-devis` formulaire qualifié métier structuré (non réservation instantanée) | MUST | Champs obligatoires §9.2 persistés ; optionnels §9.2 acceptés ou absents | DEC-006 |
+| FR-004 | CAP-003 | Devis : identité (nom, prénom), email, téléphone, service demandé, villes/CP départ et arrivée, date ou période, catégorie véhicule (§9.4), marque/modèle, roulant/non roulant, **prise de connaissance** politique confidentialité (pas consentement marketing) ; optionnels : entreprise, contraintes, message complémentaire, préférence de contact | MUST | Persistance champs validés ; case/info non ambiguë ; catégorie « Autre » → précision obligatoire | DEC-006 |
 | FR-005 | CAP-003 | Honeypot anti-bot | MUST | Bot → pas de demande | SEC-002 |
-| FR-006 | CAP-003 | Cloudflare Turnstile **obligatoire** formulaires publics V1 ; validation **serveur** (widget seul insuffisant) ; jeton valide 5 min, usage unique ; retry → nouveau jeton ; idempotency key métier **distincte** du jeton | MUST | Appel siteverify ; jeton rejoué → refus ; cf. DEC-003 | SEC-003 |
-| FR-007 | CAP-003 | Référence non prédictible affichée au succès | MUST | Non séquentielle | SEC-005 |
+| FR-006 | CAP-003, CAP-006 | Cloudflare Turnstile **obligatoire** pour toute **nouvelle** opération lead (Contact et Devis) ; validation **serveur** (widget seul insuffisant) ; jeton valide 5 min ; **pas** de revalidation Turnstile sur replay idempotent d’une opération déjà commitée (§9.1.1) ; jeton rejoué pour nouvelle opération → rejet ; expiré/invalide → nouveau jeton côté client ; idempotency key métier **distincte** du jeton et de tout `idempotency_key` Siteverify | MUST | Tests §9.1.1 ; siteverify sur premier accept ; cf. DEC-003 | SEC-003 |
+| FR-007 | CAP-003 | Référence publique `THL-YYYYMMDD-XXXXXXXX` affichée au succès (§9.3) ; identifiant séquentiel interne jamais exposé | MUST | Format DEC-007 ; même valeur UI, DB et notification | DEC-007, SEC-005 |
 | FR-008 | CAP-003 | Confirmation réception + référence | MUST | Cohérence UI/DB | TBD-012 |
 | FR-009 | CAP-003 | Erreurs validation accessibles | MUST | Focus/messages par champ | NFR-A11Y-001 |
 | FR-010 | CAP-004 | `/a-propos` mission, méthode, engagements, vision mobilité auto | MUST | Pas immobilier/chauffeur | Ticket |
@@ -347,7 +354,7 @@ Chargement, succès, erreur validation, erreur technique, réseau lent, clavier,
 | FR-013 | CAP-007 | Mentions légales, confidentialité, cookies si besoin, CGU si besoin | MUST | Liens footer | TBD-020 |
 | FR-014 | CAP-001 | Header nav vers routes V1 + légal | MUST | Clavier OK | Ticket |
 | FR-015 | CAP-001 | Footer cohérent | MUST | Liens légaux stables | FR-013 |
-| FR-016 | CAP-008 | API création demande devis | MUST | Contrat typé | Stack |
+| FR-016 | CAP-008 | API publique création demande devis **et** API publique contact (contrats distincts) ; pipeline interne de traitement des leads partageable | MUST | OpenAPI séparés ; contact sans champs logistiques devis | DEC-005 |
 | FR-017 | CAP-008 | Validation autoritaire entrées API | MUST | 4xx payload invalide | SEC-001 |
 | FR-018 | CAP-008 | Rate limiting | MUST | Seuil configurable | SEC-004 |
 | FR-019 | CAP-009 | Persistance PostgreSQL + migrations | MUST | Enregistrement RECETTE | Stack |
@@ -356,7 +363,7 @@ Chargement, succès, erreur validation, erreur technique, réseau lent, clavier,
 | FR-022 | CAP-010 | Photos statiques avec `alt` | MUST | Alt présent | Ticket médias |
 | FR-023 | CAP-002 | Deep-link sections services | COULD | Ancre visible | TBD-011 |
 | FR-024 | CAP-003 | Pas calendrier réservation, paiement, compte | MUST | DOM inspecté | OUT-* |
-| FR-025 | CAP-006 | Contact : modèle tranché **TBD-004** avant architecture API ; mêmes anti-abus ; pas de champs devis obligatoires pour simple contact | MUST | TBD-004 clos | TBD-004 |
+| FR-025 | CAP-006 | `/contact` : formulaire simple (§9.2) ; contrat API contact distinct du devis ; validation serveur, honeypot, Turnstile serveur, rate limiting, idempotence, persistance avant notification, erreurs non révélatrices ; **jamais** de champs logistiques devis obligatoires | MUST | Parcours contact conforme DEC-005 | DEC-005 |
 | FR-026 | CAP-011 | Notification interne **obligatoire** après persistance transactionnelle ; états `pending` / `sent` / `failed` ; retries durables ; alerte ops si échec final ; demande **jamais perdue** si email échoue | MUST | Preuve RECETTE E2E ; TBD-009 clos | TBD-009 |
 | FR-027 | CAP-001 | Contenu validé, pas génération non relue | MUST | Traçabilité Jores | Gouvernance |
 | FR-028 | CAP-012 | 404 marque + retour accueil | MUST | HTTP 404 | NFR-REL |
@@ -374,35 +381,94 @@ Chargement, succès, erreur validation, erreur technique, réseau lent, clavier,
 | FR-040 | CAP-010 | Médias : droits validés, AVIF/WebP si possible, responsive, dimensions, lazy load hors Hero, priorité Hero, pas faux logos/témoignages/chiffres | MUST | Check-list média | Ticket |
 | FR-041 | CAP-006 | WhatsApp / Instagram / LinkedIn seulement si URLs/numéros approuvés | MUST | Absent si TBD | TBD-001 |
 | FR-042 | CAP-001 | Pas libellé « Réservations » sans booking ; CTA « réserver » → prise en charge humaine uniquement | MUST | Pas instantanéité | Ticket |
-| FR-043 | CAP-008 | Idempotence soumission via clé métier (distincte jeton Turnstile) | MUST | Double POST même clé → même résultat, 1 enregistrement | ADR |
+| FR-043 | CAP-008 | Idempotence soumission Contact **et** Devis via clé métier à entropie suffisante (format/durée = ADR/OpenAPI) ; replay même clé + même payload normalisé → même référence, pas de second lead ; même clé + payload différent → **409** sans mutation | MUST | Tests replay, conflit 409, un seul enregistrement | SEC-017, §9.1.1 |
 | FR-044 | CAP-006 | Sujets contact : information, devis, partenariat, autre | MUST | Liste sélection | Ticket |
 | FR-045 | CAP-001 | Pas d’appel public investir sans validation juridique | MUST | Absence CTA invest | OUT-010 |
 | FR-046 | CAP-011 | Reprise **exceptionnelle** d’une demande déjà enregistrée : procédure lecture seule, auditée, réservée à Kyria (pas usage commercial courant ; **pas d’export CSV applicatif V1** — TBD-024 en V1.1) | MUST | Runbook exception documenté | Kyria |
 
 ### 9.1 Workflow opérationnel des leads (CAP-011)
 
-Ordre impératif pour chaque soumission acceptée :
+Ordre impératif pour chaque soumission **nouvelle** acceptée (replay idempotent : §9.1.1, sans recréation ni email avant commit) :
 
-1. Validation frontière (schéma + Turnstile + honeypot + rate limit).
-2. Persistance **transactionnelle** PostgreSQL (demande + statut notification).
-3. Génération référence non prédictible (distincte idempotency key et jeton Turnstile).
-4. Notification interne asynchrone avec retries durables (implémentation = ADR ; **pas** Redis/Celery imposés ici).
-5. Si échec notification après retries : état `failed` + **alerte opérationnelle** ; la demande reste en base.
-6. Confirmation utilisateur affichée même si notification encore `pending` (libellé honnête selon TBD-012).
+1. Validation de l’enveloppe HTTP, du schéma et des tailles.
+2. Contrôles honeypot et rate limiting.
+3. Résolution de l’idempotency key métier (replay → réponse sans repasser par les étapes 4–7).
+4. Pour une **nouvelle** opération : validation Turnstile **serveur**.
+5. Génération de la référence publique `THL-YYYYMMDD-XXXXXXXX` (DEC-007, §9.3) ; en cas de collision UNIQUE, **nouvelle génération** sans lead partiel.
+6. Transaction PostgreSQL **atomique** enregistrant : le lead ; sa référence publique ; l’idempotency key et l’empreinte normalisée de la requête ; l’état ou intention durable de notification **`pending`**.
+7. **Commit** de la transaction.
+8. Traitement asynchrone de la notification avec retries durables (implémentation = ADR ; **pas** Redis/Celery imposés ici).
+9. Passage de la notification à `sent` ou `failed`.
+10. Alerte opérationnelle après échec final de notification, **sans suppression** du lead.
+
+**Aucun email** (ni notification externe équivalente) **avant** le commit PostgreSQL (étape 7).
+
+Réponse succès au client après commit : référence publique + libellé honnête si notification encore `pending` (TBD-012).
 
 États observables notification : `pending`, `sent`, `failed`.
 
 **TBD-009** bloque RECETTE E2E et PROD.
+
+### 9.1.1 Idempotence, Turnstile et replay (Contact et Devis)
+
+Règles communes aux deux contrats API publics :
+
+| Situation | Comportement |
+|---|---|
+| Même idempotency key métier + **même** payload normalisé, opération déjà commitée | Retourner le résultat précédent et la **même** référence ; **aucun** second lead ; **ne pas** revalider le jeton Turnstile déjà consommé pour cette opération |
+| Même idempotency key + payload **différent** | Réponse **409 Conflict** ; **aucune** mutation en base |
+| Opération jamais acceptée (pas de commit antérieur) | Turnstile **obligatoire** (FR-006) |
+| Jeton Turnstile **rejoué** pour une **nouvelle** opération | Rejet ; pas de lead |
+| Jeton Turnstile expiré ou invalide | Rejet ; l’utilisateur doit obtenir un **nouveau** jeton widget |
+
+L’idempotency key métier reste **distincte** de tout paramètre `idempotency_key` éventuellement transmis à Siteverify pour les retries Cloudflare. Durée de conservation et format technique de la clé : **ADR / contrat OpenAPI** ; entropie suffisante exigée.
+
+### 9.2 Contrats des formulaires publics V1 (DEC-005, DEC-006)
+
+**Demande de devis** (`/demande-de-devis`, API dédiée) — champs **obligatoires** : nom et prénom ; email ; téléphone ; service demandé ; ville et code postal de départ ; ville et code postal d’arrivée ; date précise ou période souhaitée ; catégorie du véhicule (§9.4) ; marque et modèle ; état roulant ou non roulant ; prise de connaissance de la politique de confidentialité (**pas** consentement marketing).
+
+**Devis — champs optionnels** : entreprise ; contraintes particulières ; message complémentaire ; préférence de contact.
+
+**Contact** (`/contact`, API dédiée) — champs **obligatoires** : nom et prénom ; email ; sujet ; message ; prise de connaissance de la politique de confidentialité (**pas** consentement marketing).
+
+**Contact — champs optionnels** : téléphone ; entreprise.
+
+Les deux parcours partagent : validation serveur, honeypot, Turnstile serveur, rate limiting, idempotence, persistance avant notification, messages d’erreur non révélateurs (DEC-003, FR-005–006, FR-018, FR-043). Le formulaire Contact **ne demande jamais** les informations logistiques du devis.
+
+### 9.3 Référence publique demande (DEC-007)
+
+Format : `THL-YYYYMMDD-XXXXXXXX` (exemple syntaxique uniquement : `THL-20260912-7K3M9Q2X` — **ne pas** utiliser comme fixture fixe PROD).
+
+- `YYYYMMDD` : date dérivée de `created_at` **UTC** ;
+- `XXXXXXXX` : huit caractères **Crockford Base32 en majuscules**, aléa cryptographiquement sûr côté serveur ;
+- regex normative : `^THL-[0-9]{8}-[0-9A-HJKMNP-TV-Z]{8}$` ;
+- contrainte **UNIQUE** en base ; nouvelle génération en cas de collision (sans lead partiel) ;
+- référence **immuable** après attribution ;
+- identifiant séquentiel interne **jamais** exposé publiquement ;
+- même référence affichée à l’utilisateur, persistée et incluse dans la notification interne ;
+- la référence est un **identifiant d’échange**, **jamais** un secret ; elle **ne doit pas** servir seule à authentifier un utilisateur ni permettre l’accès à des données personnelles ;
+- **aucun** endpoint public de consultation par simple référence en V1.
+
+### 9.4 Catégories véhicule V1 (DEC-008)
+
+1. Citadine / berline
+2. SUV / 4×4
+3. Véhicule premium ou sportif
+4. Utilitaire léger
+5. Véhicule ancien ou de collection
+6. Autre — **précision textuelle obligatoire**
+
+L’état roulant / non roulant reste un **champ distinct** de la catégorie. Les identifiants techniques définitifs sont fixés dans le contrat API OpenAPI, sans modifier ces libellés métier.
 
 ### Règles métier
 
 | ID | Règle | Cas limites | Propriétaire |
 |---|---|---|---|
 | BR-001 | Devis chiffré uniquement par humain | Demande incomplète → qualification | Jores |
-| BR-002 | Référence unique par demande | Collision → régénération | Kyria |
-| BR-003 | Champs obligatoires gelés avant RECETTE | Email seul si validé | Jores |
+| BR-002 | Référence publique unique par demande (`THL-YYYYMMDD-XXXXXXXX`) | Collision → régénération CSPRNG | Kyria |
+| BR-003 | Champs devis/contact conformes DEC-006 / DEC-005 | Extension → CR + DEC | Jores |
 | BR-004 | Honeypot rempli → rejet silencieux | Faux positif a11y → revue | Kyria |
-| BR-005 | Turnstile invalide/expiré/rejoué → pas de demande métier | Panne Cloudflare : **pas de contournement silencieux** ; politique dégradation = ADR uniquement | Kyria |
+| BR-005 | Turnstile obligatoire pour nouvelle opération ; invalide/expiré/rejoué (nouvelle op.) → pas de lead ; replay idempotent commité → pas de revalidation Turnstile (§9.1.1) | Panne Cloudflare : **pas de contournement silencieux** ; dégradation = ADR uniquement | Kyria |
 | BR-006 | Pas témoignage/logo/chiffre sans preuve | Accord écrit | Jores |
 | BR-007 | Services limités aux 4 familles V1 | Extension → CR | Jores |
 | BR-008 | Rétention selon DATA-* et TBD-010 | Exception légale documentée | Jores + Kyria |
@@ -455,7 +521,7 @@ Confiance → parcours devis + légal accessible ; Clarté → 4 services en ≤
 | Desktop | 1440 | Mise en page premium ; contenu max-width maîtrisé |
 | Grand écran | 1920 | Pas d’étirement illimité du contenu |
 
-Mêmes capacités métier V1 à chaque taille. Structure du formulaire (mono/multi-étapes) : **THL-UX-001**, avec conservation des données entre étapes.
+Mêmes capacités métier V1 à chaque taille. Structure du formulaire Devis (mono/multi-étapes) : **[À produire — spécification UX dédiée du formulaire Devis]**, avec conservation des données entre étapes si applicable.
 
 ### 10.4 Accessibilité
 
@@ -492,7 +558,7 @@ Noir profond, blanc, anthracite, `#FF5757`, photo auto premium nocturne, minimal
 | NFR-REL-002 | Fiabilité | Taux échec soumission 5xx endpoints publics lead < **0,5 %** (aligné GRD-002) | Logs agrégés PREPROD/PROD | ≥ 0,5 % |
 | NFR-SEC-001 | Sécurité | Pas secret en client/dépôt/logs | Scan CI | Hit confirmé |
 | NFR-SEC-002 | Sécurité | CSP, HSTS PROD, en-têtes | DAST | CSP absente PROD |
-| NFR-SEC-003 | Sécurité | Rate limit endpoint devis | Tests | Absent PROD |
+| NFR-SEC-003 | Sécurité | Rate limit des **deux** endpoints publics de leads : Contact et Devis | Tests RECETTE sur les deux contrats | Absent PROD sur l’un ou l’autre |
 | NFR-PRIV-001 | Vie privée | DATA-* à jour | Audit | Écart non doc |
 | NFR-A11Y-001 | A11y | 0 violation **critique** non résolue ; 0 violation **sérieuse** non résolue sur parcours critiques ; pas de blocage clavier ; dérogation = Kyria | axe + checklist §10.4 | Gate GRD-003 |
 | NFR-A11Y-002 | A11y | Contrastes §10.4 dont `#FF5757` | Checker | Seuils non atteints |
@@ -514,13 +580,23 @@ Baseline : validation serveur, rate limit, honeypot, Turnstile, moindre privilè
 | DATA-001 | Identité contact | Traiter devis | Précontractuel [À CONFIRMER] | TBD-010 | Commercial |
 | DATA-002 | Email / téléphone | Reprise | Idem | TBD-010 | Commercial |
 | DATA-003 | Besoin, lieux, dates | Qualification | Idem | TBD-010 | Commercial |
-| DATA-004 | Référence demande | Support | Intérêt légitime | TBD-010 | Ops |
+| DATA-004 | Référence publique demande (`THL-YYYYMMDD-XXXXXXXX`, DEC-007) | Support utilisateur | Intérêt légitime | TBD-010 | Ops |
 | DATA-005 | IP tronquée/pseudonymisée, horodatage ; **User-Agent non persisté** sauf justification ADR | Anti-abus | Sécurité | Durée minimale liée TBD-010 | Ops |
 | DATA-006 | Jeton Turnstile (transit) | Anti-bot | Sécurité | Non persisté | Backend |
 | DATA-007 | Logs opérationnels (request id, codes) — **sans contenu formulaire** | Exploitation | Intérêt légitime | 30–90 j, TBD-010 | Kyria |
 | DATA-008 | Consentement traceurs **non essentiels** uniquement | Preuve si activé | Consentement | TBD-010 | Contact vie privée TBD-022 |
 
 Principes : minimisation ; pas PROD en DEV ; sauvegardes chiffrées testées ; droits personnes via **TBD-022** (pas de DPO désigné tant que non officialisé) ; séparation logs opérationnels / analytics produit.
+
+### 12.2 Modèle de données conceptuel (leads V1)
+
+| Entité logique | Distinction | Identifiants |
+|---|---|---|
+| Demande de devis | Formulaire métier `/demande-de-devis`, contrat API devis | Référence publique DEC-007 ; clé interne séquentielle non exposée |
+| Message contact | Formulaire simple `/contact`, contrat API contact | Référence publique DEC-007 ; clé interne séquentielle non exposée ; **sans** champs logistiques devis |
+| Pipeline notification | Partagé possible (CAP-011) | États `pending` / `sent` / `failed` ; indépendant du contrat HTTP public |
+
+Persistance transactionnelle avant notification ; idempotency key métier distincte du jeton Turnstile.
 
 ### 12.3 Traceurs et consentement
 
@@ -599,9 +675,9 @@ Validation serveur ; honeypot ; Turnstile ; rate limit ; en-têtes ; CSP étudi�
 |---|---|---|
 | SEC-001 | Schéma strict API | Rejet 4xx ; tailles max requête/champs documentées |
 | SEC-002 | Honeypot | Pas de lead ; pas de fuite règle |
-| SEC-003 | Turnstile serveur | siteverify OK ; jeton 5 min usage unique ; cf. [validation serveur Turnstile](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/) |
+| SEC-003 | Turnstile serveur | siteverify sur nouvelle opération ; jeton 5 min ; pas de re-siteverify sur replay idempotent commité ; rejoué/expiré/invalide selon §9.1.1 ; cf. [validation serveur Turnstile](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/) |
 | SEC-004 | Rate limit | Seuils TBD-018 ; 429 documenté |
-| SEC-005 | Références CSPRNG | Non prédictibles |
+| SEC-005 | Références CSPRNG | Regex `^THL-[0-9]{8}-[0-9A-HJKMNP-TV-Z]{8}$` ; Crockford majuscules ; identifiant d’échange, **pas** secret/auth ; pas d’endpoint consultation publique par référence V1 ; collision sans lead partiel |
 | SEC-006 | Erreurs génériques client | Pas stack |
 | SEC-007 | Secrets hors dépôt | Scan CI vert |
 | SEC-008 | TLS PROD | HTTPS forcé |
@@ -613,7 +689,7 @@ Validation serveur ; honeypot ; Turnstile ; rate limit ; en-têtes ; CSP étudi�
 | SEC-014 | Email injection | En-têtes sanitizés notification |
 | SEC-015 | Timeouts externes | Turnstile/email bornés |
 | SEC-016 | IP de confiance | Config proxy documentée |
-| SEC-017 | Idempotence | Pas double enregistrement |
+| SEC-017 | Idempotence | Replay même clé+payload → même référence ; clé+payload différent → 409 ; pas double lead ; cf. §9.1.1 |
 | SEC-018 | PostgreSQL | Moindre privilège compte app |
 
 ### 16.4 Menaces
@@ -667,7 +743,7 @@ Signaux actionnables V1 : demandes valides reçues, taux d’erreur formulaire, 
 | ID | Dépendance | Owner | Date |
 |---|---|---|---|
 | DEP-001 | Textes/coordonnées | Jores | PREPROD |
-| DEP-002 | ADR + threat model | Kyria | Avant architecture API |
+| DEP-002 | ADR + threat model (post-gate API THL-PRODUCT-002) | Kyria | Avant RECETTE E2E |
 | DEP-003 | Compte Turnstile | Kyria | RECETTE E2E |
 | DEP-004 | Domaine + TLS | Kyria | PROD |
 | DEP-005 | Licences images | Jores | PROD |
@@ -713,13 +789,13 @@ Lint, types, tests API/e2e, scans deps, smoke envs, migrations synthétiques.
 
 | FR | CAP | Epic | Preuve attendue |
 |---|---|---|---|
-| FR-001 | CAP-001 | EPIC-PAGES-MARKETING | Recette Hero + sections ; snapshot mobile 390 px |
+| FR-001 | CAP-001 | EPIC-PAGES-MARKETING | Recette Hero + sections ; 390×844 et 320×568 : critères viewport FR-001 (CTA primaire sans scroll ; secondaire admis sous fold 320) |
 | FR-002 | CAP-002 | EPIC-PAGES-MARKETING | 4 blocs services visibles ; crawl V1 |
 | FR-003 | CAP-003 | EPIC-QUOTE | e2e soumission devis RECETTE |
 | FR-004 | CAP-003 | EPIC-QUOTE | Test champs + prise de connaissance politique |
 | FR-005 | CAP-003 | EPIC-QUOTE | Test honeypot → 0 enregistrement |
-| FR-006 | CAP-003 | EPIC-QUOTE | Test siteverify ; jeton expiré/rejoué rejeté |
-| FR-007 | CAP-003 | EPIC-QUOTE | Audit format référence (TBD-008) |
+| FR-006 | CAP-003 / CAP-006 | EPIC-QUOTE | siteverify nouvelle op. ; replay idempotent sans re-siteverify ; jeton expiré/rejoué rejeté (Devis + Contact) |
+| FR-007 | CAP-003 | EPIC-QUOTE | Audit format `THL-YYYYMMDD-XXXXXXXX` (DEC-007) |
 | FR-008 | CAP-003 | EPIC-QUOTE | UI référence = DB |
 | FR-009 | CAP-003 | EPIC-QUOTE | axe + clavier erreurs champs |
 | FR-010 | CAP-004 | EPIC-PAGES-MARKETING | Relecture contenu Jores |
@@ -727,14 +803,14 @@ Lint, types, tests API/e2e, scans deps, smoke envs, migrations synthétiques.
 | FR-013 | CAP-007 | EPIC-CONTENT-SHELL | Liens footer PREPROD |
 | FR-014 | CAP-001 | EPIC-CONTENT-SHELL | Test nav clavier |
 | FR-015 | CAP-001 | EPIC-CONTENT-SHELL | Liens footer stables |
-| FR-016 | CAP-008 | EPIC-FOUNDATION / QUOTE | Contrat OpenAPI + test création |
+| FR-016 | CAP-008 | EPIC-FOUNDATION / QUOTE | Contrats OpenAPI devis **et** contact + tests création |
 | FR-017 | CAP-008 | EPIC-QUOTE | Tests payload invalides 4xx |
-| FR-018 | CAP-008 | EPIC-QUOTE | Test rate limit 429 |
+| FR-018 | CAP-008 | EPIC-QUOTE | Test rate limit 429 endpoints publics **Devis et Contact** (NFR-SEC-003) |
 | FR-019 | CAP-009 | EPIC-FOUNDATION | Migration + insert RECETTE |
 | FR-020 | CAP-009 | EPIC-FOUNDATION | Config env isolée |
 | FR-022 | CAP-010 | EPIC-PAGES-MARKETING | Audit `alt` médias |
 | FR-024 | CAP-003 | EPIC-QUOTE | Inspection DOM : pas booking/paiement |
-| FR-025 | CAP-006 | EPIC-PAGES-MARKETING | TBD-004 clos ; parcours contact sans champs devis obligatoires |
+| FR-025 | CAP-006 | **EPIC-PAGES-MARKETING** (UI `/contact`) **+ EPIC-QUOTE** (API contact, persistance, idempotence, anti-abus, notification) | Formulaire sans champs logistiques ; OpenAPI Contact distinct ; honeypot, Turnstile, rate limit, idempotence, persistance, notification durable (DEC-005, §9.1) |
 | FR-026 | CAP-011 | EPIC-QUOTE | e2e notification + états pending/sent/failed |
 | FR-027 | CAP-001 | EPIC-PAGES-MARKETING | Trace validation Jores |
 | FR-028 | CAP-012 | EPIC-SEO-OBS | HTTP 404 custom |
@@ -746,12 +822,12 @@ Lint, types, tests API/e2e, scans deps, smoke envs, migrations synthétiques.
 | FR-035 | CAP-002 | EPIC-PAGES-MARKETING | Crawl : pas services hors périmètre |
 | FR-036 | CAP-001 | EPIC-CONTENT-SHELL | Nav sans `/realisations` si CAP-005 inactive |
 | FR-037 | CAP-001 | EPIC-PAGES-MARKETING | Texte Hero exact |
-| FR-038 | CAP-001 | EPIC-PAGES-MARKETING | 2 CTA Hero |
+| FR-038 | CAP-001 | EPIC-PAGES-MARKETING | 2 CTA Hero présents et accessibles (visibilité viewport : FR-001) |
 | FR-039 | CAP-003 | EPIC-QUOTE | Pas input file |
 | FR-040 | CAP-010 | EPIC-PAGES-MARKETING | Check-list médias + perf |
 | FR-041 | CAP-006 | EPIC-PAGES-MARKETING | Liens sociaux absents si non validés |
 | FR-042 | CAP-001 | EPIC-PAGES-MARKETING | Pas CTA réservation instantanée |
-| FR-043 | CAP-008 | EPIC-QUOTE | Test idempotence double POST |
+| FR-043 | CAP-008 | EPIC-QUOTE | Replay même clé+payload → même référence ; clé+payload différent → 409 ; Devis + Contact |
 | FR-044 | CAP-006 | EPIC-PAGES-MARKETING | Liste sujets contact |
 | FR-045 | CAP-001 | EPIC-PAGES-MARKETING | Absence CTA investissement |
 | FR-046 | CAP-011 | EPIC-QUOTE | Runbook reprise **exceptionnelle** lecture seule (Kyria) ; pas export CSV V1 |
@@ -764,7 +840,7 @@ Lint, types, tests API/e2e, scans deps, smoke envs, migrations synthétiques.
 |---|---|
 | AC-001 | Chaque FR MUST de §20.3 prouvé (pas seulement « tous MUST faits » sans preuve) |
 | AC-002 | Devis succès + erreurs RECETTE |
-| AC-003 | Honeypot + rate limit prouvés |
+| AC-003 | Honeypot + rate limit prouvés (endpoints publics Devis **et** Contact) |
 | AC-004 | Turnstile : validation **serveur** siteverify obligatoire V1 ; ADR = dégradation contrôlée uniquement |
 | AC-005 | Scan secrets CI vert |
 | AC-006 | Pages légales liées |
@@ -798,15 +874,15 @@ MUST validés ; AC-001–015 ; parcours mobile/desktop ; contenus licenciés (TB
 |---|---|---|---|---|---|---|
 | TBD-001 | Coordonnées officielles affichées | Jores | Ouvert | PREPROD | PROD bloquée ; FR-012/041 | — |
 | TBD-002 | Adresse + zone de service | Jores | Ouvert | PREPROD | SEO/local trompeur | — |
-| TBD-003 | Champs obligatoires devis | Jores | Ouvert | **Architecture API** | Contrat API instable | — |
-| TBD-004 | Contact séparé vs demande commune catégorisée | Jores (+ UX) | Ouvert | **Architecture API** | Double modèle API | — |
+| TBD-003 | Champs obligatoires devis | Jores | **Clos** | Architecture API (levée 2026-09-12) | — | DEC-006 |
+| TBD-004 | Contact séparé vs demande commune catégorisée | Jores (+ UX) | **Clos** | Architecture API (levée 2026-09-12) | — | DEC-005 |
 | TBD-005 | Horaires / délais affichés | Jores | Ouvert | PREPROD | Copy imprécis | — |
 | TBD-006 | Analytics non essentiels + consentement | Jores | Ouvert | Avant activation | CMP/pages si activé | **Défaut V1 : aucun** — ne bloque pas PROD |
 | TBD-007 | Hébergeurs PROD | Jores + Kyria | Ouvert | PREPROD | Pas de déploiement | — |
-| TBD-008 | Format référence demande | Kyria | Ouvert | **Architecture API** | FR-007 ambigu | — |
+| TBD-008 | Format référence demande | Kyria | **Clos** | Architecture API (levée 2026-09-12) | — | DEC-007 |
 | TBD-009 | Fournisseur email + destinataires leads | Kyria + Jores | Ouvert | **RECETTE E2E** ; **PROD** | Pas de notification fiable | — |
 | TBD-010 | Durées rétention DATA-* | Jores (+ conseil) | Ouvert | PREPROD ; **PROD** | Non-conformité | — |
-| TBD-011 | Structure page services | Jores (+ UX) | Ouvert | **Avant validation THL-UX-001** | UX services | — |
+| TBD-011 | Structure page services | Jores (+ UX) | Ouvert | **Avant approbation de la spécification UX de /services** | UX services | — |
 | TBD-012 | Message post-soumission utilisateur | Jores | Ouvert | **RECETTE E2E** | UX incohérente | — |
 | TBD-013 | Indexation `/demande-de-devis` | Jores | Ouvert | PROD | SEO | — |
 | TBD-014 | Budget Ko images Hero | Kyria | Ouvert | **Avant implémentation frontend** | NFR-PERF-004 | — |
@@ -818,11 +894,13 @@ MUST validés ; AC-001–015 ; parcours mobile/desktop ; contenus licenciés (TB
 | TBD-020 | Textes légaux finaux | Jores | Ouvert | PREPROD ; **PROD** | Conformité | — |
 | TBD-021 | Domaine canonique | Jores + Kyria | Ouvert | PREPROD ; **PROD** | SEO/TLS | — |
 | TBD-022 | Contact vie privée / exercice droits | Jores | Ouvert | PREPROD ; **PROD** | Droits personnes | — |
-| TBD-023 | Typologie véhicules formulaire | Jores | Ouvert | **Architecture API** | Schéma devis | — |
+| TBD-023 | Typologie véhicules formulaire | Jores | **Clos** | Architecture API (levée 2026-09-12) | — | DEC-008 |
 | TBD-024 | Export CSV demandes (fonctionnel) | Jores + Kyria | Ouvert | **V1.1** (sauf justification métier) | Reprise via notification + FR-046 exceptionnel | — |
 | TBD-025 | Date go-live V1 | Jores + Kyria | Ouvert | PROD | Planning | — |
 | TBD-026 | Budget exploitation mensuel + approbation coûts fournisseurs | Jores + Kyria | Ouvert | **Avant souscription ou provisioning payant** | Surcoût infra/email | Hors prix dev commercial |
 | TBD-027 | Logo / wordmark définitif approuvé pour PROD | Jores | Ouvert | PREPROD ; **PROD** si logo graphique affiché | Marque incohérente | Wordmark texte temporaire possible si non revendiqué comme final |
+
+**Gate architecture API :** TBD-003, TBD-004, TBD-008, TBD-023 **clos** (2026-09-12, DEC-005–008) → **`READY_FOR_API_ARCHITECTURE = YES`**. Cela **n’équivaut pas** à **`READY_FOR_PRODUCTION = YES`**.
 
 **Gates PROD (résolus ou N/A documenté) :** coordonnées (TBD-001), identité/mentions (TBD-020), domaine (TBD-021), hébergement (TBD-007), destinataires leads (TBD-009), rétention (TBD-010), canal droits (TBD-022), **droits de chaque média publié** (TBD-016), **logo/wordmark si affiché** (TBD-027), sauvegarde/restauration (§15.3 + ADR), contenus signés Jores (AC-011).
 
@@ -836,8 +914,12 @@ MUST validés ; AC-001–015 ; parcours mobile/desktop ; contenus licenciés (TB
 | DEC-002 | 2026-09-12 | Next.js + FastAPI + PostgreSQL | Kyria |
 | DEC-003 | 2026-09-12 | V1 : Turnstile formulaires publics + honeypot + rate limit ; **validation serveur obligatoire** ; jeton 5 min usage unique ; idempotency key métier distincte ; ADR = dégradation contrôlée seulement | Kyria |
 | DEC-004 | 2026-09-12 | Pas preuve sociale inventée | Jores |
+| DEC-005 | 2026-09-12 | `/contact` formulaire simple et `/demande-de-devis` formulaire métier structuré ; **contrats API publics distincts** ; pipeline interne de traitement des leads partageable ; Contact sans champs logistiques devis | Jores (métier) ; Kyria (architecture interne) |
+| DEC-006 | 2026-09-12 | Champs obligatoires et optionnels devis et contact (§9.2) ; prise de connaissance politique confidentialité **sans** consentement marketing | Jores |
+| DEC-007 | 2026-09-12 | Référence publique `THL-YYYYMMDD-XXXXXXXX` (Crockford Base32 **majuscules**, UTC, UNIQUE, immuable, regex §9.3) ; identifiant d’échange, pas secret ni auth ; pas de consultation publique par référence V1 | Kyria |
+| DEC-008 | 2026-09-12 | Typologie véhicules V1 §9.4 ; « Autre » avec précision obligatoire ; roulant/non roulant distinct | Jores |
 
-*Décisions ouvertes : TBD-007 (hébergement), TBD-004 (modèle contact). À l’acceptation, ajouter une nouvelle entrée DEC datée — ne pas laisser de DEC « à confirmer ».*
+*Décisions ouvertes liées au déploiement : TBD-007 (hébergement), TBD-009 (email), etc. §23. À l’acceptation, ajouter une nouvelle entrée DEC datée — ne pas laisser de DEC « à confirmer ».*
 
 ---
 
@@ -853,7 +935,13 @@ Procédure : enregistrer → impact → verdict → versionner PRD → specs/sto
 
 ## 26. Handoff
 
-PRD approuvé → UX (`DESIGN.md`, `EXPERIENCE.md`) → `ARCHITECTURE-SPINE.md` + ADR → SPEC/epics → stories → gates BMAD (METHODE-BMAD §29).
+**État actuel :** PRD en `DRAFT_FOR_HUMAN_APPROVAL` — **aucune** approbation globale Jores/Kyria du document entier n’est acquise pour la livraison V1.
+
+**Autorisé sans approbation globale :** la validation ciblée DEC-005–008 (THL-PRODUCT-002) lève la gate **architecture API** → `READY_FOR_API_ARCHITECTURE = YES` pour entamer `ARCHITECTURE-SPINE.md`, contrats OpenAPI et ADR techniques (workflow §9.1, idempotence §9.1.1).
+
+**Toujours obligatoire avant livraison PROD :** approbation globale enregistrée §1 ; gates PROD §23 (coordonnées, légal, hébergement, email, rétention, médias, etc.) ; `READY_FOR_PRODUCTION = NO` tant que non levé.
+
+Enchaînement cible une fois gates satisfaits : UX produit (`docs/ux/*`, specs formulaire Devis à produire) → spine + ADR → SPEC/epics → stories → gates BMAD (METHODE-BMAD §29).
 
 ---
 
@@ -880,7 +968,7 @@ PRD approuvé → UX (`DESIGN.md`, `EXPERIENCE.md`) → `ARCHITECTURE-SPINE.md` 
 
 ---
 
-## Annexe A — Synthèse passes BMAD (THL-PRODUCT-001 / 001A / 001B)
+## Annexe A — Synthèse passes BMAD (THL-PRODUCT-001 / 001A / 001B / **002** / **002A**)
 
 Passes exécutées sur **un seul** PRD (`docs/product/THL-PRD.md`), sans documents séparés.
 
@@ -888,12 +976,14 @@ Passes exécutées sur **un seul** PRD (`docs/product/THL-PRD.md`), sans documen
 |---|---|---|---|
 | **Analyste métier** | Périmètre services, exclusions, parcours JRN-* | PARTIAL | OK exclusions ; TBD coordonnées et zones |
 | **Product Manager** | CAP/FR/BR, roadmap V1/V1.1/V2+ | PARTIAL | Portfolio conditionnel ; notification MUST |
-| **UX/UI** | §10, IA routes, DA #FF5757, matrice responsive | PARTIAL | Figma/Bolt = inspiration ; formulaire THL-UX-001 |
-| **Architecte** | Stack, monolithe, sauvegardes Git vs archive médias | PARTIAL | TBD-004/008/023 avant archi ; TBD-007 PREPROD |
+| **UX/UI** | §10, IA routes, DA #FF5757, matrice responsive | PARTIAL | THL-UX-001 = Home ; spec formulaire Devis **[À produire]** ; Hero mobile aligné FR-001 |
+| **Architecte** | Stack, monolithe, sauvegardes Git vs archive médias | **READY_FOR_API_ARCHITECTURE** | TBD-003/004/008/023 clos (DEC-005–008) ; TBD-007 PREPROD ; **pas** READY_FOR_PRODUCTION |
 | **Sécurité** | SEC-001–018, Turnstile serveur V1, BR-009 | PARTIAL | Threat model avant PROD ; TBD-018 RECETTE |
 | **QA** | Matrice FR MUST §20.3, AC lab/terrain CWV | PARTIAL | WCAG cible AA ; pas certification sans audit |
-| **Relecture Tech Lead** | Cohérence 29 sections (0–28), tableaux, DEC acceptées seules | EN ATTENTE | v0.1.2 post-001B — DRAFT_FOR_HUMAN_APPROVAL |
+| **Relecture Tech Lead** | Cohérence 29 sections (0–28), tableaux, DEC acceptées seules | EN ATTENTE | v0.1.4 post-002A — DRAFT_FOR_HUMAN_APPROVAL |
 
-**Synthèse identifiants :** FR 46 ; BR 12 ; NFR 18 ; SEC 18 ; DATA 8 ; SEO 8 ; AC 15 ; RISK 10 ; DEC 4 acceptées ; TBD 27 (owner + gate §23).
+**Synthèse identifiants :** FR 46 ; BR 12 ; NFR **19** ; SEC 18 ; DATA 8 ; SEO 8 ; AC 15 ; RISK 10 ; DEC **8** acceptées ; TBD 27 (**4 clos**, owner + gate §23).
 
-**Bloquant PROD :** voir §23 (TBD-006 **exclu** si décision « aucun analytics non essentiel V1 »).
+**Gate architecture API :** `READY_FOR_API_ARCHITECTURE = YES` (THL-PRODUCT-002, cohérence transactionnelle 002A).
+
+**Bloquant PROD :** voir §23 (TBD-006 **exclu** si décision « aucun analytics non essentiel V1 ») ; **`READY_FOR_PRODUCTION = NO`**.
