@@ -19,7 +19,7 @@ def client_ip_for_rate_limit(
                     return candidate
     if direct_host and _is_valid_ip(direct_host):
         return direct_host
-    return "0.0.0.0"
+    return "127.0.0.1"
 
 
 def _is_valid_ip(value: str) -> bool:
