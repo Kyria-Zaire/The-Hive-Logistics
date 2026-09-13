@@ -38,6 +38,9 @@ __pycache__/
 .ruff_cache/
 .venv/
 
+# Architecture review archives (local only)
+/THL-*-review.zip
+
 # Local runtime data
 *.log
 .DS_Store

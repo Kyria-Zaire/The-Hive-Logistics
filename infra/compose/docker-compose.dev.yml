@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:18.6-alpine3.24
+    container_name: thl-postgres-dev
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-thl_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-thl_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-thl_dev}
+    volumes:
+      - thl_postgres_dev_data:/var/lib/postgresql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  thl_postgres_dev_data:
