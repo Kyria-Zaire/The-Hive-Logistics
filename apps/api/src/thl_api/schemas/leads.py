@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import re
 from datetime import date, datetime
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import AwareDatetime, Field, StrictBool, field_validator, model_validator
+from pydantic import AwareDatetime, Field, RootModel, StrictBool, field_validator, model_validator
 from pydantic.functional_validators import BeforeValidator
 from pydantic.json_schema import SkipJsonSchema
 
@@ -32,7 +32,13 @@ TurnstileToken = Annotated[
 ]
 HoneypotField = Annotated[
     str,
-    Field(max_length=200, json_schema_extra={"writeOnly": True}),
+    Field(
+        max_length=200,
+        json_schema_extra={"writeOnly": True},
+        description=(
+            "Doit être vide ; toute valeur non vide → 403 REQUEST_DENIED sans Turnstile"
+        ),
+    ),
 ]
 PersonName = Annotated[str, Field(min_length=1, max_length=80)]
 CityName = Annotated[str, Field(min_length=1, max_length=120)]
@@ -44,8 +50,6 @@ AdditionalMessage = Annotated[str, Field(max_length=4000)]
 ContactMessageBody = Annotated[str, Field(min_length=10, max_length=8000)]
 VehicleOtherDetail = Annotated[str, Field(min_length=2, max_length=200)]
 PeriodText = Annotated[str, Field(min_length=3, max_length=500)]
-
-PublicReference = Annotated[str, Field(pattern=PUBLIC_REFERENCE_PATTERN.pattern)]
 
 _RFC3339_FULL_DATE = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
 
@@ -78,10 +82,47 @@ class PreferredTimingPeriod(THLSchemaBase):
     period_text: PeriodText
 
 
-PreferredTiming = Annotated[
+PreferredTimingUnion = Annotated[
     PreferredTimingExactDate | PreferredTimingPeriod,
     Field(discriminator="kind"),
 ]
+
+
+class PreferredTiming(THLSchemaBase):
+    """OpenAPI `PreferredTiming` component (oneOf)."""
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, core_schema: object, handler: object) -> dict[str, Any]:
+        _ = (core_schema, handler)
+        return {
+            "oneOf": [
+                {"$ref": "#/components/schemas/PreferredTimingExactDate"},
+                {"$ref": "#/components/schemas/PreferredTimingPeriod"},
+            ]
+        }
+
+
+class PublicReference(
+    RootModel[
+        Annotated[
+            str,
+            Field(
+                pattern=PUBLIC_REFERENCE_PATTERN.pattern,
+                description="Identifiant d'échange DEC-007 (pas secret, pas auth)",
+                json_schema_extra={"examples": ["THL-20260912-7K3M9Q2X"]},
+            ),
+        ]
+    ]
+):
+    root: Annotated[
+        str,
+        Field(
+            pattern=PUBLIC_REFERENCE_PATTERN.pattern,
+            description="Identifiant d'échange DEC-007 (pas secret, pas auth)",
+            json_schema_extra={"examples": ["THL-20260912-7K3M9Q2X"]},
+        ),
+    ]
+
 
 _QUOTE_OPTIONAL_FIELDS = (
     "company",
@@ -92,7 +133,7 @@ _QUOTE_OPTIONAL_FIELDS = (
 )
 
 
-class QuoteRequestCreate(
+class QuoteRequestCreateBase(
     RedactedRequestRepresentationMixin,
     PrivacyAcknowledgementMixin,
     EmailValidatedMixin,
@@ -110,15 +151,9 @@ class QuoteRequestCreate(
     departure_postal_code: PostalCode
     arrival_city: CityName
     arrival_postal_code: PostalCode
-    preferred_timing: PreferredTiming
+    preferred_timing: PreferredTimingUnion
     vehicle_category: VehicleCategory
-    vehicle_category_other_detail: Annotated[
-        VehicleOtherDetail | SkipJsonSchema[None],
-        Field(
-            default=None,
-            description="Required when vehicle_category is other; must be omitted otherwise.",
-        ),
-    ] = None
+    vehicle_category_other_detail: VehicleOtherDetail | SkipJsonSchema[None] = None
     vehicle_make: VehicleMakeModel
     vehicle_model: VehicleMakeModel
     vehicle_rolling: StrictBool
@@ -127,6 +162,8 @@ class QuoteRequestCreate(
     additional_message: AdditionalMessage | SkipJsonSchema[None] = None
     contact_preference: ContactPreference | SkipJsonSchema[None] = None
 
+
+class QuoteRequestCreate(QuoteRequestCreateBase):
     @model_validator(mode="before")
     @classmethod
     def _optional_nulls_and_vehicle_detail(cls, data: object) -> object:
@@ -144,6 +181,26 @@ class QuoteRequestCreate(
             msg = "vehicle_category_other_detail must be absent unless vehicle_category is other"
             raise ValueError(msg)
         return data
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, core_schema: object, handler: object) -> dict[str, Any]:
+        _ = (core_schema, handler)
+        return {
+            "allOf": [
+                {"$ref": "#/components/schemas/QuoteRequestCreateBase"},
+                {
+                    "if": {
+                        "properties": {"vehicle_category": {"const": "other"}},
+                        "required": ["vehicle_category"],
+                    },
+                    "then": {"required": ["vehicle_category_other_detail"]},
+                    "else": {
+                        "not": {"required": ["vehicle_category_other_detail"]},
+                        "properties": {"vehicle_category_other_detail": False},
+                    },
+                },
+            ]
+        }
 
 
 class ContactMessageCreate(

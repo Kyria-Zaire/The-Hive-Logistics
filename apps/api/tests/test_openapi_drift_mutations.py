@@ -32,7 +32,10 @@ def test_mutation_idempotency_requiredness_breaks_gate() -> None:
         expected = yaml.safe_load(handle)
 
     def _break(doc: dict) -> None:
-        doc["components"]["parameters"]["IdempotencyKey"]["required"] = False
+        parameters = doc["paths"]["/api/v1/quote-requests"]["post"]["parameters"]
+        for param in parameters:
+            if param.get("name") == "Idempotency-Key":
+                param["required"] = False
 
     actual = _mutate_runtime_actual(_break)
     assert openapi_diff(expected, actual)
@@ -79,6 +82,30 @@ def test_mutation_request_body_schema_breaks_gate() -> None:
 
     def _break(doc: dict) -> None:
         doc["paths"]["/api/v1/contact-messages"]["post"]["requestBody"]["required"] = False
+
+    actual = _mutate_runtime_actual(_break)
+    assert openapi_diff(expected, actual)
+
+
+def test_mutation_problem_details_breaks_gate() -> None:
+    with OPENAPI_PATH.open(encoding="utf-8") as handle:
+        expected = yaml.safe_load(handle)
+
+    def _break(doc: dict) -> None:
+        schema = doc["components"]["schemas"]["ProblemDetails"]
+        schema["required"] = ["type", "title"]
+
+    actual = _mutate_runtime_actual(_break)
+    assert openapi_diff(expected, actual)
+
+
+def test_mutation_vehicle_other_conditional_breaks_gate() -> None:
+    with OPENAPI_PATH.open(encoding="utf-8") as handle:
+        expected = yaml.safe_load(handle)
+
+    def _break(doc: dict) -> None:
+        quote = doc["components"]["schemas"]["QuoteRequestCreate"]
+        quote["allOf"][1]["then"]["required"] = []
 
     actual = _mutate_runtime_actual(_break)
     assert openapi_diff(expected, actual)

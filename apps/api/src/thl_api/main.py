@@ -30,10 +30,14 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="THE HIVE LOGISTICS — API publique V1",
         version="1.0.1",
+        openapi_version="3.1.0",
         description=(
-            "Contrat public V1 (leads Contact et Devis). "
-            "PRD v0.1.4 — THL-ARCH-001 / 001A."
+            "Contrat public V1 (leads Contact et Devis). Source de vérité des interfaces HTTP.\n"
+            "PRD v0.1.4 — THL-ARCH-001 / 001A. Same-origin PROD (`servers.url: /`). "
+            "Exemples fictifs.\n"
         ),
+        contact={"name": "Kyria (Tech Lead)"},
+        servers=[{"url": "/"}],
         lifespan=lifespan,
         docs_url=None,
         redoc_url=None,

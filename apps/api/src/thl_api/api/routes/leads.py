@@ -1,16 +1,14 @@
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
+from typing import Any
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from thl_api.api.deps import get_lead_submission_service
-from thl_api.openapi.load_contract import (
-    lead_post_parameters,
-    lead_post_responses,
-    load_openapi_contract,
-)
+from thl_api.openapi.parameters import LEAD_POST_PARAMETERS
+from thl_api.openapi.problem_responses import lead_post_responses
 from thl_api.problems import (
     DEPENDENCY_UNAVAILABLE,
     IDEMPOTENCY_CONFLICT,
@@ -36,9 +34,47 @@ from thl_api.turnstile.httpx_client import TurnstileUnavailableError
 router = APIRouter()
 
 _IDEMPOTENCY_HEADER = "Idempotency-Key"
-_QUOTE_DESCRIPTION = load_openapi_contract()["paths"]["/api/v1/quote-requests"]["post"].get(
-    "description"
+
+_QUOTE_DESCRIPTION = (
+    "Pipeline ADR-004. Turnstile uniquement après validation Pydantic et verrou idempotence "
+    "(nouvelle opération).\n"
+    "Réponse 201/200 uniquement après commit PostgreSQL.\n"
 )
+
+_QUOTE_REQUEST_EXAMPLE: dict[str, Any] = {
+    "turnstile_token": "0.FAKE_TURNSTILE_TOKEN_EXAMPLE_ONLY",
+    "honeypot": "",
+    "privacy_acknowledgement": True,
+    "first_name": "Alex",
+    "last_name": "Martin",
+    "email": "alex.martin@example.invalid",
+    "phone": "+33 6 01 02 03 04",
+    "service": "convoyage_premium",
+    "departure_city": "Lyon",
+    "departure_postal_code": "69002",
+    "arrival_city": "Paris",
+    "arrival_postal_code": "75008",
+    "preferred_timing": {
+        "kind": "period",
+        "period_text": "Semaine du 15 au 22 octobre 2026",
+    },
+    "vehicle_category": "premium_sport",
+    "vehicle_make": "Porsche",
+    "vehicle_model": "911",
+    "vehicle_rolling": True,
+}
+
+_CONTACT_REQUEST_EXAMPLE: dict[str, Any] = {
+    "turnstile_token": "0.FAKE_TURNSTILE_TOKEN_EXAMPLE_ONLY",
+    "honeypot": "",
+    "privacy_acknowledgement": True,
+    "first_name": "Sam",
+    "last_name": "Dupont",
+    "email": "sam.dupont@example.invalid",
+    "subject": "information",
+    "message": "Bonjour, j'aimerais en savoir plus sur vos services.",
+    "phone": "+33 6 05 06 07 08",
+}
 
 
 def _invalid_idempotency_response(request: Request) -> JSONResponse:
@@ -67,8 +103,23 @@ def _client_host(request: Request) -> str | None:
     summary="Créer une demande de devis",
     description=_QUOTE_DESCRIPTION,
     response_model=LeadSubmissionAccepted,
-    responses=lead_post_responses(),
-    openapi_extra={"parameters": lead_post_parameters()},
+    responses=lead_post_responses(created_description="Demande créée"),
+    openapi_extra={
+        "parameters": LEAD_POST_PARAMETERS,
+        "requestBody": {
+            "required": True,
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "fictifComplet": {
+                            "summary": "Exemple fictif",
+                            "value": _QUOTE_REQUEST_EXAMPLE,
+                        },
+                    },
+                },
+            },
+        },
+    },
 )
 async def create_quote_request(
     request: Request,
@@ -100,8 +151,20 @@ async def create_quote_request(
     operation_id="createContactMessage",
     summary="Créer un message contact",
     response_model=LeadSubmissionAccepted,
-    responses=lead_post_responses(),
-    openapi_extra={"parameters": lead_post_parameters()},
+    responses=lead_post_responses(created_description="Message enregistré"),
+    openapi_extra={
+        "parameters": LEAD_POST_PARAMETERS,
+        "requestBody": {
+            "required": True,
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "fictif": {"value": _CONTACT_REQUEST_EXAMPLE},
+                    },
+                },
+            },
+        },
+    },
 )
 async def create_contact_message(
     request: Request,

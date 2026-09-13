@@ -11,6 +11,7 @@ from thl_api.schemas.leads import (
     PreferredTimingPeriod,
     PublicReference,
     QuoteRequestCreate,
+    QuoteRequestCreateBase,
 )
 
 __all__ = [
@@ -23,5 +24,6 @@ __all__ = [
     "PreferredTimingPeriod",
     "PublicReference",
     "QuoteRequestCreate",
+    "QuoteRequestCreateBase",
     "validate_idempotency_key",
 ]

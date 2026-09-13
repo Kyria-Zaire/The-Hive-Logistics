@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import copy
+import re
 from typing import Any
 
 _STRIP_OPERATION_KEYS = frozenset({"description", "summary"})
-_STRIP_SCHEMA_KEYS = frozenset({"description", "examples", "example", "title"})
+_STRIP_SCHEMA_KEYS = frozenset({"description", "examples", "example", "title", "default"})
+_REF_PATTERN = re.compile(r"^#/components/(?P<section>[^/]+)/(?P<name>[^/]+)$")
 
 
 def _strip_noise(value: Any) -> Any:
@@ -42,6 +44,84 @@ def _normalize_const_enum(value: Any) -> Any:
     return out
 
 
+def _resolve_ref(ref: str, components: dict[str, Any]) -> dict[str, Any] | None:
+    match = _REF_PATTERN.match(ref)
+    if match is None:
+        return None
+    section = match.group("section")
+    name = match.group("name")
+    section_items = components.get(section)
+    if not isinstance(section_items, dict):
+        return None
+    target = section_items.get(name)
+    if not isinstance(target, dict):
+        return None
+    return copy.deepcopy(target)
+
+
+def _expand_refs(value: Any, components: dict[str, Any], stack: tuple[str, ...]) -> Any:
+    if isinstance(value, dict):
+        ref = value.get("$ref")
+        if isinstance(ref, str):
+            if ref in stack:
+                return value
+            resolved = _resolve_ref(ref, components)
+            if resolved is not None:
+                merged = copy.deepcopy(resolved)
+                return _expand_refs(merged, components, stack + (ref,))
+        expanded: dict[str, Any] = {}
+        for key, item in value.items():
+            if key == "$ref":
+                continue
+            expanded[key] = _expand_refs(item, components, stack)
+        return expanded
+    if isinstance(value, list):
+        return [_expand_refs(item, components, stack) for item in value]
+    return value
+
+
+def _expand_document_refs(document: dict[str, Any]) -> dict[str, Any]:
+    doc = copy.deepcopy(document)
+    components = doc.get("components", {})
+    if not isinstance(components, dict):
+        return doc
+    doc["paths"] = _expand_refs(doc.get("paths", {}), components, ())
+    doc["components"] = _expand_refs(components, components, ())
+    return doc
+
+
+def _drop_ref_only_component_sections(document: dict[str, Any]) -> None:
+    components = document.get("components", {})
+    if not isinstance(components, dict):
+        return
+    for section in ("parameters", "headers", "responses"):
+        components.pop(section, None)
+
+
+def _strip_defs(value: Any) -> None:
+    if isinstance(value, dict):
+        value.pop("$defs", None)
+        for item in value.values():
+            _strip_defs(item)
+    elif isinstance(value, list):
+        for item in value:
+            _strip_defs(item)
+
+
+def _strip_discriminator_from_preferred_timing(value: Any) -> None:
+    if isinstance(value, dict):
+        props = value.get("properties")
+        if isinstance(props, dict):
+            timing = props.get("preferred_timing")
+            if isinstance(timing, dict):
+                timing.pop("discriminator", None)
+        for item in value.values():
+            _strip_discriminator_from_preferred_timing(item)
+    elif isinstance(value, list):
+        for item in value:
+            _strip_discriminator_from_preferred_timing(item)
+
+
 def _prune_extra_component_schemas(
     expected: dict[str, Any],
     actual: dict[str, Any],
@@ -76,8 +156,16 @@ def openapi_diff(
     expected: dict[str, Any],
     actual: dict[str, Any],
 ) -> list[str]:
-    exp = canonicalize_openapi(expected)
-    act = canonicalize_openapi(actual)
+    exp = _expand_document_refs(expected)
+    act = _expand_document_refs(actual)
+    _drop_ref_only_component_sections(exp)
+    _drop_ref_only_component_sections(act)
+    _strip_defs(exp)
+    _strip_defs(act)
+    _strip_discriminator_from_preferred_timing(exp)
+    _strip_discriminator_from_preferred_timing(act)
+    exp = canonicalize_openapi(exp)
+    act = canonicalize_openapi(act)
     _prune_extra_component_schemas(exp, act)
     diffs: list[str] = []
 

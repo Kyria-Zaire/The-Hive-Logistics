@@ -12,6 +12,7 @@ from thl_api.schemas import (
     PreferredTimingExactDate,
     PreferredTimingPeriod,
     QuoteRequestCreate,
+    QuoteRequestCreateBase,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -63,7 +64,7 @@ def _assert_no_null_type(prop: dict[str, Any], field: str) -> None:
 def test_quote_pydantic_schema_core_alignment() -> None:
     doc = _load_openapi()
     oas_base = _schema(doc, "QuoteRequestCreateBase")
-    pyd = QuoteRequestCreate.model_json_schema(mode="validation")
+    pyd = QuoteRequestCreateBase.model_json_schema(mode="validation")
     props = pyd["properties"]
 
     assert pyd.get("additionalProperties") is False
