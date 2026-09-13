@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { homeContent } from "@/lib/content/home";
 import { MainNavLinks } from "@/components/navigation/main-nav-links";
@@ -18,17 +18,36 @@ export function MobileDrawer({ open, onClose, menuButtonRef }: MobileDrawerProps
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
+  const restoreMenuFocusRef = useRef(false);
+  const previousBodyOverflowRef = useRef<string | null>(null);
+
+  const requestClose = useCallback(() => {
+    restoreMenuFocusRef.current = true;
+    onClose();
+  }, [onClose]);
+
+  useLayoutEffect(() => {
+    if (open) {
+      return;
+    }
+    if (!restoreMenuFocusRef.current) {
+      return;
+    }
+    restoreMenuFocusRef.current = false;
+    menuButtonRef.current?.focus();
+  }, [open, menuButtonRef]);
 
   useEffect(() => {
     if (!open) {
       return;
     }
-    const previousOverflow = document.body.style.overflow;
+    previousBodyOverflowRef.current = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     closeRef.current?.focus();
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previousBodyOverflowRef.current ?? "";
+      previousBodyOverflowRef.current = null;
     };
   }, [open]);
 
@@ -39,7 +58,7 @@ export function MobileDrawer({ open, onClose, menuButtonRef }: MobileDrawerProps
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        requestClose();
         return;
       }
       if (event.key !== "Tab" || !panelRef.current) {
@@ -63,12 +82,7 @@ export function MobileDrawer({ open, onClose, menuButtonRef }: MobileDrawerProps
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
-
-  const handleClose = useCallback(() => {
-    onClose();
-    menuButtonRef.current?.focus();
-  }, [onClose, menuButtonRef]);
+  }, [open, requestClose]);
 
   if (!open) {
     return null;
@@ -80,7 +94,7 @@ export function MobileDrawer({ open, onClose, menuButtonRef }: MobileDrawerProps
         type="button"
         className="absolute inset-0 bg-black/60 thl-focus-dark"
         aria-label={homeContent.nav.menuClose}
-        onClick={handleClose}
+        onClick={requestClose}
       />
       <div
         ref={panelRef}
@@ -98,13 +112,13 @@ export function MobileDrawer({ open, onClose, menuButtonRef }: MobileDrawerProps
             type="button"
             className="inline-flex size-11 items-center justify-center thl-focus-dark"
             aria-label={homeContent.nav.menuClose}
-            onClick={handleClose}
+            onClick={requestClose}
           >
             <X size={22} aria-hidden="true" />
           </button>
         </div>
         <nav aria-label={homeContent.nav.primary}>
-          <MainNavLinks id="mobile-primary-nav" onNavigate={handleClose} />
+          <MainNavLinks id="mobile-primary-nav" onNavigate={requestClose} />
         </nav>
       </div>
     </div>
