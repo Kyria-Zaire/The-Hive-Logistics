@@ -15,36 +15,6 @@ from thl_api.services.lead_submission import (
 from thl_api.turnstile.httpx_client import TurnstileUnavailableError
 
 
-class _StubService:
-    def __init__(self) -> None:
-        self.outcome: Exception | SubmissionSuccess | None = None
-
-    async def submit_quote(self, body, *, idempotency_key, client_host, forwarded_for):
-        _ = (body, idempotency_key, client_host, forwarded_for)
-        if isinstance(self.outcome, Exception):
-            raise self.outcome
-        assert self.outcome is not None
-        return self.outcome
-
-    async def submit_contact(self, body, *, idempotency_key, client_host, forwarded_for):
-        return await self.submit_quote(
-            body,
-            idempotency_key=idempotency_key,
-            client_host=client_host,
-            forwarded_for=forwarded_for,
-        )
-
-
-@pytest.fixture
-def stub_service(monkeypatch: pytest.MonkeyPatch) -> _StubService:
-    stub = _StubService()
-    monkeypatch.setattr(
-        "thl_api.api.routes.leads.get_lead_submission_service",
-        lambda: stub,
-    )
-    return stub
-
-
 def _headers(key: str = VALID_IDEMPOTENCY_KEY) -> dict[str, str]:
     return {"Idempotency-Key": key, "X-Correlation-Id": "corr-http-test"}
 

@@ -24,13 +24,15 @@ from thl_api.repositories.advisory_lock import (
 from thl_api.repositories.idempotency import expires_at_from_ttl, find_idempotency_record, utc_now
 from thl_api.repositories.leads import insert_lead_with_reference_retry
 from thl_api.repositories.rate_limit import increment_and_check, subject_digest_hex, window_bounds
-from thl_api.schemas.leads import ContactMessageCreate, QuoteRequestCreate
+from thl_api.schemas.leads import ContactMessageCreate, LeadSubmissionAccepted, QuoteRequestCreate
 from thl_api.turnstile.httpx_client import TurnstileUnavailableError
 from thl_api.turnstile.protocol import TurnstileAction, TurnstileVerifier
 
 _TurnstileBody = QuoteRequestCreate | ContactMessageCreate
 
 logger = logging.getLogger(__name__)
+
+PRODUCTION_LOCK_DEADLINE_SECONDS = 5.0
 
 
 class HoneypotTriggeredError(Exception):
@@ -67,6 +69,7 @@ class LeadSubmissionService:
     settings: Settings
     turnstile: TurnstileVerifier
     engine: AsyncEngine | None = None
+    lock_deadline_seconds: float = PRODUCTION_LOCK_DEADLINE_SECONDS
 
     def _engine(self) -> AsyncEngine:
         return self.engine if self.engine is not None else get_engine()
@@ -127,7 +130,7 @@ class LeadSubmissionService:
         client_ip = client_ip_for_rate_limit(
             direct_host=client_host,
             forwarded_for=forwarded_for,
-            trusted_proxy_enabled=self.settings.trusted_proxy_enabled,
+            trusted_networks=self.settings.trusted_proxy_networks(),
         )
         await self._enforce_rate_limit(rate_scope, client_ip)
 
@@ -144,7 +147,11 @@ class LeadSubmissionService:
         invalidate_connection = False
         try:
             try:
-                await try_acquire_session_lock(connection, lock_id)
+                await try_acquire_session_lock(
+                    connection,
+                    lock_id,
+                    deadline_seconds=self.lock_deadline_seconds,
+                )
             except AdvisoryLockBusyError as exc:
                 raise IdempotencyBusyError(str(exc)) from exc
             lock_held = True
@@ -165,11 +172,17 @@ class LeadSubmissionService:
                 )
                 if recomputed != record.payload_fingerprint:
                     raise IdempotencyConflictError
+                accepted = LeadSubmissionAccepted.model_validate(record.response_body)
                 return SubmissionSuccess(
-                    body=dict(record.response_body),
+                    body=accepted.model_dump(mode="json"),
                     status_code=200,
                     replayed=True,
                 )
+
+            await connection.rollback()
+            if connection.in_transaction():
+                msg = "Expected no open transaction before Turnstile verification"
+                raise RuntimeError(msg)
 
             try:
                 token: str = body.turnstile_token
@@ -179,7 +192,6 @@ class LeadSubmissionService:
             if not valid:
                 raise TurnstileRejectedError
 
-            await connection.rollback()
             async with connection.begin():
                 accepted_at = (
                     await connection.execute(text("SELECT transaction_timestamp()"))
@@ -187,13 +199,11 @@ class LeadSubmissionService:
                 if not isinstance(accepted_at, datetime):
                     msg = "transaction_timestamp() returned unexpected type"
                     raise TypeError(msg)
-                if accepted_at.tzinfo is None:
-                    accepted_at = accepted_at.replace(tzinfo=UTC)
+                if accepted_at.tzinfo is None or accepted_at.utcoffset() is None:
+                    msg = "transaction_timestamp() must be timezone-aware"
+                    raise ValueError(msg)
 
-                created_at_iso = accepted_at.astimezone(UTC).isoformat().replace(
-                    "+00:00",
-                    "Z",
-                )
+                created_at_iso = accepted_at.astimezone(UTC).isoformat().replace("+00:00", "Z")
                 response_template: dict[str, object] = {
                     "status": "received",
                     "created_at": created_at_iso,
@@ -232,8 +242,9 @@ class LeadSubmissionService:
                     "status": "received",
                     "created_at": created_at_iso,
                 }
+                accepted = LeadSubmissionAccepted.model_validate(final_body)
                 return SubmissionSuccess(
-                    body=dict(final_body),
+                    body=accepted.model_dump(mode="json"),
                     status_code=201,
                     replayed=False,
                 )

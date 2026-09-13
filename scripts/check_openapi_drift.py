@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import yaml
+from openapi_spec_validator import validate as validate_openapi_spec
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "apps" / "api" / "src"))
@@ -18,6 +19,7 @@ os.environ.setdefault(
 
 from thl_api.main import create_app  # noqa: E402
 from thl_api.openapi.drift import openapi_diff  # noqa: E402
+from thl_api.openapi.raw import generate_raw_openapi  # noqa: E402
 
 OPENAPI_PATH = ROOT / "contracts" / "openapi" / "openapi.yaml"
 
@@ -25,7 +27,10 @@ OPENAPI_PATH = ROOT / "contracts" / "openapi" / "openapi.yaml"
 def main() -> int:
     with OPENAPI_PATH.open(encoding="utf-8") as handle:
         expected = yaml.safe_load(handle)
-    actual = create_app().openapi()
+    app = create_app()
+    actual = generate_raw_openapi(app)
+    validate_openapi_spec(actual)
+    validate_openapi_spec(expected)
     diffs = openapi_diff(expected, actual)
     if diffs:
         print("OpenAPI drift detected:", file=sys.stderr)

@@ -19,7 +19,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 settings = Settings()  # type: ignore[call-arg]
-configure_alembic_database_url(config, settings.database_url)
+configure_alembic_database_url(config, settings.database_url_str)
 
 
 def run_migrations_offline() -> None:

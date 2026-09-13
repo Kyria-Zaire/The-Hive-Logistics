@@ -27,6 +27,7 @@ dev = [
     "pyyaml>=6.0.3",
     "types-PyYAML>=6.0.12.20240917",
     "ruff>=0.16.7",
+    "openapi-spec-validator>=0.7.1",
 ]
 
 [tool.pytest.ini_options]

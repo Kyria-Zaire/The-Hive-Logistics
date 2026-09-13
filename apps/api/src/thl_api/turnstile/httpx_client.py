@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import httpx
 
@@ -10,13 +10,15 @@ from thl_api.turnstile.protocol import TurnstileAction
 logger = logging.getLogger(__name__)
 
 _SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+_TOTAL_TIMEOUT_SECONDS = 3.0
 
 
 @dataclass(frozen=True, slots=True)
 class HttpxTurnstileVerifier:
     secret: str
     expected_hostname: str
-    timeout_seconds: float = 3.0
+    timeout_seconds: float = _TOTAL_TIMEOUT_SECONDS
+    transport: httpx.AsyncBaseTransport | None = field(default=None, compare=False)
 
     async def verify(
         self,
@@ -27,11 +29,10 @@ class HttpxTurnstileVerifier:
         data = {
             "secret": self.secret,
             "response": token,
-            "action": action,
-            "hostname": self.expected_hostname,
         }
+        timeout = httpx.Timeout(self.timeout_seconds)
         try:
-            async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
+            async with httpx.AsyncClient(timeout=timeout, transport=self.transport) as client:
                 response = await client.post(_SITEVERIFY_URL, data=data)
                 response.raise_for_status()
                 payload = response.json()

@@ -1,70 +1,89 @@
 from __future__ import annotations
 
 import asyncio
-import os
 import uuid
+from unittest.mock import patch
 
 import pytest
+from alembic import command
+from alembic.config import Config
+from sqlalchemy import func, select
 
 from lead_schema_fixtures import CONTACT_MINIMAL, QUOTE_MINIMAL
+from migration_db import temporary_migration_database
+from thl_api.alembic_config import configure_alembic_database_url
 from thl_api.config import get_settings
 from thl_api.db import close_db, init_db
+from thl_api.models.enums import IdempotencyScope
+from thl_api.models.idempotency import IdempotencyRecord
+from thl_api.models.lead import Lead
+from thl_api.repositories.advisory_lock import AdvisoryLockBusyError, AdvisoryUnlockFailedError
 from thl_api.schemas.leads import ContactMessageCreate, QuoteRequestCreate
-from thl_api.services.lead_submission import LeadSubmissionService
+from thl_api.services.lead_submission import (
+    PRODUCTION_LOCK_DEADLINE_SECONDS,
+    HoneypotTriggeredError,
+    IdempotencyBusyError,
+    LeadSubmissionService,
+)
 from thl_api.turnstile.protocol import TurnstileVerifier
 
-_INTEGRATION_DATABASE_URL = os.environ.get(
-    "INTEGRATION_DATABASE_URL",
-    "postgresql+psycopg://thl_dev:thl_dev_password@127.0.0.1:5433/thl_dev",
-)
 
-
-class _AlwaysOkTurnstile(TurnstileVerifier):
+class _CountingTurnstile(TurnstileVerifier):
     calls: int = 0
 
     async def verify(self, token: str, *, action: str) -> bool:
-        _AlwaysOkTurnstile.calls += 1
+        _CountingTurnstile.calls += 1
         _ = (token, action)
         return True
 
 
+def _upgrade(database_url: str) -> None:
+    cfg = Config("alembic.ini")
+    configure_alembic_database_url(cfg, database_url)
+    command.upgrade(cfg, "head")
+
+
 @pytest.fixture
-def integration_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("THL_ENV", "dev")
-    monkeypatch.setenv("DATABASE_URL", _INTEGRATION_DATABASE_URL)
-    get_settings.cache_clear()
+async def pg_database(monkeypatch: pytest.MonkeyPatch):
+    with temporary_migration_database() as temp:
+        monkeypatch.setenv("THL_ENV", "dev")
+        monkeypatch.setenv("DATABASE_URL", temp.database_url)
+        get_settings.cache_clear()
+        init_db(get_settings().database_url_str)
+        _upgrade(temp.database_url)
+        yield temp.database_url
+        await close_db()
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_quote_creation_persists_atomically(integration_env: None) -> None:
-    _AlwaysOkTurnstile.calls = 0
-    settings = get_settings()
-    init_db(settings.database_url)
-    service = LeadSubmissionService(
-        settings=settings,
-        turnstile=_AlwaysOkTurnstile(),
-    )
-    payload = QuoteRequestCreate.model_validate(QUOTE_MINIMAL)
-    key = str(uuid.uuid4())
-    result = await service.submit_quote(
-        payload,
-        idempotency_key=key,
+async def test_quote_and_contact_creation_counts(pg_database: str) -> None:
+    _ = pg_database
+    _CountingTurnstile.calls = 0
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    await service.submit_quote(
+        QuoteRequestCreate.model_validate(QUOTE_MINIMAL),
+        idempotency_key=str(uuid.uuid4()),
         client_host="127.0.0.1",
         forwarded_for=None,
     )
-    assert result.status_code == 201
-    assert result.body["status"] == "received"
-    await close_db()
+    await service.submit_contact(
+        ContactMessageCreate.model_validate(CONTACT_MINIMAL),
+        idempotency_key=str(uuid.uuid4()),
+        client_host="127.0.0.1",
+        forwarded_for=None,
+    )
+    async with service._engine().connect() as conn:
+        leads = (await conn.execute(select(func.count()).select_from(Lead))).scalar_one()
+        assert leads == 2
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_concurrent_idempotency_single_turnstile(integration_env: None) -> None:
-    _AlwaysOkTurnstile.calls = 0
-    settings = get_settings()
-    init_db(settings.database_url)
-    service = LeadSubmissionService(settings=settings, turnstile=_AlwaysOkTurnstile())
+async def test_concurrency_single_turnstile_single_row(pg_database: str) -> None:
+    _ = pg_database
+    _CountingTurnstile.calls = 0
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
     payload = ContactMessageCreate.model_validate(CONTACT_MINIMAL)
     key = str(uuid.uuid4())
 
@@ -77,13 +96,154 @@ async def test_concurrent_idempotency_single_turnstile(integration_env: None) ->
         )
 
     await asyncio.gather(once(), once())
-    assert _AlwaysOkTurnstile.calls == 1
-    replay = await service.submit_contact(
+    assert _CountingTurnstile.calls == 1
+    async with service._engine().connect() as conn:
+        count = (
+            await conn.execute(
+                select(func.count())
+                .select_from(IdempotencyRecord)
+                .where(IdempotencyRecord.scope == IdempotencyScope.contact_messages)
+            )
+        ).scalar_one()
+        assert count == 1
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_lock_timeout_503_no_turnstile_no_mutation(pg_database: str) -> None:
+    _ = pg_database
+    _CountingTurnstile.calls = 0
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    payload = QuoteRequestCreate.model_validate(QUOTE_MINIMAL)
+    with patch(
+        "thl_api.services.lead_submission.try_acquire_session_lock",
+        side_effect=AdvisoryLockBusyError,
+    ):
+        with pytest.raises(IdempotencyBusyError):
+            await service.submit_quote(
+                payload,
+                idempotency_key=str(uuid.uuid4()),
+                client_host="127.0.0.1",
+                forwarded_for=None,
+            )
+    assert _CountingTurnstile.calls == 0
+    async with service._engine().connect() as conn:
+        leads = (await conn.execute(select(func.count()).select_from(Lead))).scalar_one()
+        assert leads == 0
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_honeypot_zero_db_zero_turnstile(pg_database: str) -> None:
+    _ = pg_database
+    _CountingTurnstile.calls = 0
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    payload = QuoteRequestCreate.model_validate({**QUOTE_MINIMAL, "honeypot": "bot"})
+    with pytest.raises(HoneypotTriggeredError):
+        await service.submit_quote(
+            payload,
+            idempotency_key=str(uuid.uuid4()),
+            client_host="127.0.0.1",
+            forwarded_for=None,
+        )
+    assert _CountingTurnstile.calls == 0
+
+
+@pytest.mark.integration
+def test_production_lock_deadline_default_is_5s() -> None:
+    assert PRODUCTION_LOCK_DEADLINE_SECONDS == 5.0
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_unlock_failure_invalidates_connection(pg_database: str) -> None:
+    _ = pg_database
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    payload = ContactMessageCreate.model_validate(CONTACT_MINIMAL)
+    with patch(
+        "thl_api.services.lead_submission.release_session_lock",
+        side_effect=AdvisoryUnlockFailedError,
+    ):
+        result = await service.submit_contact(
+            payload,
+            idempotency_key=str(uuid.uuid4()),
+            client_host="127.0.0.1",
+            forwarded_for=None,
+        )
+        assert result.status_code == 201
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_rate_limit_enforced_before_turnstile(pg_database: str) -> None:
+    _ = pg_database
+    _CountingTurnstile.calls = 0
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    payload = ContactMessageCreate.model_validate(CONTACT_MINIMAL)
+    key = str(uuid.uuid4())
+
+    async def _boom(*args: object, **kwargs: object) -> None:
+        _ = (args, kwargs)
+        raise RuntimeError("rate limit hit")
+
+    with patch.object(LeadSubmissionService, "_enforce_rate_limit", _boom):
+        with pytest.raises(RuntimeError, match="rate limit hit"):
+            await service.submit_contact(
+                payload,
+                idempotency_key=key,
+                client_host="127.0.0.1",
+                forwarded_for=None,
+            )
+    assert _CountingTurnstile.calls == 0
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_idempotency_replay_200_without_second_turnstile(pg_database: str) -> None:
+    _ = pg_database
+    _CountingTurnstile.calls = 0
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    payload = ContactMessageCreate.model_validate(CONTACT_MINIMAL)
+    key = str(uuid.uuid4())
+    first = await service.submit_contact(
         payload,
         idempotency_key=key,
         client_host="127.0.0.1",
         forwarded_for=None,
     )
-    assert replay.status_code == 200
-    assert _AlwaysOkTurnstile.calls == 1
-    await close_db()
+    second = await service.submit_contact(
+        payload,
+        idempotency_key=key,
+        client_host="127.0.0.1",
+        forwarded_for=None,
+    )
+    assert first.status_code == 201
+    assert second.status_code == 200
+    assert _CountingTurnstile.calls == 1
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_no_sql_transaction_during_turnstile(pg_database: str) -> None:
+    _ = pg_database
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    payload = QuoteRequestCreate.model_validate(QUOTE_MINIMAL)
+    observed: list[bool] = []
+
+    async def verify_with_assertion(token: str, *, action: str) -> bool:
+        _ = (token, action)
+        connection = await service._engine().connect()
+        try:
+            observed.append(connection.in_transaction())
+        finally:
+            await connection.close()
+        return True
+
+    service.turnstile.verify = verify_with_assertion  # type: ignore[method-assign]
+    await service.submit_quote(
+        payload,
+        idempotency_key=str(uuid.uuid4()),
+        client_host="127.0.0.1",
+        forwarded_for=None,
+    )
+    assert observed and all(value is False for value in observed)

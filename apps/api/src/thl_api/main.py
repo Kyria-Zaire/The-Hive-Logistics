@@ -18,7 +18,7 @@ from thl_api.openapi.custom import build_openapi
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
-    init_db(settings.database_url)
+    init_db(settings.database_url_str)
     try:
         yield
     finally:
@@ -38,9 +38,14 @@ def create_app() -> FastAPI:
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
+        openapi_tags=[
+            {"name": "quote-requests"},
+            {"name": "contact-messages"},
+            {"name": "health"},
+        ],
     )
-    app.add_middleware(CorrelationMiddleware)
     app.add_middleware(LeadPostGuardMiddleware)
+    app.add_middleware(CorrelationMiddleware)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
     app.add_exception_handler(Exception, unhandled_exception_handler)
     app.include_router(api_router)

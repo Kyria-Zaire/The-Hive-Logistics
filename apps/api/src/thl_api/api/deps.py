@@ -7,8 +7,13 @@ from thl_api.turnstile.httpx_client import HttpxTurnstileVerifier
 
 def get_lead_submission_service() -> LeadSubmissionService:
     settings = get_settings()
+    secret = (
+        settings.turnstile_secret_key.get_secret_value()
+        if settings.turnstile_secret_key is not None
+        else ""
+    )
     verifier = HttpxTurnstileVerifier(
-        secret=settings.turnstile_secret_key or "",
+        secret=secret,
         expected_hostname=settings.turnstile_expected_hostname or "",
     )
     return LeadSubmissionService(settings=settings, turnstile=verifier)

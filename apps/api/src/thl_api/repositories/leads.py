@@ -20,6 +20,18 @@ from thl_api.models.notification import NotificationJob
 from thl_api.schemas.leads import ContactMessageCreate, QuoteRequestCreate
 
 
+def _is_public_reference_collision(exc: IntegrityError) -> bool:
+    orig = exc.orig
+    if orig is None:
+        return False
+    diag = getattr(orig, "diag", None)
+    constraint = getattr(diag, "constraint_name", None) if diag is not None else None
+    if constraint == "uq_leads_public_reference":
+        return True
+    message = str(orig).lower()
+    return "uq_leads_public_reference" in message or "public_reference" in message
+
+
 async def insert_lead_bundle(
     connection: AsyncConnection,
     *,
@@ -150,6 +162,8 @@ async def insert_lead_with_reference_retry(
                     idempotency_fields=fields,
                 )
         except IntegrityError as exc:
+            if not _is_public_reference_collision(exc):
+                raise
             last_error = exc
             continue
         return public_reference

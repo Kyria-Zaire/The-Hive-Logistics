@@ -2,10 +2,15 @@ from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
 
-from fastapi import APIRouter, Header, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from thl_api.api.deps import get_lead_submission_service
+from thl_api.openapi.load_contract import (
+    lead_post_parameters,
+    lead_post_responses,
+    load_openapi_contract,
+)
 from thl_api.problems import (
     DEPENDENCY_UNAVAILABLE,
     IDEMPOTENCY_CONFLICT,
@@ -31,6 +36,9 @@ from thl_api.turnstile.httpx_client import TurnstileUnavailableError
 router = APIRouter()
 
 _IDEMPOTENCY_HEADER = "Idempotency-Key"
+_QUOTE_DESCRIPTION = load_openapi_contract()["paths"]["/api/v1/quote-requests"]["post"].get(
+    "description"
+)
 
 
 def _invalid_idempotency_response(request: Request) -> JSONResponse:
@@ -57,25 +65,16 @@ def _client_host(request: Request) -> str | None:
     tags=["quote-requests"],
     operation_id="createQuoteRequest",
     summary="Créer une demande de devis",
+    description=_QUOTE_DESCRIPTION,
     response_model=LeadSubmissionAccepted,
-    responses={
-        200: {"description": "Replay idempotent"},
-        201: {"description": "Demande créée"},
-        400: {"description": "Requête invalide"},
-        403: {"description": "Demande refusée"},
-        409: {"description": "Conflit idempotence"},
-        413: {"description": "Payload trop volumineux"},
-        415: {"description": "Content-Type invalide"},
-        422: {"description": "Validation"},
-        429: {"description": "Rate limit"},
-        503: {"description": "Indisponible"},
-    },
+    responses=lead_post_responses(),
+    openapi_extra={"parameters": lead_post_parameters()},
 )
 async def create_quote_request(
     request: Request,
     body: QuoteRequestCreate,
-    idempotency_key: str | None = Header(default=None, alias=_IDEMPOTENCY_HEADER),
 ) -> JSONResponse:
+    idempotency_key = request.headers.get(_IDEMPOTENCY_HEADER)
     if idempotency_key is None:
         return _invalid_idempotency_response(request)
     try:
@@ -101,24 +100,14 @@ async def create_quote_request(
     operation_id="createContactMessage",
     summary="Créer un message contact",
     response_model=LeadSubmissionAccepted,
-    responses={
-        200: {"description": "Replay idempotent"},
-        201: {"description": "Message enregistré"},
-        400: {"description": "Requête invalide"},
-        403: {"description": "Demande refusée"},
-        409: {"description": "Conflit idempotence"},
-        413: {"description": "Payload trop volumineux"},
-        415: {"description": "Content-Type invalide"},
-        422: {"description": "Validation"},
-        429: {"description": "Rate limit"},
-        503: {"description": "Indisponible"},
-    },
+    responses=lead_post_responses(),
+    openapi_extra={"parameters": lead_post_parameters()},
 )
 async def create_contact_message(
     request: Request,
     body: ContactMessageCreate,
-    idempotency_key: str | None = Header(default=None, alias=_IDEMPOTENCY_HEADER),
 ) -> JSONResponse:
+    idempotency_key = request.headers.get(_IDEMPOTENCY_HEADER)
     if idempotency_key is None:
         return _invalid_idempotency_response(request)
     try:

@@ -17,7 +17,7 @@ async def api_client(
     raise_app_exceptions: bool = False,
 ) -> AsyncIterator[AsyncClient]:
     settings = get_settings()
-    init_db(settings.database_url)
+    init_db(settings.database_url_str)
     transport = ASGITransport(app=app, raise_app_exceptions=raise_app_exceptions)
     try:
         async with AsyncClient(transport=transport, base_url="http://test") as client:

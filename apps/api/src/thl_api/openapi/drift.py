@@ -4,7 +4,7 @@ import copy
 from typing import Any
 
 _STRIP_OPERATION_KEYS = frozenset({"description", "summary"})
-_STRIP_SCHEMA_KEYS = frozenset({"description", "examples", "example"})
+_STRIP_SCHEMA_KEYS = frozenset({"description", "examples", "example", "title"})
 
 
 def _strip_noise(value: Any) -> Any:

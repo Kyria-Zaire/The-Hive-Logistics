@@ -6,7 +6,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
-from thl_api.middleware.correlation import CORRELATION_HEADER
+from thl_api.middleware.correlation import CORRELATION_HEADER, resolve_correlation_id
 
 PROBLEM_MEDIA = "application/problem+json"
 
@@ -35,7 +35,8 @@ def correlation_from_request(request: Request) -> str:
     value = getattr(request.state, "correlation_id", None)
     if isinstance(value, str) and value:
         return value
-    return "unknown"
+    raw = request.headers.get(CORRELATION_HEADER)
+    return resolve_correlation_id(raw)
 
 
 def problem_response(

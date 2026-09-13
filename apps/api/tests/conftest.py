@@ -57,3 +57,33 @@ def app():
 async def client(app):
     async with api_client(app, raise_app_exceptions=False) as http_client:
         yield http_client
+
+
+class _StubLeadService:
+    def __init__(self) -> None:
+        self.outcome: object | None = None
+
+    async def submit_quote(self, body, *, idempotency_key, client_host, forwarded_for):
+        _ = (body, idempotency_key, client_host, forwarded_for)
+        if isinstance(self.outcome, Exception):
+            raise self.outcome
+        assert self.outcome is not None
+        return self.outcome
+
+    async def submit_contact(self, body, *, idempotency_key, client_host, forwarded_for):
+        return await self.submit_quote(
+            body,
+            idempotency_key=idempotency_key,
+            client_host=client_host,
+            forwarded_for=forwarded_for,
+        )
+
+
+@pytest.fixture
+def stub_service(monkeypatch: pytest.MonkeyPatch) -> _StubLeadService:
+    stub = _StubLeadService()
+    monkeypatch.setattr(
+        "thl_api.api.routes.leads.get_lead_submission_service",
+        lambda: stub,
+    )
+    return stub

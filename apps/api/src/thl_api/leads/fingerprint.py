@@ -17,7 +17,7 @@ def build_fingerprint_payload(
     *,
     fingerprint_algo_version: int,
 ) -> dict[str, Any]:
-    data = body.model_dump(mode="json", exclude=_FINGERPRINT_EXCLUDE)
+    data = body.model_dump(mode="json", exclude=_FINGERPRINT_EXCLUDE, exclude_unset=True)
     data["scope"] = scope.value
     data["fingerprint_algo_version"] = fingerprint_algo_version
     return data

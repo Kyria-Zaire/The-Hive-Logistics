@@ -58,22 +58,25 @@ def test_lock_id_stable() -> None:
     assert -2**63 <= first < 2**63
 
 
-def test_trusted_proxy_only_when_enabled() -> None:
+def test_trusted_proxy_only_when_peer_in_allowlist() -> None:
+    import ipaddress
+
+    allowlist = (ipaddress.ip_network("203.0.113.0/24"),)
     assert (
         client_ip_for_rate_limit(
             direct_host="203.0.113.10",
             forwarded_for="198.51.100.20, 203.0.113.10",
-            trusted_proxy_enabled=False,
+            trusted_networks=allowlist,
         )
-        == "203.0.113.10"
+        == "198.51.100.20"
     )
     assert (
         client_ip_for_rate_limit(
             direct_host="203.0.113.10",
             forwarded_for="198.51.100.20, 203.0.113.10",
-            trusted_proxy_enabled=True,
+            trusted_networks=(),
         )
-        == "198.51.100.20"
+        == "203.0.113.10"
     )
 
 

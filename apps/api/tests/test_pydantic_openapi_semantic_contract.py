@@ -136,4 +136,12 @@ def test_vehicle_other_openapi_conditional_documented() -> None:
 
 
 def test_app_openapi_gate_covered_by_runtime_drift() -> None:
-    assert True
+    from thl_api.main import create_app
+    from thl_api.openapi.drift import openapi_diff
+    from thl_api.openapi.raw import generate_raw_openapi
+
+    with OPENAPI_PATH.open(encoding="utf-8") as handle:
+        expected = yaml.safe_load(handle)
+    actual = generate_raw_openapi(create_app())
+    diffs = openapi_diff(expected, actual)
+    assert not diffs, "OpenAPI drift gate must stay in runtime drift tests"

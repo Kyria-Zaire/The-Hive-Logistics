@@ -7,6 +7,8 @@ from email_validator import EmailNotValidError, validate_email
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.functional_validators import AfterValidator
 
+from thl_api.openapi.json_schema import THLGenerateJsonSchema
+
 # OpenAPI components/parameters/IdempotencyKey
 _IDEMPOTENCY_KEY_PATTERN = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
@@ -18,15 +20,15 @@ PHONE_PATTERN = re.compile(r"^[+0-9().\s-]+$")
 # OpenAPI components/schemas/PublicReference
 PUBLIC_REFERENCE_PATTERN = re.compile(r"^THL-[0-9]{8}-[0-9A-HJKMNP-TV-Z]{8}$")
 
-_HTTP_MODEL_CONFIG = ConfigDict(
-    extra="forbid",
-    str_strip_whitespace=False,
-    validate_default=True,
-)
-
-
 class THLSchemaBase(BaseModel):
-    model_config = _HTTP_MODEL_CONFIG
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=False,
+        validate_default=True,
+        json_schema_mode_override="validation",
+        json_schema_serialization_defaults_required=True,
+        json_schema_generator=THLGenerateJsonSchema,  # type: ignore[typeddict-unknown-key]
+    )
 
 
 class RedactedRequestRepresentationMixin:
@@ -112,7 +114,11 @@ IdempotencyKey = Annotated[
 class IdempotencyKeyHeader(BaseModel):
     """En-tête Idempotency-Key (validation hors corps JSON)."""
 
-    model_config = _HTTP_MODEL_CONFIG
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=False,
+        validate_default=True,
+    )
 
     value: IdempotencyKey
 
