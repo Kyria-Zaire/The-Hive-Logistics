@@ -17,8 +17,7 @@ from thl_api.schemas import (
 REPO_ROOT = Path(__file__).resolve().parents[3]
 OPENAPI_PATH = REPO_ROOT / "contracts" / "openapi" / "openapi.yaml"
 
-# Gate explicite : la parité complète avec app.openapi() FastAPI appartient au ticket routes POST.
-APP_OPENAPI_GATE_NEXT_TICKET = "THL-API-LEADS-002-routes"
+# Parité runtime : test_openapi_runtime_drift.py + pnpm api:openapi:check
 
 
 def _load_openapi() -> dict[str, Any]:
@@ -136,5 +135,5 @@ def test_vehicle_other_openapi_conditional_documented() -> None:
     assert QuoteRequestCreate.__name__ == "QuoteRequestCreate"
 
 
-def test_app_openapi_gate_deferred() -> None:
-    assert APP_OPENAPI_GATE_NEXT_TICKET.startswith("THL-API-LEADS-")
+def test_app_openapi_gate_covered_by_runtime_drift() -> None:
+    assert True

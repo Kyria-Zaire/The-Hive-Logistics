@@ -20,6 +20,13 @@ def init_db(database_url: str) -> None:
     _session_factory = async_sessionmaker(_engine, expire_on_commit=False)
 
 
+def get_engine() -> AsyncEngine:
+    if _engine is None:
+        msg = "Database not initialized"
+        raise RuntimeError(msg)
+    return _engine
+
+
 async def close_db() -> None:
     global _engine, _session_factory
     if _engine is not None:

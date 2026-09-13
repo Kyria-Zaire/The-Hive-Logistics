@@ -13,12 +13,13 @@
     "api:dev": "uv run --directory apps/api uvicorn thl_api.main:app --host 127.0.0.1 --port 8000 --reload",
     "api:lint": "uv run --directory apps/api ruff check .",
     "api:typecheck": "uv run --directory apps/api mypy src",
+    "api:openapi:check": "uv run --directory apps/api python ../../scripts/check_openapi_drift.py",
     "api:test": "uv run --directory apps/api pytest -m \"not integration and not migrations\"",
     "api:test:integration": "uv run --directory apps/api pytest -m integration",
     "api:migrate:upgrade": "uv run --directory apps/api alembic upgrade head",
     "api:migrate:check": "uv run --directory apps/api alembic check",
     "api:test:migrations": "uv run --directory apps/api pytest -m migrations",
-    "check": "pnpm web:lint && pnpm web:typecheck && pnpm web:build && pnpm api:lint && pnpm api:typecheck && pnpm api:test"
+    "check": "pnpm web:lint && pnpm web:typecheck && pnpm web:build && pnpm api:lint && pnpm api:typecheck && pnpm api:openapi:check && pnpm api:test"
   },
   "packageManager": "pnpm@10.16.1",
   "pnpm": {
