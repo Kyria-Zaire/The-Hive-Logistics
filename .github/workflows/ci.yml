@@ -1,0 +1,191 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "24.18.1"
+  PNPM_VERSION: "10.16.1"
+  PYTHON_VERSION: "3.13.1"
+  UV_VERSION: "0.9.30"
+
+jobs:
+  governance:
+    name: Governance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        # actions/checkout@v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        # actions/setup-python@v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Validate governance pack
+        run: python .claude/hooks/validate_governance.py
+
+      - name: Governance hook unit tests
+        run: python -m unittest discover -s .claude/hooks/tests -v
+
+  quality:
+    name: Quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        # actions/checkout@v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        # pnpm/action-setup@v4.1.0
+        uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        # actions/setup-node@v4.4.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Set up Python
+        # actions/setup-python@v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up uv
+        # astral-sh/setup-uv@v5.4.2
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+
+      - name: Install JavaScript dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Python dependencies
+        run: uv sync --directory apps/api --locked
+
+      - name: Monorepo check
+        run: |
+          rm -rf apps/web/.next apps/web/next-env.d.ts
+          pnpm check
+
+  postgres:
+    name: PostgreSQL
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      CI_INTEGRATION_DATABASE_URL: postgresql+psycopg://thl_ci:thl_ci_password@127.0.0.1:5432/thl_ci
+      INTEGRATION_DATABASE_URL: postgresql+psycopg://thl_ci:thl_ci_password@127.0.0.1:5432/thl_ci
+      DATABASE_URL: postgresql+psycopg://thl_ci:thl_ci_password@127.0.0.1:5432/thl_ci
+      THL_ENV: dev
+      PRIVACY_POLICY_VERSION: ci-2026-01
+      IDEMPOTENCY_HMAC_SECRET_CURRENT: ci-placeholder-idempotency-not-a-secret
+      IDEMPOTENCY_HMAC_SECRET_CURRENT_VERSION: "1"
+      FINGERPRINT_HMAC_SECRET_CURRENT: ci-placeholder-fingerprint-not-a-secret
+      FINGERPRINT_HMAC_SECRET_CURRENT_VERSION: "1"
+      RATE_LIMIT_HMAC_SECRET_CURRENT: ci-placeholder-ratelimit-not-a-secret
+      RATE_LIMIT_HMAC_SECRET_CURRENT_VERSION: "1"
+      TURNSTILE_SECRET_KEY: ci-placeholder-turnstile-not-a-secret
+      TURNSTILE_EXPECTED_HOSTNAME: ci.localhost
+      NOTIFICATION_SMTP_HOST: ci-smtp.example.com
+      NOTIFICATION_SMTP_PORT: "587"
+      NOTIFICATION_EMAIL_FROM: noreply@example.com
+      NOTIFICATION_EMAIL_TO: ops@example.com
+      NOTIFICATION_SMTP_STARTTLS: "true"
+      NOTIFICATION_SMTP_USE_TLS: "false"
+    services:
+      postgres:
+        image: postgres:18.6-alpine
+        env:
+          POSTGRES_USER: thl_ci
+          POSTGRES_PASSWORD: thl_ci_password
+          POSTGRES_DB: thl_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U thl_ci -d thl_ci"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Checkout
+        # actions/checkout@v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        # actions/setup-python@v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up uv
+        # astral-sh/setup-uv@v5.4.2
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+
+      - name: Install Python dependencies
+        run: uv sync --directory apps/api --locked
+
+      - name: Run Alembic migrations on CI database
+        working-directory: apps/api
+        run: uv run alembic upgrade head
+
+      - name: Integration tests
+        working-directory: apps/api
+        run: uv run pytest -m integration -rs
+
+      - name: Migration tests
+        working-directory: apps/api
+        run: uv run pytest -m migrations -rs
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout full history
+        # actions/checkout@v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Gitleaks
+        # gitleaks/gitleaks-action@v2.3.9
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"

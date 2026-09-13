@@ -1,0 +1,2 @@
+# Faux positif historique unique (commit 5725078) : constante de test OpenAPI, pas un secret réel.
+57250785033fd5f65c33589faa742288699e738f:apps/api/tests/test_pydantic_openapi_semantic_contract.py:generic-api-key:21
