@@ -27,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="fr"
       className={`h-full ${instrumentSans.variable} ${instrumentSerif.variable}`}
     >
-      <body className="min-h-full flex flex-col overflow-x-hidden">
+      <body className="min-h-full flex flex-col">
         <SkipLink />
         {children}
       </body>

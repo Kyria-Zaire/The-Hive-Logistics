@@ -140,6 +140,7 @@
     font-size: clamp(2.5rem, 5vw + 1rem, 8rem);
     line-height: 0.92;
     max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   @media (min-width: 768px) {
