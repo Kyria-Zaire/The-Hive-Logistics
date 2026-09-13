@@ -26,10 +26,7 @@ def _is_public_reference_collision(exc: IntegrityError) -> bool:
         return False
     diag = getattr(orig, "diag", None)
     constraint = getattr(diag, "constraint_name", None) if diag is not None else None
-    if constraint == "uq_leads_public_reference":
-        return True
-    message = str(orig).lower()
-    return "uq_leads_public_reference" in message or "public_reference" in message
+    return constraint == "uq_leads_public_reference"
 
 
 async def insert_lead_bundle(

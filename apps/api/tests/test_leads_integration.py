@@ -3,13 +3,14 @@ from __future__ import annotations
 import asyncio
 import uuid
 from datetime import UTC, datetime
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from lead_schema_fixtures import CONTACT_MINIMAL, QUOTE_MINIMAL
 from migration_db import temporary_migration_database
@@ -41,6 +42,44 @@ class _CountingTurnstile(TurnstileVerifier):
         _CountingTurnstile.calls += 1
         _ = (token, action)
         return True
+
+
+class _ConnectTrackerContext:
+    def __init__(self, inner: object, pinned: list[object]) -> None:
+        self._inner = inner
+        self._pinned = pinned
+
+    def __await__(self):
+        return self._await_impl().__await__()
+
+    async def _await_impl(self):
+        connection = await self._inner
+        self._record(connection)
+        return connection
+
+    async def __aenter__(self):
+        connection = await self._inner.__aenter__()
+        self._record(connection)
+        return connection
+
+    async def __aexit__(self, *exc: object) -> None:
+        await self._inner.__aexit__(*exc)
+
+    def _record(self, connection: object) -> None:
+        if not self._pinned or self._pinned[-1] is not connection:
+            self._pinned.append(connection)
+
+
+class _ConnectTrackingEngine:
+    def __init__(self, inner: AsyncEngine) -> None:
+        self._inner = inner
+        self.pinned: list[object] = []
+
+    def connect(self):
+        return _ConnectTrackerContext(self._inner.connect(), self.pinned)
+
+    def __getattr__(self, name: str):
+        return getattr(self._inner, name)
 
 
 def _upgrade(database_url: str) -> None:
@@ -170,13 +209,15 @@ async def test_unlock_failure_invalidates_connection(pg_database: str) -> None:
         "thl_api.services.lead_submission.release_session_lock",
         side_effect=AdvisoryUnlockFailedError,
     ):
-        result = await service.submit_contact(
-            payload,
-            idempotency_key=str(uuid.uuid4()),
-            client_host="127.0.0.1",
-            forwarded_for=None,
-        )
-        assert result.status_code == 201
+        with patch.object(AsyncConnection, "invalidate", new_callable=AsyncMock) as invalidate:
+            result = await service.submit_contact(
+                payload,
+                idempotency_key=str(uuid.uuid4()),
+                client_host="127.0.0.1",
+                forwarded_for=None,
+            )
+            assert result.status_code == 201
+            invalidate.assert_awaited_once()
 
 
 @pytest.mark.integration
@@ -232,17 +273,19 @@ async def test_idempotency_replay_200_without_second_turnstile(pg_database: str)
 @pytest.mark.asyncio
 async def test_no_sql_transaction_during_turnstile(pg_database: str) -> None:
     _ = pg_database
-    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    probe = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    tracking_engine = _ConnectTrackingEngine(probe._engine())
+    service = LeadSubmissionService(
+        settings=get_settings(),
+        turnstile=_CountingTurnstile(),
+        engine=tracking_engine,  # type: ignore[arg-type]
+    )
     payload = QuoteRequestCreate.model_validate(QUOTE_MINIMAL)
-    observed: list[bool] = []
 
     async def verify_with_assertion(token: str, *, action: str) -> bool:
         _ = (token, action)
-        connection = await service._engine().connect()
-        try:
-            observed.append(connection.in_transaction())
-        finally:
-            await connection.close()
+        pinned_connection = tracking_engine.pinned[-1]
+        assert pinned_connection.in_transaction() is False  # type: ignore[attr-defined]
         return True
 
     service.turnstile.verify = verify_with_assertion  # type: ignore[method-assign]
@@ -252,7 +295,6 @@ async def test_no_sql_transaction_during_turnstile(pg_database: str) -> None:
         client_host="127.0.0.1",
         forwarded_for=None,
     )
-    assert observed and all(value is False for value in observed)
 
 
 @pytest.mark.integration
@@ -380,9 +422,15 @@ async def test_public_reference_non_unique_integrity_error_propagates(
     service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
     payload = ContactMessageCreate.model_validate(CONTACT_MINIMAL)
 
+    class _CheckDiag:
+        constraint_name = "chk_leads_public_reference_format"
+
+    class _CheckOrig(Exception):
+        diag = _CheckDiag()
+
     async def boom(*args, **kwargs):
         _ = (args, kwargs)
-        raise IntegrityError("insert", {}, Exception("chk_leads_email_format"))
+        raise IntegrityError("insert", {}, _CheckOrig())
 
     with patch.object(leads_repo, "insert_lead_bundle", side_effect=boom):
         with pytest.raises(IntegrityError):
@@ -400,12 +448,36 @@ async def test_intermediate_failure_rollback_zero_persistence(pg_database: str) 
     _ = pg_database
     service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
     payload = QuoteRequestCreate.model_validate(QUOTE_MINIMAL)
+    async def fail_after_lead_row(connection, **kwargs):
+        from sqlalchemy import insert
 
-    async def fail_bundle(*args, **kwargs):
-        _ = (args, kwargs)
+        from thl_api.models.lead import Lead
+
+        body = kwargs["body"]
+        accepted_at = kwargs["accepted_at"]
+        public_reference = kwargs["public_reference"]
+        lead_stmt = (
+            insert(Lead)
+            .values(
+                public_reference=public_reference,
+                lead_type=kwargs["lead_type"],
+                first_name=body.first_name,
+                last_name=body.last_name,
+                email=body.email,
+                phone=getattr(body, "phone", None),
+                company=getattr(body, "company", None),
+                privacy_acknowledgement=True,
+                privacy_policy_version=kwargs["privacy_policy_version"],
+                privacy_acknowledged_at=accepted_at,
+                created_at=accepted_at,
+                updated_at=accepted_at,
+            )
+            .returning(Lead.id)
+        )
+        await connection.execute(lead_stmt)
         raise RuntimeError("simulated mid-transaction failure")
 
-    with patch.object(leads_repo, "insert_lead_bundle", side_effect=fail_bundle):
+    with patch.object(leads_repo, "insert_lead_bundle", side_effect=fail_after_lead_row):
         with pytest.raises(RuntimeError, match="simulated mid-transaction failure"):
             await service.submit_quote(
                 payload,

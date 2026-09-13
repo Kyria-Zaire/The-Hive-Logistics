@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import asyncio
+import ipaddress
 import logging
 from datetime import UTC
 
+import httpx
 import pytest
 
 from lead_schema_fixtures import QUOTE_MINIMAL
@@ -14,8 +17,9 @@ from thl_api.leads.public_reference import crockford8_from_random, public_refere
 from thl_api.leads.trusted_proxy import client_ip_for_rate_limit
 from thl_api.models.enums import IdempotencyScope
 from thl_api.problems import ProblemDetails
+from thl_api.repositories.leads import _is_public_reference_collision
 from thl_api.schemas.leads import QuoteRequestCreate
-from thl_api.turnstile.httpx_client import HttpxTurnstileVerifier
+from thl_api.turnstile.httpx_client import HttpxTurnstileVerifier, TurnstileUnavailableError
 
 
 def test_nfc_and_canonical_json_sorted_keys() -> None:
@@ -58,18 +62,55 @@ def test_lock_id_stable() -> None:
     assert -2**63 <= first < 2**63
 
 
-def test_trusted_proxy_only_when_peer_in_allowlist() -> None:
-    import ipaddress
+_TRUSTED_V4 = (ipaddress.ip_network("203.0.113.0/24"),)
+_TRUSTED_V6 = (ipaddress.ip_network("2001:db8:1::/48"),)
 
-    allowlist = (ipaddress.ip_network("203.0.113.0/24"),)
+
+def test_trusted_proxy_returns_first_untrusted_hop_from_peer() -> None:
     assert (
         client_ip_for_rate_limit(
             direct_host="203.0.113.10",
             forwarded_for="198.51.100.20, 203.0.113.10",
-            trusted_networks=allowlist,
+            trusted_networks=_TRUSTED_V4,
         )
         == "198.51.100.20"
     )
+
+
+def test_trusted_proxy_ignores_xff_when_peer_untrusted() -> None:
+    assert (
+        client_ip_for_rate_limit(
+            direct_host="198.51.100.99",
+            forwarded_for="1.2.3.4, 203.0.113.10",
+            trusted_networks=_TRUSTED_V4,
+        )
+        == "198.51.100.99"
+    )
+
+
+def test_trusted_proxy_untrusted_intermediate_in_chain() -> None:
+    assert (
+        client_ip_for_rate_limit(
+            direct_host="203.0.113.10",
+            forwarded_for="198.51.100.20, 198.51.100.50, 203.0.113.10",
+            trusted_networks=_TRUSTED_V4,
+        )
+        == "198.51.100.50"
+    )
+
+
+def test_trusted_proxy_multiple_trusted_proxies_ipv6() -> None:
+    assert (
+        client_ip_for_rate_limit(
+            direct_host="2001:db8:1::1",
+            forwarded_for="2001:db8:1::9, 2001:db8:1::1",
+            trusted_networks=_TRUSTED_V6,
+        )
+        == "2001:db8:1::9"
+    )
+
+
+def test_trusted_proxy_without_allowlist_uses_peer() -> None:
     assert (
         client_ip_for_rate_limit(
             direct_host="203.0.113.10",
@@ -78,6 +119,26 @@ def test_trusted_proxy_only_when_peer_in_allowlist() -> None:
         )
         == "203.0.113.10"
     )
+
+
+def test_public_reference_collision_only_unique_constraint() -> None:
+    from sqlalchemy.exc import IntegrityError
+
+    class _UqDiag:
+        constraint_name = "uq_leads_public_reference"
+
+    class _UqOrig(Exception):
+        diag = _UqDiag()
+
+    assert _is_public_reference_collision(IntegrityError("insert", {}, _UqOrig()))
+
+    class _CheckDiag:
+        constraint_name = "chk_leads_public_reference_format"
+
+    class _CheckOrig(Exception):
+        diag = _CheckDiag()
+
+    assert not _is_public_reference_collision(IntegrityError("insert", {}, _CheckOrig()))
 
 
 def test_problem_details_shape() -> None:
@@ -104,19 +165,49 @@ def test_fingerprint_excludes_turnstile_and_honeypot() -> None:
     assert payload["scope"] == "quote_requests"
 
 
+class _SlowTurnstileTransport(httpx.AsyncBaseTransport):
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        _ = request
+        await asyncio.sleep(5.0)
+        return httpx.Response(200, json={"success": True})
+
+
+class _OkTurnstileTransport(httpx.AsyncBaseTransport):
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        _ = request
+        return httpx.Response(
+            200,
+            json={
+                "success": True,
+                "action": "quote_request",
+                "hostname": "example.test",
+            },
+        )
+
+
+@pytest.mark.asyncio
+async def test_turnstile_wall_clock_timeout_uses_mock_transport() -> None:
+    verifier = HttpxTurnstileVerifier(
+        secret="secret",
+        expected_hostname="example.test",
+        timeout_seconds=0.05,
+        transport=_SlowTurnstileTransport(),
+    )
+    with pytest.raises(TurnstileUnavailableError):
+        await verifier.verify("token-value", action="quote_request")
+
+
 @pytest.mark.asyncio
 async def test_turnstile_client_does_not_log_token(caplog: pytest.LogCaptureFixture) -> None:
     verifier = HttpxTurnstileVerifier(
         secret="secret",
         expected_hostname="example.test",
-        timeout_seconds=0.01,
+        timeout_seconds=1.0,
+        transport=_OkTurnstileTransport(),
     )
     token = "super-secret-turnstile-token-value"
     with caplog.at_level(logging.WARNING):
-        try:
-            await verifier.verify(token, action="quote_request")
-        except Exception:
-            pass
+        await verifier.verify(token, action="quote_request")
     assert token not in caplog.text
 
 

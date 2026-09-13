@@ -27,9 +27,9 @@ async def _read_body_from_receive(request: Request, limit: int) -> bytes | None:
             break
         chunk = message.get("body", b"")
         if chunk:
-            body.extend(chunk)
-            if len(body) > limit:
+            if len(body) + len(chunk) > limit:
                 return None
+            body.extend(chunk)
         more_body = message.get("more_body", False)
     return bytes(body)
 

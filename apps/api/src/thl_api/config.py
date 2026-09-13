@@ -21,6 +21,7 @@ _DEV_DATABASE_MARKERS = (
 _DEV_IDEMPOTENCY_SECRET = b"dev-idempotency-hmac-secret-32bytes!!"
 _DEV_FINGERPRINT_SECRET = b"dev-fingerprint-hmac-secret-32bytes!!"
 _DEV_RATE_LIMIT_SECRET = b"dev-rate-limit-hmac-secret-32bytes!!!!"
+_DEV_PRIVACY_POLICY_VERSION = "2026-01-dev"
 
 _MIN_HMAC_BYTES = 32
 
@@ -111,7 +112,14 @@ class Settings(BaseSettings):
         ):
             if getattr(self, name) in (None, ""):
                 missing.append(name)
-        if self.thl_env == "prod" and not self.privacy_policy_version.strip():
+        privacy = self.privacy_policy_version.strip()
+        if privacy == _DEV_PRIVACY_POLICY_VERSION:
+            msg = (
+                f"THL_ENV={self.thl_env} cannot use DEV privacy_policy_version "
+                f"{_DEV_PRIVACY_POLICY_VERSION!r}"
+            )
+            raise ValueError(msg)
+        if self.thl_env == "prod" and not privacy:
             missing.append("privacy_policy_version")
         if missing:
             msg = f"{self.thl_env.upper()} missing required settings: {', '.join(missing)}"
@@ -180,6 +188,43 @@ class Settings(BaseSettings):
                 raise ValueError(msg)
             if version < 1:
                 msg = f"HMAC {label} version must be >= 1"
+                raise ValueError(msg)
+        self._reject_duplicate_hmac_rotation()
+
+    def _reject_duplicate_hmac_rotation(self) -> None:
+        for current_version, previous_version, label in (
+            (
+                self.idempotency_hmac_secret_current_version,
+                self.idempotency_hmac_secret_previous_version,
+                "idempotency",
+            ),
+            (
+                self.fingerprint_hmac_secret_current_version,
+                self.fingerprint_hmac_secret_previous_version,
+                "fingerprint",
+            ),
+        ):
+            if current_version is None or previous_version is None:
+                continue
+            if current_version == previous_version:
+                msg = f"HMAC {label} current and previous version must differ"
+                raise ValueError(msg)
+        for current, previous, label in (
+            (
+                self.idempotency_hmac_secret_current,
+                self.idempotency_hmac_secret_previous,
+                "idempotency",
+            ),
+            (
+                self.fingerprint_hmac_secret_current,
+                self.fingerprint_hmac_secret_previous,
+                "fingerprint",
+            ),
+        ):
+            if current is None or previous is None:
+                continue
+            if current.get_secret_value() == previous.get_secret_value():
+                msg = f"HMAC {label} current and previous secret must differ"
                 raise ValueError(msg)
 
     def _validate_rate_limits(self) -> None:

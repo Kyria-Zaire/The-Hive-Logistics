@@ -249,20 +249,41 @@ class LeadSubmissionService:
                     replayed=False,
                 )
         finally:
+            lock_cleanup_failed = False
             if lock_held:
                 try:
                     await connection.rollback()
+                except Exception:
+                    lock_cleanup_failed = True
+                    logger.exception(
+                        "Advisory lock rollback failed; invalidating connection",
+                        extra={"lock_id": lock_id},
+                    )
+                try:
                     await release_session_lock(connection, lock_id)
                 except AdvisoryUnlockFailedError:
-                    invalidate_connection = True
+                    lock_cleanup_failed = True
                     logger.error(
                         "Advisory unlock failed; invalidating connection",
                         extra={"lock_id": lock_id},
                     )
-            if invalidate_connection:
-                await connection.invalidate()
-            else:
-                await connection.close()
+                except Exception:
+                    lock_cleanup_failed = True
+                    logger.exception(
+                        "Advisory lock release failed; invalidating connection",
+                        extra={"lock_id": lock_id},
+                    )
+            must_invalidate = invalidate_connection or lock_cleanup_failed
+            try:
+                if must_invalidate:
+                    await connection.invalidate()
+                else:
+                    await connection.close()
+            except Exception:
+                try:
+                    await connection.invalidate()
+                except Exception:
+                    logger.exception("Connection invalidate failed after cleanup error")
 
     async def _enforce_rate_limit(self, scope: RateLimitScope, client_ip: str) -> None:
         settings = self.settings

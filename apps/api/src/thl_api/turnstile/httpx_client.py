@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 from dataclasses import dataclass, field
 
@@ -32,10 +33,17 @@ class HttpxTurnstileVerifier:
         }
         timeout = httpx.Timeout(self.timeout_seconds)
         try:
-            async with httpx.AsyncClient(timeout=timeout, transport=self.transport) as client:
-                response = await client.post(_SITEVERIFY_URL, data=data)
-                response.raise_for_status()
-                payload = response.json()
+            async with asyncio.timeout(self.timeout_seconds):
+                async with httpx.AsyncClient(timeout=timeout, transport=self.transport) as client:
+                    response = await client.post(_SITEVERIFY_URL, data=data)
+                    response.raise_for_status()
+                    payload = response.json()
+        except TimeoutError as exc:
+            logger.warning(
+                "Turnstile siteverify timed out",
+                extra={"exception_type": type(exc).__name__},
+            )
+            raise TurnstileUnavailableError from exc
         except (httpx.HTTPError, ValueError) as exc:
             logger.warning(
                 "Turnstile siteverify failed",
