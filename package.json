@@ -10,6 +10,7 @@
     "web:lint": "pnpm --filter web lint",
     "web:typecheck": "pnpm --filter web typecheck",
     "web:build": "pnpm --filter web build",
+    "web:test": "pnpm --filter web test",
     "api:dev": "uv run --directory apps/api uvicorn thl_api.main:app --host 127.0.0.1 --port 8000 --reload",
     "api:lint": "uv run --directory apps/api ruff check .",
     "api:typecheck": "uv run --directory apps/api mypy src",
