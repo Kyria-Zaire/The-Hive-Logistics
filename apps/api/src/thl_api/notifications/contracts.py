@@ -92,9 +92,8 @@ class WorkerSettings(BaseSettings):
         if value is None or value == "":
             return None
         if isinstance(value, SecretStr):
-            return value if value.get_secret_value().strip() else None
-        text = str(value).strip()
-        return SecretStr(text) if text else None
+            return None if value.get_secret_value() == "" else value
+        return SecretStr(str(value))
 
     @model_validator(mode="after")
     def smtp_tls_and_auth(self) -> Self:

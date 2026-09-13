@@ -188,6 +188,18 @@ def test_worker_settings_accepts_paired_smtp_auth(
     assert settings.notification_smtp_password is not None
 
 
+def test_worker_settings_smtp_password_preserves_exact_secret(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _apply_worker_env(monkeypatch)
+    fake_secret = "  leading-trailing-spaces-secret  "
+    monkeypatch.setenv("NOTIFICATION_SMTP_USER", "smtp-user")
+    monkeypatch.setenv("NOTIFICATION_SMTP_PASSWORD", fake_secret)
+    settings = WorkerSettings()
+    assert settings.notification_smtp_password is not None
+    assert settings.notification_smtp_password.get_secret_value() == fake_secret
+
+
 def test_worker_settings_missing_smtp_host_fail_fast(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
