@@ -19,6 +19,9 @@
     "api:migrate:upgrade": "uv run --directory apps/api alembic upgrade head",
     "api:migrate:check": "uv run --directory apps/api alembic check",
     "api:test:migrations": "uv run --directory apps/api pytest -m migrations",
+    "api:worker": "uv run --directory apps/api python -m thl_api.notifications.worker",
+    "api:worker:once": "uv run --directory apps/api python -m thl_api.notifications.worker --once",
+    "api:test:worker": "uv run --directory apps/api pytest -m worker",
     "check": "pnpm web:lint && pnpm web:typecheck && pnpm web:build && pnpm api:lint && pnpm api:typecheck && pnpm api:openapi:check && pnpm api:test"
   },
   "packageManager": "pnpm@10.16.1",
