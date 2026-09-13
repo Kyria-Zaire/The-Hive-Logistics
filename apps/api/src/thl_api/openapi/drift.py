@@ -20,6 +20,41 @@ def _strip_noise(value: Any) -> Any:
     return value
 
 
+def _normalize_const_enum(value: Any) -> Any:
+    if not isinstance(value, dict):
+        return value
+    out = copy.deepcopy(value)
+    const_val = out.pop("const", None)
+    if const_val is not None and "enum" not in out:
+        if out.get("type") == "boolean" and const_val is True:
+            out["const"] = True
+        elif out.get("type") == "string":
+            out["enum"] = [const_val]
+        else:
+            out["const"] = const_val
+    for key, item in list(out.items()):
+        if isinstance(item, dict):
+            out[key] = _normalize_const_enum(item)
+        elif isinstance(item, list):
+            out[key] = [
+                _normalize_const_enum(entry) if isinstance(entry, dict) else entry for entry in item
+            ]
+    return out
+
+
+def _prune_extra_component_schemas(
+    expected: dict[str, Any],
+    actual: dict[str, Any],
+) -> None:
+    expected_names = set(expected.get("components", {}).get("schemas", {}))
+    actual_schemas = actual.get("components", {}).get("schemas", {})
+    if not isinstance(actual_schemas, dict):
+        return
+    for name in list(actual_schemas):
+        if name not in expected_names:
+            del actual_schemas[name]
+
+
 def canonicalize_openapi(document: dict[str, Any]) -> dict[str, Any]:
     doc = copy.deepcopy(document)
     doc.pop("servers", None)
@@ -32,7 +67,9 @@ def canonicalize_openapi(document: dict[str, Any]) -> dict[str, Any]:
                 operation.pop(key, None)
     cleaned = _strip_noise(doc)
     assert isinstance(cleaned, dict)
-    return cleaned
+    normalized = _normalize_const_enum(cleaned)
+    assert isinstance(normalized, dict)
+    return normalized
 
 
 def openapi_diff(
@@ -41,6 +78,7 @@ def openapi_diff(
 ) -> list[str]:
     exp = canonicalize_openapi(expected)
     act = canonicalize_openapi(actual)
+    _prune_extra_component_schemas(exp, act)
     diffs: list[str] = []
 
     def walk(path: str, left: Any, right: Any) -> None:

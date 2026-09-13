@@ -20,51 +20,68 @@ def _baseline_diffs() -> list[str]:
     return openapi_diff(expected, actual)
 
 
+def _mutate_runtime_actual(mutator) -> dict:
+    actual = generate_raw_openapi(create_app())
+    mutated = deepcopy(actual)
+    mutator(mutated)
+    return mutated
+
+
 def test_mutation_idempotency_requiredness_breaks_gate() -> None:
     with OPENAPI_PATH.open(encoding="utf-8") as handle:
         expected = yaml.safe_load(handle)
-    mutated = deepcopy(expected)
-    mutated["components"]["parameters"]["IdempotencyKey"]["required"] = False
-    actual = generate_raw_openapi(create_app())
-    assert openapi_diff(mutated, actual)
+
+    def _break(doc: dict) -> None:
+        doc["components"]["parameters"]["IdempotencyKey"]["required"] = False
+
+    actual = _mutate_runtime_actual(_break)
+    assert openapi_diff(expected, actual)
 
 
 def test_mutation_response_status_breaks_gate() -> None:
     with OPENAPI_PATH.open(encoding="utf-8") as handle:
         expected = yaml.safe_load(handle)
-    mutated = deepcopy(expected)
-    mutated["paths"]["/api/v1/quote-requests"]["post"]["responses"]["201"]["headers"] = {}
-    actual = generate_raw_openapi(create_app())
-    assert openapi_diff(mutated, actual)
+
+    def _break(doc: dict) -> None:
+        doc["paths"]["/api/v1/quote-requests"]["post"]["responses"]["201"]["headers"] = {}
+
+    actual = _mutate_runtime_actual(_break)
+    assert openapi_diff(expected, actual)
 
 
 def test_mutation_request_enum_breaks_gate() -> None:
     with OPENAPI_PATH.open(encoding="utf-8") as handle:
         expected = yaml.safe_load(handle)
-    mutated = deepcopy(expected)
-    service = mutated["components"]["schemas"]["ServiceType"]
-    service["enum"] = list(service["enum"]) + ["invalid"]
-    actual = generate_raw_openapi(create_app())
-    assert openapi_diff(mutated, actual)
+
+    def _break(doc: dict) -> None:
+        service = doc["components"]["schemas"]["ServiceType"]
+        service["enum"] = list(service["enum"]) + ["invalid"]
+
+    actual = _mutate_runtime_actual(_break)
+    assert openapi_diff(expected, actual)
 
 
 def test_mutation_nullability_breaks_gate() -> None:
     with OPENAPI_PATH.open(encoding="utf-8") as handle:
         expected = yaml.safe_load(handle)
-    mutated = deepcopy(expected)
-    phone = mutated["components"]["schemas"]["QuoteRequestCreateBase"]["properties"]["phone"]
-    phone["type"] = ["string", "null"]
-    actual = generate_raw_openapi(create_app())
-    assert openapi_diff(mutated, actual)
+
+    def _break(doc: dict) -> None:
+        phone = doc["components"]["schemas"]["QuoteRequestCreateBase"]["properties"]["phone"]
+        phone["type"] = ["string", "null"]
+
+    actual = _mutate_runtime_actual(_break)
+    assert openapi_diff(expected, actual)
 
 
 def test_mutation_request_body_schema_breaks_gate() -> None:
     with OPENAPI_PATH.open(encoding="utf-8") as handle:
         expected = yaml.safe_load(handle)
-    mutated = deepcopy(expected)
-    mutated["paths"]["/api/v1/contact-messages"]["post"]["requestBody"]["required"] = False
-    actual = generate_raw_openapi(create_app())
-    assert openapi_diff(mutated, actual)
+
+    def _break(doc: dict) -> None:
+        doc["paths"]["/api/v1/contact-messages"]["post"]["requestBody"]["required"] = False
+
+    actual = _mutate_runtime_actual(_break)
+    assert openapi_diff(expected, actual)
 
 
 def test_baseline_gate_is_clean() -> None:

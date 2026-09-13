@@ -2,21 +2,26 @@ from __future__ import annotations
 
 import asyncio
 import uuid
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 
 from lead_schema_fixtures import CONTACT_MINIMAL, QUOTE_MINIMAL
 from migration_db import temporary_migration_database
 from thl_api.alembic_config import configure_alembic_database_url
 from thl_api.config import get_settings
 from thl_api.db import close_db, init_db
+from thl_api.leads.public_reference import public_reference_for_accepted_at
 from thl_api.models.enums import IdempotencyScope
 from thl_api.models.idempotency import IdempotencyRecord
-from thl_api.models.lead import Lead
+from thl_api.models.lead import ContactMessageDetail, Lead, QuoteRequestDetail
+from thl_api.models.notification import NotificationJob
+from thl_api.repositories import leads as leads_repo
 from thl_api.repositories.advisory_lock import AdvisoryLockBusyError, AdvisoryUnlockFailedError
 from thl_api.schemas.leads import ContactMessageCreate, QuoteRequestCreate
 from thl_api.services.lead_submission import (
@@ -24,6 +29,7 @@ from thl_api.services.lead_submission import (
     HoneypotTriggeredError,
     IdempotencyBusyError,
     LeadSubmissionService,
+    RateLimitExceededError,
 )
 from thl_api.turnstile.protocol import TurnstileVerifier
 
@@ -247,3 +253,213 @@ async def test_no_sql_transaction_during_turnstile(pg_database: str) -> None:
         forwarded_for=None,
     )
     assert observed and all(value is False for value in observed)
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_hmac_rotation_replay_with_previous_secret(
+    pg_database: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _ = pg_database
+    secret_v1 = "dev-idempotency-hmac-secret-32bytes!!"
+    secret_v2 = "dev-idempotency-hmac-secret-v2-32bytes!"
+    monkeypatch.setenv("IDEMPOTENCY_HMAC_SECRET_CURRENT", secret_v1)
+    monkeypatch.setenv("IDEMPOTENCY_HMAC_SECRET_CURRENT_VERSION", "1")
+    monkeypatch.delenv("IDEMPOTENCY_HMAC_SECRET_PREVIOUS", raising=False)
+    monkeypatch.delenv("IDEMPOTENCY_HMAC_SECRET_PREVIOUS_VERSION", raising=False)
+    get_settings.cache_clear()
+
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    payload = ContactMessageCreate.model_validate(CONTACT_MINIMAL)
+    key = str(uuid.uuid4())
+    first = await service.submit_contact(
+        payload,
+        idempotency_key=key,
+        client_host="127.0.0.1",
+        forwarded_for=None,
+    )
+    assert first.status_code == 201
+
+    monkeypatch.setenv("IDEMPOTENCY_HMAC_SECRET_CURRENT", secret_v2)
+    monkeypatch.setenv("IDEMPOTENCY_HMAC_SECRET_CURRENT_VERSION", "2")
+    monkeypatch.setenv("IDEMPOTENCY_HMAC_SECRET_PREVIOUS", secret_v1)
+    monkeypatch.setenv("IDEMPOTENCY_HMAC_SECRET_PREVIOUS_VERSION", "1")
+    get_settings.cache_clear()
+    service_rotated = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+
+    replay = await service_rotated.submit_contact(
+        payload,
+        idempotency_key=key,
+        client_host="127.0.0.1",
+        forwarded_for=None,
+    )
+    assert replay.status_code == 200
+    assert replay.body == first.body
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_utc_midnight_public_reference_boundary(pg_database: str) -> None:
+    _ = pg_database
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    payload = QuoteRequestCreate.model_validate(QUOTE_MINIMAL)
+    midnight_utc = datetime(2026, 9, 13, 0, 0, 0, tzinfo=UTC)
+
+    from sqlalchemy.ext.asyncio import AsyncConnection
+
+    real_execute = AsyncConnection.execute
+
+    async def patched_execute(self, statement, parameters=None, *args, **kwargs):
+        sql = str(statement)
+        if "transaction_timestamp()" in sql:
+
+            class _Scalar:
+                def scalar_one(self) -> datetime:
+                    return midnight_utc
+
+            return _Scalar()
+        return await real_execute(self, statement, parameters, *args, **kwargs)
+
+    with patch.object(AsyncConnection, "execute", patched_execute):
+        result = await service.submit_quote(
+            payload,
+            idempotency_key=str(uuid.uuid4()),
+            client_host="127.0.0.1",
+            forwarded_for=None,
+        )
+    ref = result.body["public_reference"]
+    assert isinstance(ref, str)
+    assert ref.startswith("THL-20260913-")
+    assert result.body["created_at"].startswith("2026-09-13T00:00:00")
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_public_reference_collision_retries_only_unique_violation(
+    pg_database: str,
+) -> None:
+    _ = pg_database
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    payload = QuoteRequestCreate.model_validate(QUOTE_MINIMAL)
+    first = await service.submit_quote(
+        payload,
+        idempotency_key=str(uuid.uuid4()),
+        client_host="127.0.0.1",
+        forwarded_for=None,
+    )
+    duplicate_ref = first.body["public_reference"]
+    attempts = {"count": 0}
+
+    def generator(_accepted_at: datetime) -> str:
+        attempts["count"] += 1
+        if attempts["count"] == 1:
+            return duplicate_ref
+        return public_reference_for_accepted_at(_accepted_at)
+
+    with patch(
+        "thl_api.services.lead_submission.public_reference_for_accepted_at",
+        side_effect=generator,
+    ):
+        second = await service.submit_quote(
+            payload,
+            idempotency_key=str(uuid.uuid4()),
+            client_host="127.0.0.1",
+            forwarded_for=None,
+        )
+    assert attempts["count"] >= 2
+    assert second.body["public_reference"] != duplicate_ref
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_public_reference_non_unique_integrity_error_propagates(
+    pg_database: str,
+) -> None:
+    _ = pg_database
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    payload = ContactMessageCreate.model_validate(CONTACT_MINIMAL)
+
+    async def boom(*args, **kwargs):
+        _ = (args, kwargs)
+        raise IntegrityError("insert", {}, Exception("chk_leads_email_format"))
+
+    with patch.object(leads_repo, "insert_lead_bundle", side_effect=boom):
+        with pytest.raises(IntegrityError):
+            await service.submit_contact(
+                payload,
+                idempotency_key=str(uuid.uuid4()),
+                client_host="127.0.0.1",
+                forwarded_for=None,
+            )
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_intermediate_failure_rollback_zero_persistence(pg_database: str) -> None:
+    _ = pg_database
+    service = LeadSubmissionService(settings=get_settings(), turnstile=_CountingTurnstile())
+    payload = QuoteRequestCreate.model_validate(QUOTE_MINIMAL)
+
+    async def fail_bundle(*args, **kwargs):
+        _ = (args, kwargs)
+        raise RuntimeError("simulated mid-transaction failure")
+
+    with patch.object(leads_repo, "insert_lead_bundle", side_effect=fail_bundle):
+        with pytest.raises(RuntimeError, match="simulated mid-transaction failure"):
+            await service.submit_quote(
+                payload,
+                idempotency_key=str(uuid.uuid4()),
+                client_host="127.0.0.1",
+                forwarded_for=None,
+            )
+
+    async with service._engine().connect() as conn:
+        leads = (await conn.execute(select(func.count()).select_from(Lead))).scalar_one()
+        quote_details = (
+            await conn.execute(select(func.count()).select_from(QuoteRequestDetail))
+        ).scalar_one()
+        contact_details = (
+            await conn.execute(select(func.count()).select_from(ContactMessageDetail))
+        ).scalar_one()
+        idem = (
+            await conn.execute(select(func.count()).select_from(IdempotencyRecord))
+        ).scalar_one()
+        notifications = (
+            await conn.execute(select(func.count()).select_from(NotificationJob))
+        ).scalar_one()
+        assert leads == 0
+        assert quote_details == 0
+        assert contact_details == 0
+        assert idem == 0
+        assert notifications == 0
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_rate_limit_shared_across_service_instances(
+    pg_database: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _ = pg_database
+    monkeypatch.setenv("RATE_LIMIT_CONTACT_MESSAGES_MAX", "1")
+    monkeypatch.setenv("RATE_LIMIT_CONTACT_MESSAGES_WINDOW_SECONDS", "3600")
+    get_settings.cache_clear()
+    settings = get_settings()
+    service_a = LeadSubmissionService(settings=settings, turnstile=_CountingTurnstile())
+    service_b = LeadSubmissionService(settings=settings, turnstile=_CountingTurnstile())
+    payload = ContactMessageCreate.model_validate(CONTACT_MINIMAL)
+
+    await service_a.submit_contact(
+        payload,
+        idempotency_key=str(uuid.uuid4()),
+        client_host="10.0.0.50",
+        forwarded_for=None,
+    )
+    with pytest.raises(RateLimitExceededError):
+        await service_b.submit_contact(
+            payload,
+            idempotency_key=str(uuid.uuid4()),
+            client_host="10.0.0.50",
+            forwarded_for=None,
+        )
