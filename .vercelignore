@@ -32,3 +32,15 @@ docs/
 .github/
 .vscode/
 .idea/
+
+# Archives internes
+*.zip
+
+# Caches Python
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Configs IDE agents
+.claude/
+.cursor/
