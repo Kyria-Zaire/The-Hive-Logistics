@@ -1,46 +1,104 @@
-import { homeContent } from "@/lib/content/home";
-import { HOME_ANCHORS, ROUTES } from "@/lib/routes";
+"use client";
+
+import { ROUTES } from "@/lib/routes";
 import { CtaLink } from "@/components/ui/cta-link";
 import { HeroMedia } from "@/components/home/hero-media";
 
 export function HeroSection() {
-  const { hero } = homeContent;
-
   return (
     <section
       aria-labelledby="hero-heading"
-      className="relative flex min-h-[100svh] flex-col justify-end min-[1440px]:min-h-[92svh]"
+      className="relative flex min-h-screen flex-col justify-center overflow-hidden"
     >
       <HeroMedia />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,rgba(10,10,10,0.88)_0%,rgba(10,10,10,0.45)_45%,rgba(10,10,10,0.25)_100%)]" />
-      <div className="thl-hero-content">
-        <div className="thl-container">
-          <div className="thl-hero-grid-bg thl-hero-block max-w-3xl rounded-sm thl-hero-reveal">
-            <p className="thl-hero-eyebrow text-xs uppercase tracking-[0.08em] text-thl-text-muted md:text-[0.8125rem]">
-              {hero.eyebrow}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,10,0.12)_0%,rgba(10,10,10,0.48)_54%,rgba(10,10,10,0.96)_100%)]" />
+      <div className="relative z-10 w-full px-5 pt-24 md:px-8 lg:px-16">
+        <div className="mx-auto w-full max-w-[1440px]">
+          <div className="max-w-4xl">
+            <p
+              className="hero-enter thl-hero-eyebrow text-caption text-[var(--text-primary)]"
+              style={
+                {
+                  "--enter-y": "20px",
+                  "--enter-delay": "0ms",
+                  "--enter-duration": "800ms",
+                } as React.CSSProperties
+              }
+            >
+              CONVOYAGE AUTOMOBILE PREMIUM
             </p>
             <h1
               id="hero-heading"
-              className="thl-hero-h1 thl-hero-title font-semibold text-thl-text-primary"
+              className="hero-enter text-display-xl mt-5 max-w-5xl font-semibold text-[var(--text-primary)]"
+              style={
+                {
+                  "--enter-y": "30px",
+                  "--enter-delay": "150ms",
+                  "--enter-duration": "900ms",
+                } as React.CSSProperties
+              }
             >
-              {hero.h1Before}
-              <span className="thl-hero-serif-accent">{hero.h1Accent}</span>
-              {hero.h1After}
+              THE HIVE LOGISTICS
             </h1>
-            <p className="thl-hero-lede max-w-[520px] text-base leading-relaxed text-thl-text-secondary md:text-lg">
-              {hero.paragraph}
+            <p
+              className="hero-enter thl-hero-lede text-display-m mt-6 max-w-3xl text-[var(--text-primary)]"
+              style={
+                {
+                  "--enter-y": "20px",
+                  "--enter-delay": "350ms",
+                  "--enter-duration": "800ms",
+                } as React.CSSProperties
+              }
+            >
+              Nous déplaçons plus que des véhicules.
             </p>
-            <div className="thl-hero-actions flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-              <CtaLink href={ROUTES.quote} variant="primary">
-                {hero.ctaPrimary}
+            <div
+              className="hero-enter mt-10 flex w-full flex-col gap-3 sm:flex-row sm:items-center"
+              style={
+                {
+                  "--enter-y": "20px",
+                  "--enter-delay": "550ms",
+                  "--enter-duration": "700ms",
+                } as React.CSSProperties
+              }
+            >
+              <CtaLink href={ROUTES.quote} variant="primary" className="w-full sm:w-auto">
+                Réserver un convoyage
               </CtaLink>
-              <CtaLink href={HOME_ANCHORS.services} variant="outline">
-                {hero.ctaSecondary}
+              <CtaLink href={ROUTES.services} variant="outline" className="w-full sm:w-auto">
+                Découvrir nos services
               </CtaLink>
             </div>
           </div>
         </div>
       </div>
+      <style jsx global>{`
+        @keyframes thl-hero-enter {
+          from {
+            opacity: 0;
+            transform: translateY(var(--enter-y, 20px));
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .hero-enter {
+          opacity: 0;
+          animation: thl-hero-enter var(--enter-duration, 800ms)
+            var(--ease-lux) forwards;
+          animation-delay: var(--enter-delay, 0ms);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero-enter {
+            animation: none;
+            opacity: 1;
+            transform: none;
+          }
+        }
+      `}</style>
     </section>
   );
 }

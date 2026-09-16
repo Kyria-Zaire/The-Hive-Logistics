@@ -3,11 +3,10 @@ export const ROUTES = {
   services: "/services",
   about: "/a-propos",
   contact: "/contact",
-  quote: "/demande-de-devis",
+  quote: "/contact#devis",
   portfolio: "/realisations",
   legalMentions: "/mentions-legales",
   legalPrivacy: "/politique-de-confidentialite",
-  legalCookies: "/politique-cookies",
 } as const;
 
 export const HOME_ANCHORS = {
