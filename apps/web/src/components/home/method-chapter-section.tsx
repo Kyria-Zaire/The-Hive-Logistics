@@ -1,41 +1,85 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { homeContent } from "@/lib/content/home";
 import { ROUTES } from "@/lib/routes";
 import { CtaLink } from "@/components/ui/cta-link";
 
 export function MethodChapterSection() {
   const { methodChapter } = homeContent;
+  const timelineRef = useRef<HTMLOListElement>(null);
+  const [timelineReady, setTimelineReady] = useState(false);
+  const [timelineVisible, setTimelineVisible] = useState(false);
+
+  useEffect(() => {
+    const timeline = timelineRef.current;
+    if (!timeline) {
+      return;
+    }
+    if (typeof IntersectionObserver === "undefined") {
+      return;
+    }
+
+    const readyFrame = window.requestAnimationFrame(() => {
+      setTimelineReady(true);
+    });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) {
+          return;
+        }
+        setTimelineVisible(true);
+        observer.disconnect();
+      },
+      { threshold: 0.2 },
+    );
+    observer.observe(timeline);
+
+    return () => {
+      window.cancelAnimationFrame(readyFrame);
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <section
       aria-labelledby="methode-hive"
-      className="bg-thl-bg-elevated py-20 md:py-28 xl:py-32"
+      className="bg-[var(--bg-primary)] py-[var(--space-6)]"
     >
-      <div className="thl-container thl-chapter-enter">
-        <h2 id="methode-hive" className="text-2xl font-semibold md:text-3xl xl:text-4xl">
+      <div className="thl-container">
+        <p className="text-caption text-[var(--text-muted)]">{methodChapter.eyebrow}</p>
+        <h2 id="methode-hive" className="text-display-m mt-4 text-[var(--text-primary)]">
           {methodChapter.chapterTitle}
         </h2>
 
-        <div className="mt-16">
-          <h3 className="text-lg font-medium text-thl-text-secondary md:text-xl">
-            {methodChapter.processTitle}
-          </h3>
-          <ol className="relative mt-10 flex flex-col gap-10 border-l border-thl-border pl-8 xl:flex-row xl:gap-0 xl:border-l-0 xl:border-t xl:pl-0 xl:pt-10">
+        <div className="mt-[var(--space-5)]">
+          <ol
+            ref={timelineRef}
+            data-ready={timelineReady}
+            data-visible={timelineVisible}
+            className="thl-process-timeline relative flex flex-col gap-10 border-l border-[var(--border)] pl-8 lg:flex-row lg:gap-0 lg:border-l-0 lg:border-t lg:pl-0 lg:pt-10"
+          >
             {methodChapter.steps.map((step) => (
               <li
                 key={step.num}
-                className="relative xl:flex-1 xl:border-l xl:border-thl-border xl:px-6 xl:first:border-l-0 xl:first:pl-0"
+                className="thl-process-step relative lg:flex-1 lg:border-l lg:border-[var(--border)] lg:px-6 lg:first:border-l-0 lg:first:pl-0"
+                style={{ "--step-index": Number(step.num) - 1 } as React.CSSProperties}
               >
-                <span className="absolute -left-[2.125rem] top-0 font-mono text-sm text-thl-text-muted xl:static xl:mb-4 xl:block">
+                <span className="text-caption text-[var(--accent)]">
                   {step.num}
                 </span>
-                <p className="text-lg font-semibold">{step.title}</p>
-                <p className="mt-2 text-sm leading-relaxed text-thl-text-secondary md:text-base">
+                <h3 className="text-heading mt-3 text-[var(--text-primary)]">
+                  {step.title}
+                </h3>
+                <p className="text-body mt-3 text-[var(--text-secondary)]">
                   {step.text}
                 </p>
               </li>
             ))}
           </ol>
-          <p className="mt-10 text-sm italic text-thl-text-muted">{methodChapter.note}</p>
+          <p className="text-body mt-[var(--space-4)] text-[var(--text-muted)]">
+            {methodChapter.note}
+          </p>
         </div>
 
         <div className="mt-20 border-t border-thl-border pt-16">
@@ -60,6 +104,53 @@ export function MethodChapterSection() {
           </div>
         </div>
       </div>
+      <style jsx global>{`
+        .thl-process-step::before {
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          border-radius: 9999px;
+          background: var(--accent);
+          content: "";
+        }
+
+        .thl-process-step::before {
+          top: 0;
+          left: -36px;
+        }
+
+        .thl-process-timeline[data-ready="true"] .thl-process-step {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+
+        .thl-process-timeline[data-visible="true"] .thl-process-step {
+          animation: thl-process-step-enter 700ms var(--ease-lux) forwards;
+          animation-delay: calc(var(--step-index) * 150ms);
+        }
+
+        @keyframes thl-process-step-enter {
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .thl-process-step::before {
+            top: -14px;
+            left: 24px;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .thl-process-timeline[data-ready="true"] .thl-process-step {
+            animation: none;
+            opacity: 1;
+            transform: none;
+          }
+        }
+      `}</style>
     </section>
   );
 }

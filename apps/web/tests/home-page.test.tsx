@@ -14,7 +14,7 @@ describe("HomePage", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: /Nous déplaçons plus que des véhicules/i,
+        name: /THE HIVE LOGISTICS/i,
       }),
     ).toBeInTheDocument();
   });
@@ -35,7 +35,7 @@ describe("HomePage", () => {
     ).toBeGreaterThan(0);
     expect(
       screen.getByRole("link", { name: homeContent.hero.ctaSecondary }),
-    ).toHaveAttribute("href", "#services");
+    ).toHaveAttribute("href", ROUTES.services);
     const serviceLinks = screen.getAllByRole("link", { name: homeContent.nav.services });
     expect(serviceLinks.some((link) => link.getAttribute("href") === ROUTES.services)).toBe(
       true,

@@ -30,13 +30,13 @@ export function SiteHeader() {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-40 border-b transition-[background-color,border-color] duration-[250ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+        className={`fixed inset-x-0 top-0 z-40 border-b backdrop-blur-sm transition-[background-color,border-color] duration-[250ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
           scrolled
             ? "border-thl-border bg-thl-bg-anthracite"
-            : "border-transparent bg-transparent"
+            : "border-thl-border bg-thl-bg-deep/80"
         }`}
       >
-        <div className="thl-container flex h-16 items-center justify-between gap-4 xl:h-[72px]">
+        <div className="thl-container flex h-16 items-center justify-between gap-4 md:h-[72px]">
           <Link
             href={ROUTES.home}
             className="text-sm font-semibold tracking-[0.12em] thl-focus-dark xl:text-base"
@@ -45,7 +45,7 @@ export function SiteHeader() {
           </Link>
 
           <nav
-            className="hidden flex-1 justify-center xl:flex"
+            className="hidden flex-1 justify-center lg:flex"
             aria-label={homeContent.nav.primary}
           >
             <MainNavLinks
@@ -57,6 +57,7 @@ export function SiteHeader() {
             <CtaLink
               href={ROUTES.quote}
               variant="header-compact"
+              className="lg:inline-flex"
               icon={
                 <ArrowUpRight size={16} strokeWidth={1.75} aria-hidden="true" />
               }
@@ -66,7 +67,7 @@ export function SiteHeader() {
             <button
               ref={menuButtonRef}
               type="button"
-              className="inline-flex size-11 items-center justify-center xl:hidden thl-focus-dark"
+              className="inline-flex size-11 items-center justify-center lg:hidden thl-focus-dark"
               aria-expanded={menuOpen}
               aria-controls="mobile-primary-nav"
               aria-label={

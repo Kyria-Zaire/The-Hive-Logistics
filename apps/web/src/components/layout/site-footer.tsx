@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { homeContent } from "@/lib/content/home";
+import {
+  SHOW_FOOTER_CONTACT_DETAILS,
+  SHOW_FOOTER_SOCIAL_LINKS,
+} from "@/lib/features";
 import { ROUTES } from "@/lib/routes";
 
 export function SiteFooter() {
@@ -16,6 +20,22 @@ export function SiteFooter() {
               © {year} {footer.wordmark}
             </p>
           </div>
+          {SHOW_FOOTER_CONTACT_DETAILS ? (
+            <div>
+              <p className="text-sm font-medium text-thl-text-primary">Coordonnées</p>
+              <p className="mt-4 text-sm text-thl-text-muted">
+                Coordonnées disponibles prochainement.
+              </p>
+            </div>
+          ) : null}
+          {SHOW_FOOTER_SOCIAL_LINKS ? (
+            <div>
+              <p className="text-sm font-medium text-thl-text-primary">Réseaux sociaux</p>
+              <p className="mt-4 text-sm text-thl-text-muted">
+                Réseaux sociaux disponibles prochainement.
+              </p>
+            </div>
+          ) : null}
           <nav aria-label="Liens du pied de page">
             <ul className="flex flex-col gap-3 text-sm">
               <li>
@@ -56,14 +76,6 @@ export function SiteFooter() {
                   className="thl-focus-dark text-thl-text-secondary hover:text-thl-text-primary"
                 >
                   {footer.legal.privacy}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href={ROUTES.legalCookies}
-                  className="thl-focus-dark text-thl-text-secondary hover:text-thl-text-primary"
-                >
-                  {footer.legal.cookies}
                 </Link>
               </li>
             </ul>

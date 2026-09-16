@@ -1,15 +1,69 @@
 @import "tailwindcss";
 
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-elevated: #1c1c1c;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1a1;
+  --text-muted: #6b6b6b;
+  --accent: #ff5757;
+  --accent-hover: #ff7070;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 48px;
+  --space-6: 96px;
+  --space-7: 160px;
+
+  --radius: 4px;
+  --radius-lg: 8px;
+
+  --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 200ms;
+  --duration-base: 400ms;
+  --duration-slow: 800ms;
+
+  --font-size-display-xl: clamp(48px, 8vw, 96px);
+  --line-height-display-xl: 1;
+  --letter-spacing-display-xl: -0.04em;
+  --font-size-display-l: clamp(40px, 6vw, 72px);
+  --line-height-display-l: 1.05;
+  --letter-spacing-display-l: -0.03em;
+  --font-size-display-m: clamp(32px, 5vw, 56px);
+  --line-height-display-m: 1.1;
+  --letter-spacing-display-m: -0.02em;
+  --font-size-heading: 32px;
+  --line-height-heading: 1.2;
+  --font-weight-heading: 500;
+  --font-size-body-l: 18px;
+  --line-height-body-l: 1.7;
+  --font-size-body: 16px;
+  --line-height-body: 1.7;
+  --font-size-caption: 14px;
+  --line-height-caption: 1.5;
+  --letter-spacing-caption: 0.05em;
+
+  --container-max: 1440px;
+  --container-padding: clamp(20px, 5vw, 80px);
+}
+
 @theme {
-  --color-thl-bg-deep: #0a0a0a;
-  --color-thl-bg-elevated: #141414;
-  --color-thl-bg-anthracite: #1c1c1e;
-  --color-thl-border: #2a2a2e;
-  --color-thl-text-primary: #ffffff;
-  --color-thl-text-secondary: #b8b8bc;
-  --color-thl-text-muted: #8a8a8f;
-  --color-thl-accent: #ff5757;
-  --color-thl-accent-hover: #e64d4d;
+  --color-thl-bg-deep: var(--bg-primary);
+  --color-thl-bg-elevated: var(--bg-secondary);
+  --color-thl-bg-anthracite: var(--bg-elevated);
+  --color-thl-border: var(--border);
+  --color-thl-border-strong: var(--border-strong);
+  --color-thl-text-primary: var(--text-primary);
+  --color-thl-text-secondary: var(--text-secondary);
+  --color-thl-text-muted: var(--text-muted);
+  --color-thl-accent: var(--accent);
+  --color-thl-accent-hover: var(--accent-hover);
   --color-thl-accent-active: #d94444;
   --color-thl-on-accent: #0a0a0a;
   --color-thl-focus: #ffffff;
@@ -43,23 +97,13 @@
 
 @layer components {
   .thl-container {
-    @apply mx-auto w-full max-w-[1280px];
-    padding-inline: max(1rem, env(safe-area-inset-left, 0px))
-      max(1rem, env(safe-area-inset-right, 0px));
-  }
-
-  @media (min-width: 768px) {
-    .thl-container {
-      padding-inline: max(1.5rem, env(safe-area-inset-left, 0px))
-        max(1.5rem, env(safe-area-inset-right, 0px));
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .thl-container {
-      padding-inline: max(2rem, env(safe-area-inset-left, 0px))
-        max(2rem, env(safe-area-inset-right, 0px));
-    }
+    @apply mx-auto w-full;
+    max-width: var(--container-max);
+    padding-inline: max(
+      var(--container-padding),
+      env(safe-area-inset-left, 0px)
+    )
+      max(var(--container-padding), env(safe-area-inset-right, 0px));
   }
 
   .thl-focus-dark:focus-visible {
@@ -315,6 +359,49 @@
         transparent 55%
       ),
       linear-gradient(160deg, #0a0a0a 0%, #141414 45%, #1c1c1e 100%);
+  }
+}
+
+@layer utilities {
+  .text-display-xl {
+    font-size: var(--font-size-display-xl);
+    line-height: var(--line-height-display-xl);
+    letter-spacing: var(--letter-spacing-display-xl);
+  }
+
+  .text-display-l {
+    font-size: var(--font-size-display-l);
+    line-height: var(--line-height-display-l);
+    letter-spacing: var(--letter-spacing-display-l);
+  }
+
+  .text-display-m {
+    font-size: var(--font-size-display-m);
+    line-height: var(--line-height-display-m);
+    letter-spacing: var(--letter-spacing-display-m);
+  }
+
+  .text-heading {
+    font-size: var(--font-size-heading);
+    line-height: var(--line-height-heading);
+    font-weight: var(--font-weight-heading);
+  }
+
+  .text-body-l {
+    font-size: var(--font-size-body-l);
+    line-height: var(--line-height-body-l);
+  }
+
+  .text-body {
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+  }
+
+  .text-caption {
+    font-size: var(--font-size-caption);
+    line-height: var(--line-height-caption);
+    letter-spacing: var(--letter-spacing-caption);
+    text-transform: uppercase;
   }
 }
 

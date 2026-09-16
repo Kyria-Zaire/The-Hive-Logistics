@@ -1,12 +1,6 @@
 export const homeContent = {
   hero: {
-    eyebrow: "Mobilité automobile premium",
-    h1Before: "Nous déplaçons ",
-    h1Accent: "plus que",
-    h1After: " des véhicules.",
-    paragraph:
-      "Convoyage, gestion de flotte et logistique automobile, orchestrés avec précision.",
-    ctaPrimary: "Demander un devis",
+    ctaPrimary: "Réserver un convoyage",
     ctaSecondary: "Découvrir nos services",
   },
   brandStatement: {
@@ -16,64 +10,81 @@ export const homeContent = {
     linkLabel: "Découvrir notre approche",
   },
   services: {
-    title: "Nos expertises",
-    cta: "Voir tous les services",
+    eyebrow: "NOS SERVICES",
+    title: "Une offre complète",
     items: [
       {
         id: "convoyage",
-        title: "Convoyage automobile premium",
-        need: "Organiser le déplacement de véhicules",
-        description:
-          "Accompagnement du déplacement de véhicules selon votre contexte.",
+        title: "Convoyage automobile",
+        description: "Déplacement sécurisé de votre véhicule.",
+        icon: "route",
       },
       {
         id: "flotte",
-        title: "Gestion et coordination de flotte",
-        need: "Coordonner les mouvements",
-        description:
-          "Coordination opérationnelle des mouvements de flotte.",
+        title: "Gestion de flotte",
+        description: "Coordination et suivi de votre flotte.",
+        icon: "fleet",
       },
       {
         id: "logistique",
-        title: "Logistique automobile",
-        need: "Structurer les flux",
-        description:
-          "Accompagnement logistique automobile adapté à vos contraintes.",
+        title: "Logistique premium",
+        description: "Solutions logistiques adaptées à votre besoin.",
+        icon: "package",
       },
       {
         id: "preparation",
         title: "Préparation automobile",
-        need: "Préparer la remise",
+        description: "Préparation soignée avant remise des clés.",
+        icon: "sparkle",
+      },
+    ],
+  },
+  engagements: {
+    eyebrow: "NOTRE ENGAGEMENT",
+    title: "Le luxe, une exigence",
+    items: [
+      {
+        title: "Excellence opérationnelle",
         description:
-          "Préparation automobile selon le périmètre validé.",
+          "Rigueur et méthode à chaque étape.",
+      },
+      {
+        title: "Disponibilité renforcée",
+        description:
+          "Une équipe disponible aux horaires convenus.",
+      },
+      {
+        title: "Confidentialité renforcée",
+        description:
+          "Vos véhicules et vos données sont protégés.",
       },
     ],
   },
   methodChapter: {
-    chapterTitle: "La méthode Hive",
-    processTitle: "Comment se déroule une demande",
+    eyebrow: "NOTRE MÉTHODE",
+    chapterTitle: "Un processus maîtrisé",
     note:
       "Chaque demande est traitée par l'équipe — pas de confirmation automatique en ligne.",
     steps: [
       {
         num: "01",
-        title: "Demande",
-        text: "Vous formulez votre besoin via le devis ou le contact.",
+        title: "Réservation",
+        text: "Soumettez votre demande via le formulaire.",
       },
       {
         num: "02",
-        title: "Qualification",
-        text: "Nous examinons les informations et reprenons contact si nécessaire.",
+        title: "Prise en charge",
+        text: "Nous confirmons les modalités avec vous.",
       },
       {
         num: "03",
-        title: "Prise en charge",
-        text: "Organisation opérationnelle du service convenu.",
+        title: "Transport sécurisé",
+        text: "Votre véhicule est acheminé avec soin.",
       },
       {
         num: "04",
-        title: "Livraison et confirmation",
-        text: "Restitution et confirmation avec vous.",
+        title: "Livraison",
+        text: "Remise du véhicule au lieu convenu.",
       },
     ],
     principlesTitle: "Nos principes",
@@ -96,15 +107,16 @@ export const homeContent = {
       {
         num: "04",
         title: "Suivi humain",
-        text: "Modalités d'interlocuteur définies avec vous.",
+        text: "Un interlocuteur dédié, défini avec vous.",
       },
     ],
     cta: "Demander un devis",
   },
   vision: {
-    title: "Perspectives",
+    eyebrow: "NOTRE VISION",
+    title: "Bâtir la référence du convoyage premium en France.",
     body:
-      "THE HIVE LOGISTICS oriente son développement vers des services de mobilité automobile premium — coordination, logistique et préparation — avec une ambition d'élargissement progressif des services proposés, sous validation métier et juridique.",
+      "Faire de chaque déplacement une référence. Nous construisons une mobilité premium fondée sur la précision, la rigueur et la confiance. Notre ambition est de développer une présence nationale du convoyage haut de gamme, en accompagnant chaque véhicule avec le même niveau d’exigence. Le prestige ne tient pas à l’apparence seule : il se mesure à la qualité constante de chaque étape, à la clarté des échanges et au respect des engagements pris.",
   },
   conversion: {
     title: "Parlons de votre besoin",
@@ -123,13 +135,11 @@ export const homeContent = {
     legal: {
       mentions: "Mentions légales",
       privacy: "Politique de confidentialité",
-      cookies: "Politique cookies",
     },
   },
   nav: {
     home: "Accueil",
     services: "Services",
-    about: "À propos",
     contact: "Contact",
     quote: "Demander un devis",
     menuOpen: "Ouvrir le menu",

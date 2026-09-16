@@ -1,0 +1,34 @@
+# Environnements locaux (jamais uploadés)
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.template
+
+# Infra locale
+infra/
+docker-compose*.yml
+
+# Backend Python (non déployé sur Vercel)
+apps/api/
+!apps/api/README.md
+
+# Caches et artefacts
+**/.next/
+**/node_modules/
+**/dist/
+**/build/
+**/.turbo/
+**/.cache/
+**/coverage/
+
+# Docs et plans internes
+docs/
+*.md
+!README.md
+!apps/web/README.md
+
+# Git et IDE
+.git/
+.github/
+.vscode/
+.idea/
