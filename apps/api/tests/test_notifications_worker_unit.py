@@ -206,7 +206,8 @@ def test_worker_settings_missing_smtp_host_fail_fast(
     monkeypatch.setenv("DATABASE_URL", "postgresql+psycopg://u:p@127.0.0.1:5432/db")
     monkeypatch.delenv("NOTIFICATION_SMTP_HOST", raising=False)
     with pytest.raises(ValidationError):
-        WorkerSettings()
+        # Ignore any local apps/api/.env so the test only depends on the environment it sets.
+        WorkerSettings(_env_file=None)
 
 
 def test_smtp_timeout_constant() -> None:
