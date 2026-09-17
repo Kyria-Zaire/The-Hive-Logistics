@@ -8,11 +8,13 @@ import {
   useState,
 } from "react";
 import { submitContactAction } from "@/app/actions/contact";
+import { mapApiErrorToField } from "@/app/actions/form-data";
 import { submitQuoteAction } from "@/app/actions/quote";
 import type { ActionResult } from "@/app/actions/types";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import type { ApiFieldError } from "@/lib/api/client";
+import { company, companyAddressLine } from "@/lib/content/company";
 import { SHOW_FOOTER_CONTACT_DETAILS, SHOW_FOOTER_SOCIAL_LINKS } from "@/lib/features";
 import { TurnstileWidget } from "@/components/contact/turnstile-widget";
 
@@ -26,12 +28,26 @@ type FormState = {
 const initialFormState: FormState = { status: "idle", result: null };
 
 function FieldError({ id, errors }: { id: string; errors: ApiFieldError[] }) {
-  const error = errors.find((item) => item.field === id);
+  const error = errors.find((item) => mapApiErrorToField(item.field) === id);
   return error ? (
     <p id={`${id}-error`} role="alert" className="mt-2 text-sm text-[var(--accent)]">
       {error.message}
     </p>
   ) : null;
+}
+
+const TURNSTILE_ERROR_MESSAGE = "Validation anti-spam requise.";
+
+function hasTurnstileError(errors: ApiFieldError[]) {
+  return errors.some((item) => mapApiErrorToField(item.field) === "turnstile_token");
+}
+
+function TurnstileError({ id }: { id: string }) {
+  return (
+    <p id={id} role="alert" className="mt-2 text-sm text-[var(--accent)]">
+      {TURNSTILE_ERROR_MESSAGE}
+    </p>
+  );
 }
 
 function FormMessage({ state }: { state: FormState }) {
@@ -58,7 +74,7 @@ function TextInput({
   required?: boolean;
   errors: ApiFieldError[];
 }) {
-  const hasError = errors.some((item) => item.field === id);
+  const hasError = errors.some((item) => mapApiErrorToField(item.field) === id);
   return (
     <div>
       <label htmlFor={id} className="text-sm font-medium text-[var(--text-primary)]">
@@ -168,7 +184,10 @@ function ContactForm() {
         <FieldError id="message" errors={errors} />
       </div>
       <Honeypot />
-      <TurnstileWidget resetSignal={resetSignal} onVerify={verifyToken} />
+      <div>
+        <TurnstileWidget action="contact_message" resetSignal={resetSignal} onVerify={verifyToken} describedBy={hasTurnstileError(errors) ? "contact-turnstile-error" : undefined} />
+        {hasTurnstileError(errors) ? <TurnstileError id="contact-turnstile-error" /> : null}
+      </div>
       <label className="flex items-start gap-3 text-sm text-[var(--text-secondary)]">
         <input type="checkbox" name="privacy_acknowledgement" value="true" required className="mt-1 accent-[var(--accent)]" />
         <span>Je prends connaissance de la politique de confidentialité. *</span>
@@ -305,7 +324,10 @@ function QuoteForm() {
         </select>
       </div>
       <div className="sr-only" aria-hidden="true"><label htmlFor="quote-honeypot">Ne pas remplir</label><input id="quote-honeypot" name="honeypot" tabIndex={-1} autoComplete="off" /></div>
-      <TurnstileWidget resetSignal={resetSignal} onVerify={verifyToken} />
+      <div>
+        <TurnstileWidget action="quote_request" resetSignal={resetSignal} onVerify={verifyToken} describedBy={hasTurnstileError(errors) ? "quote-turnstile-error" : undefined} />
+        {hasTurnstileError(errors) ? <TurnstileError id="quote-turnstile-error" /> : null}
+      </div>
       <label className="flex items-start gap-3 text-sm text-[var(--text-secondary)]"><input type="checkbox" name="privacy_acknowledgement" value="true" required className="mt-1 accent-[var(--accent)]" /><span>Je prends connaissance de la politique de confidentialité. *</span></label>
       <FormMessage state={state} />
       {state.status === "success" ? <p role="status" className="text-sm text-[var(--text-primary)]">Votre demande a bien été transmise.</p> : null}
@@ -330,7 +352,7 @@ export default function ContactPage() {
             <QuoteForm />
           </div>
           <aside className="mt-8 grid gap-6 md:grid-cols-2">
-            {!SHOW_FOOTER_CONTACT_DETAILS ? null : <div className="border-l-2 border-[var(--accent)] pl-4"><h2 className="text-heading">Coordonnées</h2><p className="text-body mt-3 text-[var(--text-secondary)]">Coordonnées disponibles prochainement.</p></div>}
+            {!SHOW_FOOTER_CONTACT_DETAILS ? null : <div className="border-l-2 border-[var(--accent)] pl-4"><h2 className="text-heading">Coordonnées</h2><address className="text-body mt-3 flex flex-col gap-1 not-italic text-[var(--text-secondary)]"><span>{companyAddressLine}</span><a className="thl-focus-dark hover:text-[var(--text-primary)]" href={`tel:${company.phone.e164}`}>{company.phone.display}</a><a className="thl-focus-dark hover:text-[var(--text-primary)]" href={`mailto:${company.email}`}>{company.email}</a></address></div>}
             {!SHOW_FOOTER_SOCIAL_LINKS ? null : <div className="border-l-2 border-[var(--accent)] pl-4"><h2 className="text-heading">Réseaux sociaux</h2><p className="text-body mt-3 text-[var(--text-secondary)]">Réseaux sociaux disponibles prochainement.</p></div>}
           </aside>
         </div>

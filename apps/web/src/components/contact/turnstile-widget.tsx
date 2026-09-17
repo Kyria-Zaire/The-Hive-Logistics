@@ -4,12 +4,17 @@ import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 
 type TurnstileWidgetProps = {
+  /** Siteverify action checked by the API (ADR-004): "contact_message" | "quote_request". */
+  action: string;
   resetSignal: number;
   onVerify: (token: string) => void;
+  /** Id of the element describing a Turnstile validation error, when one is displayed. */
+  describedBy?: string;
 };
 
 type TurnstileRenderOptions = {
   sitekey: string;
+  action: string;
   callback: (token: string) => void;
   "expired-callback": () => void;
   "error-callback": () => void;
@@ -18,6 +23,7 @@ type TurnstileRenderOptions = {
 type TurnstileApi = {
   render: (container: HTMLElement, options: TurnstileRenderOptions) => string;
   reset: (widgetId?: string) => void;
+  remove: (widgetId: string) => void;
 };
 
 declare global {
@@ -26,7 +32,7 @@ declare global {
   }
 }
 
-export function TurnstileWidget({ resetSignal, onVerify }: TurnstileWidgetProps) {
+export function TurnstileWidget({ action, resetSignal, onVerify, describedBy }: TurnstileWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | undefined>(undefined);
   const [scriptReady, setScriptReady] = useState(false);
@@ -40,6 +46,7 @@ export function TurnstileWidget({ resetSignal, onVerify }: TurnstileWidgetProps)
     containerRef.current.replaceChildren();
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: siteKey,
+      action,
       callback: onVerify,
       "expired-callback": () => onVerify(""),
       "error-callback": () => onVerify(""),
@@ -47,11 +54,12 @@ export function TurnstileWidget({ resetSignal, onVerify }: TurnstileWidgetProps)
 
     return () => {
       if (widgetIdRef.current) {
-        window.turnstile?.reset(widgetIdRef.current);
+        // remove (not reset): the widget must be destroyed when its container leaves the DOM.
+        window.turnstile?.remove(widgetIdRef.current);
         widgetIdRef.current = undefined;
       }
     };
-  }, [onVerify, resetSignal, scriptReady, siteKey]);
+  }, [action, onVerify, resetSignal, scriptReady, siteKey]);
 
   if (!siteKey) {
     return (
@@ -61,14 +69,25 @@ export function TurnstileWidget({ resetSignal, onVerify }: TurnstileWidgetProps)
     );
   }
 
+  // next/script: onReady covers re-mounts after a client-side navigation (script already loaded);
+  // onLoad covers a second <Script> with the same src mounted while the first load is in flight,
+  // which receives onLoad only. Both are needed for the two widgets of /contact.
+  const markScriptReady = () => setScriptReady(true);
+
   return (
     <div>
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         strategy="afterInteractive"
-        onLoad={() => setScriptReady(true)}
+        onLoad={markScriptReady}
+        onReady={markScriptReady}
       />
-      <div ref={containerRef} aria-label="Vérification anti-spam" />
+      <div
+        ref={containerRef}
+        role="group"
+        aria-label="Vérification anti-spam"
+        aria-describedby={describedBy}
+      />
     </div>
   );
 }
