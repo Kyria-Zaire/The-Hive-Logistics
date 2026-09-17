@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { company, companyAddressLine } from "@/lib/content/company";
 import { ROUTES } from "@/lib/routes";
 
 export const metadata: Metadata = {
@@ -10,13 +11,13 @@ export const metadata: Metadata = {
 };
 
 const sections = [
-  ["Responsable du traitement", "[À COMPLÉTER : identité et coordonnées du responsable du traitement]"],
+  ["Responsable du traitement", `${company.legalName}, ${companyAddressLine}.`],
   ["Données collectées", "Les formulaires Contact et Devis peuvent recueillir les champs nécessaires à l'instruction d'une demande. [À COMPLÉTER : liste validée des données et caractère obligatoire]"],
   ["Finalité du traitement", "[À COMPLÉTER : finalités précises du traitement des demandes]"],
   ["Base légale", "[À COMPLÉTER : base légale applicable à chaque finalité]"],
-  ["Durée de conservation", "[À COMPLÉTER : durées de conservation validées]"],
+  ["Durée de conservation", `Les données sont conservées ${company.dataRetention}.`],
   ["Destinataires", "[À COMPLÉTER : destinataires et sous-traitants autorisés]"],
-  ["Droits des personnes", "Vous pouvez exercer les droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité selon les conditions applicables. [À COMPLÉTER : modalités et coordonnées d'exercice]"],
+  ["Droits des personnes", `Vous pouvez exercer les droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité selon les conditions applicables. Pour exercer ces droits : ${company.email}.`],
   ["Cookies", "[À COMPLÉTER : cookies et traceurs utilisés, finalités et durée]"],
   ["Contact DPO", "[À COMPLÉTER : coordonnées du DPO ou point de contact dédié]"],
   ["Réclamation CNIL", "[À COMPLÉTER : informations validées relatives au droit de réclamation auprès de la CNIL]"],

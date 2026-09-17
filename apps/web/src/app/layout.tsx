@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { instrumentSans, instrumentSerif } from "@/app/fonts";
 import { SkipLink } from "@/components/layout/skip-link";
+import { company } from "@/lib/content/company";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://the-hive-logistics.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://thehivelogistics.fr";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -46,6 +47,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     description: "THE HIVE LOGISTICS — convoyage automobile premium, gestion de flotte et logistique haut de gamme.",
     url: siteUrl,
     logo: `${siteUrl}/icon.svg`,
+    email: company.email,
+    telephone: company.phone.e164,
+    vatID: company.vatId,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: company.address.street,
+      postalCode: company.address.postalCode,
+      addressLocality: company.address.city,
+      addressCountry: company.address.countryCode,
+    },
   };
 
   return (

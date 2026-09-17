@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { company, companyAddressLine } from "@/lib/content/company";
 import { homeContent } from "@/lib/content/home";
 import {
   SHOW_FOOTER_CONTACT_DETAILS,
@@ -23,9 +24,21 @@ export function SiteFooter() {
           {SHOW_FOOTER_CONTACT_DETAILS ? (
             <div>
               <p className="text-sm font-medium text-thl-text-primary">Coordonnées</p>
-              <p className="mt-4 text-sm text-thl-text-muted">
-                Coordonnées disponibles prochainement.
-              </p>
+              <address className="mt-4 flex flex-col gap-3 text-sm not-italic text-thl-text-secondary">
+                <span>{companyAddressLine}</span>
+                <a
+                  href={`tel:${company.phone.e164}`}
+                  className="thl-focus-dark hover:text-thl-text-primary"
+                >
+                  {company.phone.display}
+                </a>
+                <a
+                  href={`mailto:${company.email}`}
+                  className="thl-focus-dark hover:text-thl-text-primary"
+                >
+                  {company.email}
+                </a>
+              </address>
             </div>
           ) : null}
           {SHOW_FOOTER_SOCIAL_LINKS ? (

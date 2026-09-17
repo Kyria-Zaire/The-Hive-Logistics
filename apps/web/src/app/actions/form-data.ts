@@ -32,7 +32,20 @@ export function readOptionalString(
     errors.push({ field, message: "Format de champ invalide." });
     return undefined;
   }
+  // An untouched optional input is submitted as "": omit it instead of sending an empty value the API rejects.
+  if (value === "") {
+    return undefined;
+  }
   return value;
+}
+
+/**
+ * API validation errors can carry a schema suffix (e.g. "phone.constrained-str").
+ * Returns the root field name so the error attaches to the matching form control.
+ */
+export function mapApiErrorToField(field: string): string {
+  const separatorIndex = field.indexOf(".");
+  return separatorIndex === -1 ? field : field.slice(0, separatorIndex);
 }
 
 export function readBoolean(

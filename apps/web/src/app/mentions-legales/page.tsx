@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { company, companyAddressLine } from "@/lib/content/company";
 import { ROUTES } from "@/lib/routes";
 
 export const metadata: Metadata = {
@@ -13,15 +14,17 @@ const sections = [
   {
     title: "Éditeur du site",
     paragraphs: [
-      "[À COMPLÉTER : dénomination sociale]",
-      "[À COMPLÉTER : SIRET]",
-      "[À COMPLÉTER : adresse du siège social]",
-      "[À COMPLÉTER : nom du dirigeant]",
+      `${company.legalName}, ${company.legalForm} au capital de ${company.shareCapital}`,
+      `Immatriculation : ${company.registration}`,
+      `TVA intracommunautaire : ${company.vatId}`,
+      `Siège social : ${companyAddressLine}`,
+      `Président : ${company.president}`,
+      `Contact : ${company.email} — ${company.phone.display}`,
     ],
   },
   {
     title: "Hébergeur",
-    paragraphs: ["[À COMPLÉTER : hébergeur (ex: Vercel Inc.)]"],
+    paragraphs: [company.host],
   },
   {
     title: "Propriété intellectuelle",
