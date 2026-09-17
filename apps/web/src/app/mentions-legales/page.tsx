@@ -29,14 +29,13 @@ const sections = [
   {
     title: "Propriété intellectuelle",
     paragraphs: [
-      "Les éléments de ce site sont présentés sous réserve de la validation des droits et mentions applicables.",
-      "[À COMPLÉTER : titulaire des droits et conditions d'utilisation des contenus]",
+      "L'ensemble des éléments composant ce site (structure, textes, images, logos, vidéos) est la propriété exclusive de The HIVE LOGISTICS ou de ses partenaires, sauf mention contraire. Toute reproduction, représentation, modification ou exploitation, totale ou partielle, est interdite sans autorisation écrite préalable.",
     ],
   },
   {
     title: "Responsabilité",
     paragraphs: [
-      "[À COMPLÉTER : informations relatives à la responsabilité de l'éditeur]",
+      "The HIVE LOGISTICS s'efforce d'assurer l'exactitude des informations diffusées sur ce site. Elle ne peut toutefois garantir l'absence d'erreur ou l'exhaustivité des contenus, et décline toute responsabilité pour tout dommage résultant de l'utilisation du site.",
     ],
   },
   {
@@ -48,12 +47,14 @@ const sections = [
   {
     title: "Cookies",
     paragraphs: [
-      "[À COMPLÉTER : politique applicable aux cookies et traceurs]",
+      "Ce site n'utilise aucun cookie publicitaire ou de traçage comportemental. Seuls des cookies strictement nécessaires au fonctionnement du site (protection anti-spam Cloudflare Turnstile) peuvent être déposés.",
     ],
   },
   {
     title: "Droit applicable",
-    paragraphs: ["[À COMPLÉTER : droit applicable et juridiction compétente]"],
+    paragraphs: [
+      "Le présent site est soumis au droit français. En cas de litige, et à défaut de résolution amiable, les tribunaux français seront compétents dans les conditions prévues par le Code de la consommation pour les particuliers, et par le Code de commerce pour les professionnels.",
+    ],
   },
 ] as const;
 
