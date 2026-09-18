@@ -219,7 +219,7 @@ FR-002 aperçu ; ancre **`id="services"`**.
 | Convoyage automobile premium | Organiser le déplacement de véhicules | Accompagnement du déplacement de véhicules selon votre contexte. |
 | Gestion et coordination de flotte | Coordonner les mouvements | Coordination opérationnelle des mouvements de flotte. |
 | Logistique automobile | Structurer les flux | Accompagnement logistique automobile adapté à vos contraintes. |
-| Préparation automobile | Préparer la remise | Préparation automobile **selon le périmètre validé** `[À CONFIRMER — Owner: Jores — Gate: PREPROD]`. |
+| ~~Préparation automobile~~ | — | `[CONFIRMÉ 18/09/2026 — Owner: Jores]` Service non proposé en V1. |
 
 CTA section : **Voir tous les services** → `/services`
 

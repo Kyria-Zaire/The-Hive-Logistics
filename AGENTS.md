@@ -10,7 +10,9 @@
 
 ## Produit V1
 
-THE HIVE LOGISTICS est un site vitrine français premium pour le convoyage automobile, la coordination de flotte, la logistique automobile sur mesure et la préparation/remise de véhicules.
+THE HIVE LOGISTICS est un site vitrine français premium pour le convoyage automobile, la coordination de flotte et la logistique automobile sur mesure.
+
+[MAJ 18/09/2026] Service « Préparation automobile » retiré du périmètre V1 sur décision client (Jores).
 
 Hors périmètre V1 : immobilier, chauffeur privé, location automobile, comptes clients, authentification, réservation automatisée, calendrier, tarification automatique, paiement, back-office, CMS, e-commerce et multilingue.
 

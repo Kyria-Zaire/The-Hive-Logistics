@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     "THE HIVE LOGISTICS — convoyage automobile premium, gestion de flotte et logistique haut de gamme.",
   openGraph: {
     title: "THE HIVE LOGISTICS — Convoyage automobile premium",
-    description: "Convoyage automobile, gestion de flotte, logistique premium et préparation automobile.",
+    description: "Convoyage automobile, gestion de flotte et logistique premium.",
     type: "website",
     locale: "fr_FR",
     siteName: "THE HIVE LOGISTICS",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "THE HIVE LOGISTICS — Convoyage automobile premium",
-    description: "Convoyage automobile, gestion de flotte, logistique premium et préparation automobile.",
+    description: "Convoyage automobile, gestion de flotte et logistique premium.",
     images: ["/opengraph-image"],
   },
   robots: {

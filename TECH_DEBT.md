@@ -17,6 +17,12 @@ Points connus au moment de la mise en production de la V1 (2026-09-17). Chaque e
 | 11 | `.env.template` cite une variable non lue | Faible |
 | 12 | Pas de canonique sur la page d’accueil | Faible |
 | 13 | Déploiements sans chaîne CI | Faible |
+| 14 | Police display : pas de graisse sous 400 | Moyenne |
+| 15 | Timeline Processus dupliquée (home et /services) | Moyenne |
+| 16 | Contenu narratif /a-propos repris de la home | Moyenne |
+| 17 | Token `--font-size-display-s` ajouté mais inutilisé | Faible |
+| 18 | Images sources lourdes dans le dépôt | Faible |
+| 19 | Cache images Next après remplacement d'un fichier | Faible — exploitation |
 
 ---
 
@@ -97,3 +103,43 @@ Toutes les pages déclarent une URL canonique sauf `/`. Antérieur au sprint de 
 Front et backend sont déployés depuis le poste de développement (`vercel deploy --prod`, `railway up`). La promotion manuelle est voulue par ENVIRONMENTS.md, mais ADR-007 prévoit des artefacts issus d’une CI, et l’auto-deploy GitHub de Railway a dû être écarté faute de coupe-circuit accessible par API.
 
 **Piste :** pipeline CI produisant l’image et déclenchant un déploiement approuvé manuellement.
+
+---
+
+*Entrées 14 à 19 ajoutées le 2026-09-18 à l'issue du sprint design (tickets 02 à 09).*
+
+## 14. Police display : pas de graisse sous 400
+
+Le design des numéros XXL de la section Processus visait une graisse 200-300. Instrument Sans est chargée en 400, 500 et 600, et une sonde de rendu confirme que 200, 300 et 400 produisent exactement la même largeur de glyphe : la famille ne descend pas plus bas et les navigateurs ne synthétisent pas les graisses fines.
+
+**Piste :** évaluer une police display dédiée (Inter Light, ou Instrument Serif en variante light) pour les numéros et grands titres, en pesant le coût réseau d'une famille supplémentaire.
+
+## 15. Timeline Processus dupliquée
+
+Le balisage des 4 étapes existe deux fois : dans `method-chapter-section.tsx` (accueil, avec son `IntersectionObserver`, l'ancre `#methode-hive` et le bloc « Nos principes ») et dans `app/services/page.tsx` (version statique). Les deux doivent rester visuellement synchronisées à la main.
+
+**Piste :** extraire un composant de présentation `ProcessSteps` consommé par les deux surfaces, dans un ticket autorisé à modifier l'accueil.
+
+## 16. Contenu narratif /a-propos repris de la home
+
+La section narrative de `/a-propos` réutilise mot pour mot le bloc `brandStatement` déjà publié sur l'accueil. C'est volontaire — aucun texte n'a été inventé — mais un visiteur qui enchaîne les deux pages lit deux fois la même chose.
+
+**Piste :** demander à Jores un texte propre à `/a-propos` (histoire, origine, positionnement). Rien ne sera rédigé à sa place : gate AC-011, contenus signés Jores.
+
+## 17. Token `--font-size-display-s` ajouté mais inutilisé
+
+`--font-size-display-s` (clamp 28-44 px) et l'utilitaire `.text-display-s` existent depuis le ticket 09 mais ne sont appliqués nulle part. Ils comblent le trou entre `.text-heading` (32 px fixe) et `.text-display-m` (jusqu'à 56 px), qui avait aplati la hiérarchie du bloc « Nos principes ».
+
+**Piste :** les déployer au prochain passage sur les hiérarchies de titres.
+
+## 18. Images sources lourdes dans le dépôt
+
+Les photos pèsent de 1,4 à 4,3 Mo l'unité, soit environ 18 Mo dans `apps/web/public`. Next les recompresse à l'affichage (20 à 60 Ko en WebP), donc aucun impact visiteur, mais le dépôt s'alourdit à chaque ajout et chaque téléversement de build.
+
+**Piste :** passer les sources à `sharp-cli` ou Squoosh avant commit, avec une largeur maximale raisonnée.
+
+## 19. Cache images Next après remplacement d'un fichier
+
+Remplacer une image sans changer son nom laisse servir l'ancienne version : les variantes optimisées restent en cache dans `.next/cache/images`, et un rechargement forcé du navigateur n'y change rien.
+
+**Piste :** renommer le fichier lors d'un remplacement, ce qui change l'URL optimisée ; sinon vider `.next/cache/images` et redémarrer le serveur.
