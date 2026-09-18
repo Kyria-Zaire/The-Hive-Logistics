@@ -44,7 +44,7 @@ export function MethodChapterSection() {
   return (
     <section
       aria-labelledby="methode-hive"
-      className="bg-[var(--bg-primary)] py-[var(--space-6)]"
+      className="bg-[var(--bg-primary)] py-[var(--space-6)] lg:py-[var(--space-7)]"
     >
       <div className="thl-container">
         <p className="text-caption text-[var(--text-muted)]">{methodChapter.eyebrow}</p>
@@ -52,52 +52,55 @@ export function MethodChapterSection() {
           {methodChapter.chapterTitle}
         </h2>
 
-        <div className="mt-[var(--space-5)]">
+        <div className="mt-[var(--space-6)]">
           <ol
             ref={timelineRef}
             data-ready={timelineReady}
             data-visible={timelineVisible}
-            className="thl-process-timeline relative flex flex-col gap-10 border-l border-[var(--border)] pl-8 lg:flex-row lg:gap-0 lg:border-l-0 lg:border-t lg:pl-0 lg:pt-10"
+            className="thl-process-timeline relative flex flex-col gap-[var(--space-5)] border-l border-[var(--border)] pl-[var(--space-4)] lg:flex-row lg:gap-0 lg:border-l-0 lg:border-t lg:pl-0"
           >
             {methodChapter.steps.map((step) => (
               <li
                 key={step.num}
-                className="thl-process-step relative lg:flex-1 lg:border-l lg:border-[var(--border)] lg:px-6 lg:first:border-l-0 lg:first:pl-0"
+                className="thl-process-step relative lg:flex-1 lg:pr-[var(--space-5)] lg:pt-[var(--space-5)] lg:last:pr-0"
                 style={{ "--step-index": Number(step.num) - 1 } as React.CSSProperties}
               >
-                <span className="text-caption text-[var(--accent)]">
+                {/* 400 is the lightest weight Instrument Sans ships: the scale carries the lightness. */}
+                <span className="text-display-l block font-normal text-[var(--accent)]">
                   {step.num}
                 </span>
-                <h3 className="text-heading mt-3 text-[var(--text-primary)]">
+                <h3 className="text-heading mt-[var(--space-4)] text-[var(--text-primary)]">
                   {step.title}
                 </h3>
-                <p className="text-body mt-3 text-[var(--text-secondary)]">
+                <p className="text-body mt-[var(--space-3)] text-[var(--text-secondary)]">
                   {step.text}
                 </p>
               </li>
             ))}
           </ol>
-          <p className="text-body mt-[var(--space-4)] text-[var(--text-muted)]">
+          <p className="text-body mt-[var(--space-5)] max-w-2xl text-[var(--text-muted)]">
             {methodChapter.note}
           </p>
         </div>
 
-        <div className="mt-20 border-t border-thl-border pt-16">
-          <h3 className="text-lg font-medium md:text-xl">{methodChapter.principlesTitle}</h3>
-          <ol className="mt-10 flex flex-col divide-y divide-thl-border xl:flex-row xl:divide-x xl:divide-y-0">
+        <div className="mt-[var(--space-6)] border-t border-[var(--border)] pt-[var(--space-6)]">
+          <h3 className="text-display-m text-[var(--text-primary)]">
+            {methodChapter.principlesTitle}
+          </h3>
+          <ol className="mt-[var(--space-5)] grid grid-cols-1 gap-[var(--space-5)] md:grid-cols-2 lg:grid-cols-4">
             {methodChapter.principles.map((principle) => (
-              <li key={principle.num} className="flex gap-4 py-8 first:pt-0 xl:flex-1 xl:flex-col xl:px-8 xl:first:pl-0 xl:last:pr-0">
-                <span className="font-mono text-sm text-thl-text-muted">{principle.num}</span>
-                <div>
-                  <p className="text-base font-semibold md:text-lg">{principle.title}</p>
-                  <p className="mt-2 text-sm leading-relaxed text-thl-text-secondary md:text-base">
-                    {principle.text}
-                  </p>
-                </div>
+              <li key={principle.num}>
+                <span className="text-caption text-[var(--text-secondary)]">{principle.num}</span>
+                <p className="text-heading mt-[var(--space-3)] text-[var(--text-primary)]">
+                  {principle.title}
+                </p>
+                <p className="text-body mt-[var(--space-3)] text-[var(--text-secondary)]">
+                  {principle.text}
+                </p>
               </li>
             ))}
           </ol>
-          <div className="mt-12">
+          <div className="mt-[var(--space-6)]">
             <CtaLink href={ROUTES.quote} variant="outline">
               {methodChapter.cta}
             </CtaLink>
@@ -105,20 +108,6 @@ export function MethodChapterSection() {
         </div>
       </div>
       <style jsx global>{`
-        .thl-process-step::before {
-          position: absolute;
-          width: 8px;
-          height: 8px;
-          border-radius: 9999px;
-          background: var(--accent);
-          content: "";
-        }
-
-        .thl-process-step::before {
-          top: 0;
-          left: -36px;
-        }
-
         .thl-process-timeline[data-ready="true"] .thl-process-step {
           opacity: 0;
           transform: translateY(20px);
@@ -133,13 +122,6 @@ export function MethodChapterSection() {
           to {
             opacity: 1;
             transform: translateY(0);
-          }
-        }
-
-        @media (min-width: 1024px) {
-          .thl-process-step::before {
-            top: -14px;
-            left: 24px;
           }
         }
 

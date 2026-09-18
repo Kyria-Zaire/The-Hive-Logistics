@@ -11,7 +11,14 @@ export function HeroSection() {
       className="relative flex min-h-screen flex-col justify-center overflow-hidden"
     >
       <HeroMedia />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,10,0.12)_0%,rgba(10,10,10,0.48)_54%,rgba(10,10,10,0.96)_100%)]" />
+      {/* Left scrim for the text column, light-to-dark vertical fade, then a light global veil. */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(90deg, rgba(10,10,10,0.75) 0%, rgba(10,10,10,0) 65%), linear-gradient(180deg, rgba(10,10,10,0.1) 0%, rgba(10,10,10,0.28) 50%, rgba(10,10,10,0.92) 100%), rgba(10,10,10,0.37)",
+        }}
+      />
       <div className="relative z-10 w-full px-5 pt-24 md:px-8 lg:px-16">
         <div className="mx-auto w-full max-w-[1440px]">
           <div className="max-w-4xl">

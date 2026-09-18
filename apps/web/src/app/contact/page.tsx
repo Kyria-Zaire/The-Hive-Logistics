@@ -262,7 +262,6 @@ function QuoteForm() {
           <option value="convoyage_premium">Convoyage premium</option>
           <option value="fleet_coordination">Coordination de flotte</option>
           <option value="automotive_logistics">Logistique automobile</option>
-          <option value="vehicle_preparation">Préparation automobile</option>
         </select>
         <FieldError id="service" errors={errors} />
       </div>

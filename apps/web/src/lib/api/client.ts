@@ -1,8 +1,7 @@
 export type ServiceType =
   | "convoyage_premium"
   | "fleet_coordination"
-  | "automotive_logistics"
-  | "vehicle_preparation";
+  | "automotive_logistics";
 
 export type VehicleCategory =
   | "city_sedan"

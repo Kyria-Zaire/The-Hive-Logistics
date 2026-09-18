@@ -6,7 +6,7 @@
   --bg-elevated: #1c1c1c;
   --text-primary: #ffffff;
   --text-secondary: #a1a1a1;
-  --text-muted: #6b6b6b;
+  --text-muted: #8a8a8f;
   --accent: #ff5757;
   --accent-hover: #ff7070;
   --border: rgba(255, 255, 255, 0.08);
@@ -38,6 +38,9 @@
   --font-size-display-m: clamp(32px, 5vw, 56px);
   --line-height-display-m: 1.1;
   --letter-spacing-display-m: -0.02em;
+  --font-size-display-s: clamp(28px, 4vw, 44px);
+  --line-height-display-s: 1.15;
+  --letter-spacing-display-s: -0.015em;
   --font-size-heading: 32px;
   --line-height-heading: 1.2;
   --font-weight-heading: 500;
@@ -350,16 +353,6 @@
       animation: none;
     }
   }
-
-  .thl-media-fallback {
-    background:
-      radial-gradient(
-        ellipse 80% 60% at 75% 50%,
-        rgba(42, 42, 46, 0.85) 0%,
-        transparent 55%
-      ),
-      linear-gradient(160deg, #0a0a0a 0%, #141414 45%, #1c1c1e 100%);
-  }
 }
 
 @layer utilities {
@@ -379,6 +372,12 @@
     font-size: var(--font-size-display-m);
     line-height: var(--line-height-display-m);
     letter-spacing: var(--letter-spacing-display-m);
+  }
+
+  .text-display-s {
+    font-size: var(--font-size-display-s);
+    line-height: var(--line-height-display-s);
+    letter-spacing: var(--letter-spacing-display-s);
   }
 
   .text-heading {

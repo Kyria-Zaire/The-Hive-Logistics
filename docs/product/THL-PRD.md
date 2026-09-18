@@ -237,7 +237,7 @@ Volume de code, nombre d’animations, pages créées sans parcours validé, tra
 | ID | Capacité | Valeur | Priorité |
 |---|---|---|---|
 | CAP-001 | Accueil `/` + navigation + footer | Compréhension marque et conversion | MUST |
-| CAP-002 | Services `/services` (4 prestations) | Éducation offre | MUST |
+| CAP-002 | Services `/services` (3 prestations) | Éducation offre | MUST |
 | CAP-003 | Demande de devis `/demande-de-devis` | Lead qualifié + référence | MUST |
 | CAP-004 | À propos `/a-propos` | Confiance, vision mobilité auto | MUST |
 | CAP-005 | Réalisations `/realisations` (conditionnel) | Preuves réelles publiées si contenu validé | SHOULD_CONDITIONAL |
@@ -337,10 +337,12 @@ Chargement, succès, erreur validation, erreur technique, réseau lent, clavier,
 
 ## 9. Exigences fonctionnelles
 
+[MAJ 18/09/2026] Confirmé par Jores : 3 services, préparation retirée. CAP-002 et FR-002 mis à jour en conséquence.
+
 | ID | Capacité | Exigence | Priorité | Critère d’acceptation | Source |
 |---|---|---|---|---|---|
 | FR-001 | CAP-001 | Page `/` avec Hero photo, marque THE HIVE LOGISTICS, synthèse services, confiance, processus, CTA final | MUST | Les 2 CTA présents et accessibles sur mobile ; **390×844** : H1, paragraphe et CTA primaire sans défilement ; **320×568** : H1 et CTA primaire sans défilement (CTA secondaire peut être immédiatement sous le premier viewport) | Ticket, docs/ux |
-| FR-002 | CAP-002 | `/services` : convoyage premium, flotte, logistique, préparation automobile | MUST | 4 blocs distincts | Ticket |
+| FR-002 | CAP-002 | `/services` : convoyage premium, flotte, logistique | MUST | 3 blocs distincts | Ticket |
 | FR-003 | CAP-003 | `/demande-de-devis` formulaire qualifié métier structuré (non réservation instantanée) | MUST | Champs obligatoires §9.2 persistés ; optionnels §9.2 acceptés ou absents | DEC-006 |
 | FR-004 | CAP-003 | Devis : identité (nom, prénom), email, téléphone, service demandé, villes/CP départ et arrivée, date ou période, catégorie véhicule (§9.4), marque/modèle, roulant/non roulant, **prise de connaissance** politique confidentialité (pas consentement marketing) ; optionnels : entreprise, contraintes, message complémentaire, préférence de contact | MUST | Persistance champs validés ; case/info non ambiguë ; catégorie « Autre » → précision obligatoire | DEC-006 |
 | FR-005 | CAP-003 | Honeypot anti-bot | MUST | Bot → pas de demande | SEC-002 |
