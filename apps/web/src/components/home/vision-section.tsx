@@ -17,6 +17,7 @@ export function VisionSection() {
         aria-hidden
         fill
         sizes="100vw"
+        quality={60}
         className="object-cover object-[center_85%]"
       />
       {/* Vertical anchoring into the page background, then a global veil for legibility. */}
