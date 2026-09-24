@@ -12,6 +12,7 @@ import { mapApiErrorToField } from "@/app/actions/form-data";
 import { submitQuoteAction } from "@/app/actions/quote";
 import type { ActionResult } from "@/app/actions/types";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { SocialLinks } from "@/components/layout/social-links";
 import { SiteHeader } from "@/components/layout/site-header";
 import type { ApiFieldError } from "@/lib/api/client";
 import { company, companyAddressLine } from "@/lib/content/company";
@@ -356,7 +357,7 @@ export default function ContactPage() {
           </div>
           <aside className="mt-8 grid gap-6 md:grid-cols-2">
             {!SHOW_FOOTER_CONTACT_DETAILS ? null : <div className="border-l-2 border-[var(--accent)] pl-4"><h2 className="text-heading">Coordonnées</h2><address className="text-body mt-3 flex flex-col gap-1 not-italic text-[var(--text-dark-secondary)]"><span>{companyAddressLine}</span><a className="thl-focus-dark hover:text-[var(--text-dark-primary)]" href={`tel:${company.phone.e164}`}>{company.phone.display}</a><a className="thl-focus-dark hover:text-[var(--text-dark-primary)]" href={`mailto:${company.email}`}>{company.email}</a></address></div>}
-            {!SHOW_FOOTER_SOCIAL_LINKS ? null : <div className="border-l-2 border-[var(--accent)] pl-4"><h2 className="text-heading">Réseaux sociaux</h2><p className="text-body mt-3 text-[var(--text-dark-secondary)]">Réseaux sociaux disponibles prochainement.</p></div>}
+            {!SHOW_FOOTER_SOCIAL_LINKS ? null : <div className="border-l-2 border-[var(--accent)] pl-4"><h2 className="text-heading">Réseaux sociaux</h2><SocialLinks className="mt-3" linkClassName="text-body thl-focus-dark text-[var(--text-dark-secondary)] hover:text-[var(--text-dark-primary)]" /></div>}
           </aside>
         </div>
       </main>
