@@ -208,3 +208,43 @@ Les sections Méthode, Engagements et Vision mesurent leurs distances au montage
 `.thl-chapter-enter`, `.thl-hero-actions`, `.thl-hero-block`, `.thl-hero-content`, `.thl-hero-grid-bg`, `.thl-hero-h1`, `.thl-hero-reveal`, `.thl-hero-serif-accent`, `.thl-hero-title` ne sont référencées nulle part depuis les refontes du hero. Environ 160 lignes sur 834, plus les keyframes `thl-hero-fade` et `thl-chapter-enter` qui ne servaient qu'à elles.
 
 **Arbitrage du ticket 28-BIS : reportée en V3.1.** Aucun gain de performance à la clé, et toucher 160 lignes de feuille de style la veille d'une mise en production ne se justifie pas. Suppression en un seul passage une fois la V3 en ligne et stable.
+
+## 28. Pas de Content-Security-Policy en production
+
+Le ticket 31-BIS a posé `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-Frame-Options` et `Cross-Origin-Opener-Policy` dans `next.config.ts`. La CSP en a été délibérément exclue : la poser correctement demande de composer avec les scripts inline de Next (JSON-LD, bootstrap du runtime), GSAP et l'iframe Turnstile — donc un `nonce` propagé depuis un middleware, ou `strict-dynamic`, et une recette complète sur les six routes. Fait à la hâte, on obtient soit une CSP en `unsafe-inline` qui ne protège de rien, soit un site cassé en production.
+
+**Sévérité : Medium.** Défense en profondeur absente ; aucune vulnérabilité active connue — l'audit SAST du ticket 31 n'a relevé aucun XSS ni injection sur 483 règles.
+
+**Piste :** ticket V3.1 dédié. Commencer en `Content-Security-Policy-Report-Only` pour mesurer les violations réelles avant de bloquer.
+
+## 29. HSTS sans `includeSubDomains`
+
+La production renvoie `Strict-Transport-Security: max-age=63072000`, sans `includeSubDomains` ni `preload`. L'en-tête est injecté par Vercel, pas par notre code : il n'est donc **pas modifiable depuis `next.config.ts`** — il faut passer par la configuration du projet Vercel.
+
+**Sévérité : Low.** `api.thehivelogistics.fr` est aujourd'hui servi par Railway en HTTPS ; l'absence de `includeSubDomains` laisse théoriquement un sous-domaine futur accessible en clair au premier contact.
+
+**Piste :** activer `includeSubDomains` côté Vercel, puis `preload` seulement après avoir vérifié que **tous** les sous-domaines, `api.` compris, sont en HTTPS — le preload est difficile à révoquer.
+
+## 30. Semgrep installé dans le Python global — résolu
+
+L'audit du ticket 31 a installé Semgrep via `pip` dans le Python 3.13 global faute de `pipx`, ce qui a modifié des paquets partagés. Semgrep a été désinstallé au ticket 31-BIS, mais `pip uninstall` ne retire pas les dépendances transitives : `click` 8.4.2, `jsonschema` 4.25.1 et `opentelemetry-semantic-conventions` 0.58b0 restent en place et violent les contraintes de `gtts`, `openapi-spec-validator` et `mistralai`. Le projet n'est pas affecté — `apps/api` a son propre `.venv` et la CI installe Semgrep sur un runner jetable.
+
+**Sévérité : Low**, hors dépôt.
+
+**Piste :** à l'avenir `pipx run semgrep` plutôt que `pip install`. Commandes de remise en état de l'environnement global dans le rapport du ticket 31-BIS.
+
+## 31. `opentelemetry-semantic-conventions` bloqué en 0.58b0 — environnement global
+
+Suite de la dette 30. Le nettoyage du ticket 31-TER a restauré `click` en 8.1.8 et `jsonschema` en 4.26.0, ce qui rétablit `gtts` et `openapi-spec-validator` (import et points d'entrée vérifiés). `opentelemetry-semantic-conventions` reste en 0.58b0 et viole la contrainte de `mistralai` (`>=0.60b1`).
+
+C'est volontaire : `opentelemetry-sdk`, `-instrumentation` et `-instrumentation-requests` l'épinglent à `==0.58b0`. Ces trois paquets sont arrivés avec Semgrep, mais rien ne dit lesquels préexistaient — monter la version casserait les trois, les retirer casserait peut-être autre chose.
+
+**Sévérité : Low**, hors dépôt. Aucun impact projet : `apps/api` a son propre `.venv`, la CI installe Semgrep par `uv tool run` sur un runner jetable.
+
+**Piste :** ne rien toucher sans un inventaire de l'état antérieur. À défaut, recréer l'environnement Python global depuis un `requirements` reconstruit.
+
+## 32. Conflits `httpx` préexistants — environnement global
+
+`pip check` signale `postgrest`, `storage3`, `supabase` et `supafunc` qui demandent `httpx<0.28` alors que 0.28.1 est installé. **Antérieurs à Semgrep et sans rapport avec ce projet** : Semgrep ne dépend pas de `httpx` (seulement de `httpx-sse`). Documenté ici pour qu'on ne les impute pas à tort aux tickets 31 / 31-BIS / 31-TER lors d'un prochain `pip check`.
+
+**Sévérité : Low**, hors dépôt, hors périmètre THE HIVE LOGISTICS.
