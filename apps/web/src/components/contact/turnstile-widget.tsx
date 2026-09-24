@@ -82,8 +82,13 @@ export function TurnstileWidget({ action, resetSignal, onVerify, describedBy }: 
         onLoad={markScriptReady}
         onReady={markScriptReady}
       />
+      {/* The widget Cloudflare renders in here is a fixed 300px wide. On a 320px screen the
+          card only offers 248px, and the page gained a horizontal scrollbar. It is scaled
+          down rather than clipped: a captcha with its right edge cut off is one nobody can
+          finish. See globals.css — .thl-turnstile. */}
       <div
         ref={containerRef}
+        className="thl-turnstile"
         role="group"
         aria-label="Vérification anti-spam"
         aria-describedby={describedBy}

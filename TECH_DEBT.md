@@ -150,20 +150,20 @@ Remplacer une image sans changer son nom laisse servir l'ancienne version : les 
 
 | # | Sujet | Gravité |
 |---|---|---|
-| 20 | Vidéos du hero non créditées | Moyenne — droits |
-| 21 | Débordement horizontal de 17 px sur `/contact` à 320 px | Moyenne — accessibilité |
+| ~~20~~ | ~~Vidéos du hero non créditées~~ | **Résolue au ticket 28-BIS** |
+| ~~21~~ | ~~Débordement horizontal de 17 px sur `/contact` à 320 px~~ | **Résolue au ticket 28-BIS** |
 | 22 | L'accordéon Services anime `flex-grow` | Faible — performance |
 | 23 | Liste blanche `images.qualities` à maintenir | Faible — piège silencieux |
 | 24 | Voitures de la section Méthode en PNG non optimisé | Faible |
 | 25 | Photo Engagements : 966 Ko en desktop | Moyenne — performance |
 | 26 | Distances d'animation figées sur un changement de hauteur seul | Faible |
-| 27 | Neuf classes CSS orphelines dans `globals.css` | Faible |
+| 27 | Neuf classes CSS orphelines dans `globals.css` | Faible — reportée en V3.1 |
 
 ## 20. Vidéos du hero non créditées
 
 `hero-desktop.mp4` (1,61 Mo) et `hero-mobile.mp4` (636 Ko) sont en ligne sans mention de leur source. Aucune occurrence de « Pexels » dans le dépôt, ni dans les mentions légales.
 
-**Piste :** confirmer la licence auprès de Jores, puis ajouter le crédit dans les mentions légales — ou dans le pied de page si la licence l'exige.
+**Résolue au ticket 28-BIS.** Crédit ajouté sous le copyright du pied de page : « Vidéo d'accueil : Pexels (30843746), licence gratuite commerciale. » Le texte vit dans `homeContent.footer.mediaCredit`.
 
 ## 21. Débordement horizontal de 17 px sur `/contact` à 320 px
 
@@ -171,7 +171,7 @@ Diagnostiqué par élimination : le conteneur du widget Turnstile. À 320 px la 
 
 320 px n'est pas une largeur de validation du projet (`frontend.md` liste 1440, 1024, 768 et 390), et le correctif toucherait le rendu d'un contrôle anti-spam qui ne s'affiche pas en environnement de test — d'où le report.
 
-**Pistes :** réduire le widget par `transform: scale()` sous 360 px, ou passer Turnstile en taille `compact` (130 × 120) à cette largeur. Les deux demandent une vérification sur appareil réel.
+**Résolue au ticket 28-BIS.** `transform: scale(0.8)` sur `.thl-turnstile` sous 360 px, origine à gauche, avec une marge négative qui reprend la hauteur laissée par la transformation. Mesuré à 0 px de débordement de 320 à 390 px. Le widget est réduit, jamais rogné : un captcha amputé de son bord droit ne peut pas être validé.
 
 ## 22. L'accordéon Services anime `flex-grow`
 
@@ -207,4 +207,4 @@ Les sections Méthode, Engagements et Vision mesurent leurs distances au montage
 
 `.thl-chapter-enter`, `.thl-hero-actions`, `.thl-hero-block`, `.thl-hero-content`, `.thl-hero-grid-bg`, `.thl-hero-h1`, `.thl-hero-reveal`, `.thl-hero-serif-accent`, `.thl-hero-title` ne sont référencées nulle part depuis les refontes du hero. Environ 160 lignes sur 834, plus les keyframes `thl-hero-fade` et `thl-chapter-enter` qui ne servaient qu'à elles.
 
-**Piste :** suppression en un seul passage, après arbitrage — listées et non supprimées au ticket 28 pour cette raison.
+**Arbitrage du ticket 28-BIS : reportée en V3.1.** Aucun gain de performance à la clé, et toucher 160 lignes de feuille de style la veille d'une mise en production ne se justifie pas. Suppression en un seul passage une fois la V3 en ligne et stable.

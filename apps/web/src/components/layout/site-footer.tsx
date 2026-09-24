@@ -20,6 +20,9 @@ export function SiteFooter() {
             <p className="mt-4 text-sm text-thl-text-muted">
               © {year} {footer.wordmark}
             </p>
+            {/* Attribution required by the footage licence: it belongs where anyone looking
+                for it would look, under the copyright line. */}
+            <p className="mt-2 text-xs text-thl-text-muted">{footer.mediaCredit}</p>
           </div>
           {SHOW_FOOTER_CONTACT_DETAILS ? (
             <div>

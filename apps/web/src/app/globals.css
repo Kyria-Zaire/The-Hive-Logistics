@@ -724,6 +724,21 @@
     }
   }
 
+  /*
+   * Turnstile is a fixed 300px wide and does not reflow. Under 360px the contact card offers
+   * 248px, and the widget pushed the whole page sideways by 17px. Scaled to fit rather than
+   * clipped — a captcha missing its right edge cannot be completed — and the origin is kept at
+   * the left so it stays aligned with the fields above it.
+   */
+  @media (max-width: 359px) {
+    .thl-turnstile {
+      transform: scale(0.8);
+      transform-origin: left top;
+      /* The transform leaves the untouched height behind it; this takes the gap back. */
+      margin-bottom: calc(-0.2 * var(--thl-turnstile-height, 65px));
+    }
+  }
+
   /* Service tiles: the photo zooms on hover, inside the tile's overflow-hidden box. */
   .thl-tile-image {
     transition: transform 600ms var(--ease-lux);
