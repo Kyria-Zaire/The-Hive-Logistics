@@ -21,6 +21,7 @@ env:
   PNPM_VERSION: "10.16.1"
   PYTHON_VERSION: "3.13.1"
   UV_VERSION: "0.9.30"
+  SEMGREP_VERSION: "1.178.0"
 
 jobs:
   governance:
@@ -189,3 +190,66 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_COMMENTS: "false"
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+
+  sast:
+    name: SAST
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        # actions/checkout@v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        # actions/setup-python@v5.6.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up pnpm
+        # pnpm/action-setup@v4.1.0
+        uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        # actions/setup-node@v4.4.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up uv
+        # astral-sh/setup-uv@v5.4.2
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      # `uv tool run` plutôt que `pip install` : Semgrep tourne dans son propre environnement,
+      # à version épinglée, sans se mêler aux dépendances Python du projet.
+      # p/gitleaks et non p/secrets : p/secrets (42 règles) laisse passer une clé AWS en dur
+      # et le contenu d'un .env, mesuré au ticket 31. p/gitleaks en compte 174.
+      - name: Semgrep — secrets
+        run: >-
+          uv tool run --from "semgrep==${{ env.SEMGREP_VERSION }}" semgrep
+          --config=p/gitleaks --error --exclude=node_modules --exclude=.next .
+
+      - name: Semgrep — API Python
+        run: >-
+          uv tool run --from "semgrep==${{ env.SEMGREP_VERSION }}" semgrep
+          --config=p/python --config=p/fastapi --config=p/owasp-top-ten
+          --error apps/api
+
+      - name: Semgrep — Web JS/TS
+        run: >-
+          uv tool run --from "semgrep==${{ env.SEMGREP_VERSION }}" semgrep
+          --config=p/javascript --config=p/typescript --config=p/nextjs
+          --config=p/react --config=p/owasp-top-ten
+          --error --exclude=node_modules --exclude=.next apps/web
+
+      # Avertissement seulement pour l'instant : à passer bloquant une fois le bruit mesuré.
+      - name: Dependency audit (web)
+        run: pnpm audit --audit-level=high
+        continue-on-error: true
