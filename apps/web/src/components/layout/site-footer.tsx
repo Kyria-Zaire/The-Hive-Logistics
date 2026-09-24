@@ -5,6 +5,7 @@ import {
   SHOW_FOOTER_CONTACT_DETAILS,
   SHOW_FOOTER_SOCIAL_LINKS,
 } from "@/lib/features";
+import { SocialLinks } from "@/components/layout/social-links";
 import { ROUTES } from "@/lib/routes";
 
 export function SiteFooter() {
@@ -47,9 +48,10 @@ export function SiteFooter() {
           {SHOW_FOOTER_SOCIAL_LINKS ? (
             <div>
               <p className="text-sm font-medium text-thl-text-primary">Réseaux sociaux</p>
-              <p className="mt-4 text-sm text-thl-text-muted">
-                Réseaux sociaux disponibles prochainement.
-              </p>
+              <SocialLinks
+                className="mt-4"
+                linkClassName="thl-focus-dark text-sm text-thl-text-secondary hover:text-thl-text-primary"
+              />
             </div>
           ) : null}
           <nav aria-label="Liens du pied de page">
