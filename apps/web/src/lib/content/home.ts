@@ -162,6 +162,8 @@ export const homeContent = {
       mentions: "Mentions légales",
       privacy: "Politique de confidentialité",
     },
+    /** Attribution for the hero footage, required by the licence it ships under. */
+    mediaCredit: "Vidéo d'accueil : Pexels (30843746), licence gratuite commerciale.",
   },
   nav: {
     home: "Accueil",
