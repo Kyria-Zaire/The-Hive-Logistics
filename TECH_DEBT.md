@@ -143,3 +143,68 @@ Les photos pèsent de 1,4 à 4,3 Mo l'unité, soit environ 18 Mo dans `apps/web/
 Remplacer une image sans changer son nom laisse servir l'ancienne version : les variantes optimisées restent en cache dans `.next/cache/images`, et un rechargement forcé du navigateur n'y change rien.
 
 **Piste :** renommer le fichier lors d'un remplacement, ce qui change l'URL optimisée ; sinon vider `.next/cache/images` et redémarrer le serveur.
+
+---
+
+# Dette introduite par la V3 immersive (tickets 16 à 27)
+
+| # | Sujet | Gravité |
+|---|---|---|
+| 20 | Vidéos du hero non créditées | Moyenne — droits |
+| 21 | Débordement horizontal de 17 px sur `/contact` à 320 px | Moyenne — accessibilité |
+| 22 | L'accordéon Services anime `flex-grow` | Faible — performance |
+| 23 | Liste blanche `images.qualities` à maintenir | Faible — piège silencieux |
+| 24 | Voitures de la section Méthode en PNG non optimisé | Faible |
+| 25 | Photo Engagements : 966 Ko en desktop | Moyenne — performance |
+| 26 | Distances d'animation figées sur un changement de hauteur seul | Faible |
+| 27 | Neuf classes CSS orphelines dans `globals.css` | Faible |
+
+## 20. Vidéos du hero non créditées
+
+`hero-desktop.mp4` (1,61 Mo) et `hero-mobile.mp4` (636 Ko) sont en ligne sans mention de leur source. Aucune occurrence de « Pexels » dans le dépôt, ni dans les mentions légales.
+
+**Piste :** confirmer la licence auprès de Jores, puis ajouter le crédit dans les mentions légales — ou dans le pied de page si la licence l'exige.
+
+## 21. Débordement horizontal de 17 px sur `/contact` à 320 px
+
+Diagnostiqué par élimination : le conteneur du widget Turnstile. À 320 px la boîte disponible fait 248 px (320 − 40 de conteneur − 32 de carte) pour un widget qui en exige environ 300. Les deux formulaires sont concernés. Absent à 360 px et au-delà depuis le correctif `min-w-0` du ticket 23.
+
+320 px n'est pas une largeur de validation du projet (`frontend.md` liste 1440, 1024, 768 et 390), et le correctif toucherait le rendu d'un contrôle anti-spam qui ne s'affiche pas en environnement de test — d'où le report.
+
+**Pistes :** réduire le widget par `transform: scale()` sous 360 px, ou passer Turnstile en taille `compact` (130 × 120) à cette largeur. Les deux demandent une vérification sur appareil réel.
+
+## 22. L'accordéon Services anime `flex-grow`
+
+Mesuré à 55 i/s desktop et mobile sur la traversée avec survol des trois panneaux, contre 60 ailleurs. Animer une largeur déclenche un calcul de mise en page à chaque image, là où le reste du site n'anime que `transform` et `opacity`.
+
+**Piste :** rendre l'ouverture par `transform: scaleX()` compensé sur le contenu, ou accepter les 55 i/s — c'est fluide à l'œil.
+
+## 23. Liste blanche `images.qualities` à maintenir
+
+`next.config.ts` déclare `images: { qualities: [60, 75, 80] }`. Toute valeur absente de cette liste est **silencieusement ramenée à 75** : au ticket 22-TER, un `quality={80}` est resté sans effet jusqu'à ce que la mesure le révèle. Rien dans la sortie du build ne le signale.
+
+**Piste :** ajouter la valeur à la liste en même temps qu'on l'utilise, et vérifier le paramètre `q=` servi plutôt que de supposer.
+
+## 24. Voitures de la section Méthode en PNG non optimisé
+
+`car-method-red.png` (1,53 Mo) et `car-principles-911.png` (1,50 Mo) sont détourées mais restent des PNG bruts. Next les sert en WebP à l'affichage, donc l'impact visiteur est nul ; c'est le dépôt qui s'alourdit de 3 Mo.
+
+**Piste :** les convertir en WebP à la source, comme la dette 18 le prévoit pour les photos.
+
+## 25. Photo Engagements : 966 Ko en desktop
+
+La source est un portrait 3648 × 5472. Avec `sizes="100vw"`, Next sert du 1920 de large, donc **1920 × 2880** — dont `object-cover` n'affiche que 31 % de la hauteur sur un écran 1440 × 900. On télécharge 2880 px de haut pour en montrer 900. Mobile et tablette restent à 124 et 193 Ko.
+
+**Piste :** recadrage paysage dédié au desktop, servi en art direction comme les affiches du hero. Estimation 350 à 450 Ko.
+
+## 26. Distances d'animation figées sur un changement de hauteur seul
+
+Les sections Méthode, Engagements et Vision mesurent leurs distances au montage et se reconstruisent sur un vrai redimensionnement. Le garde ignore un changement de **hauteur seule inférieur à 200 px**, pour ne pas reconstruire à chaque repli de la barre d'adresse mobile. Traîner le bord bas d'une fenêtre desktop sur une courte distance laisse donc des distances légèrement périmées.
+
+**Piste :** distinguer le redimensionnement de fenêtre du repli de barre d'adresse via `visualViewport`, plutôt que par un seuil en pixels.
+
+## 27. Neuf classes CSS orphelines dans `globals.css`
+
+`.thl-chapter-enter`, `.thl-hero-actions`, `.thl-hero-block`, `.thl-hero-content`, `.thl-hero-grid-bg`, `.thl-hero-h1`, `.thl-hero-reveal`, `.thl-hero-serif-accent`, `.thl-hero-title` ne sont référencées nulle part depuis les refontes du hero. Environ 160 lignes sur 834, plus les keyframes `thl-hero-fade` et `thl-chapter-enter` qui ne servaient qu'à elles.
+
+**Piste :** suppression en un seul passage, après arbitrage — listées et non supprimées au ticket 28 pour cette raison.

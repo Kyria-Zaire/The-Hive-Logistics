@@ -1,5 +1,7 @@
 # PRD produit — THE HIVE LOGISTICS
 
+[MAJ 20/09/2026] Accent rouge changé sur décision client (Jores) : #FF5757 → #DC2626.
+
 > **PRODUCT_ID** = THL-PRODUCT-001
 > **VERSION** = 0.1.4
 > **STATUS** = DRAFT_FOR_HUMAN_APPROVAL
@@ -92,7 +94,7 @@ Les prospects peinent à comprendre rapidement l’étendue des services, le niv
 
 ### 2.3 Réponse proposée
 
-Site vitrine Next.js + API FastAPI + PostgreSQL : pages éditoriales, parcours devis structuré, contact, réalisations vérifiables, SEO et conformité de base, sécurité des formulaires publics, design premium noir / anthracite / accent `#FF5757`.
+Site vitrine Next.js + API FastAPI + PostgreSQL : pages éditoriales, parcours devis structuré, contact, réalisations vérifiables, SEO et conformité de base, sécurité des formulaires publics, design premium noir / anthracite / accent `#DC2626`.
 
 ### 2.4 Valeur attendue
 
@@ -498,7 +500,7 @@ L’état roulant / non roulant reste un **champ distinct** de la catégorie. Le
 
 ### 10.1 Intentions d’expérience
 
-Confiance → parcours devis + légal accessible ; Clarté → 4 services en ≤2 clics ; Premium sobre → palette #FF5757, espacement, FR-034 ; Mobile first → devis validé mobile QA.
+Confiance → parcours devis + légal accessible ; Clarté → 4 services en ≤2 clics ; Premium sobre → palette #DC2626, espacement, FR-034 ; Mobile first → devis validé mobile QA.
 
 ### 10.2 Architecture de l’information
 
@@ -535,13 +537,13 @@ Manuel obligatoire : navigation clavier ; ordre/focus visible ; formulaires/erre
 
 Cibles : minimum WCAG 2.2 **24×24 CSS px** (ou exception applicable) ; objectif UX contrôles principaux **44×44 CSS px**.
 
-Contrastes : texte normal **4,5:1** ; grand texte **3:1** ; composants/UI **3:1** ; vérifier accent `#FF5757` sur noir/anthracite.
+Contrastes : texte normal **4,5:1** ; grand texte **3:1** ; composants/UI **3:1** ; vérifier accent `#DC2626` sur noir/anthracite.
 
 Références : [Target Size Minimum (WCAG 2.2)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html), [Contrast Minimum](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
 
 ### 10.5 Direction artistique THE HIVE LOGISTICS
 
-Noir profond, blanc, anthracite, `#FF5757`, photo auto premium nocturne, minimalisme, lignes fines, micro-interactions maîtrisées ; inspirations Ardian, One Concierge, Apple, Porsche, Maybach, Rolls-Royce **sans copie** ; pas esthétique IA générique ; pas vidéo V1.
+Noir profond, blanc, anthracite, `#DC2626`, photo auto premium nocturne, minimalisme, lignes fines, micro-interactions maîtrisées ; inspirations Ardian, One Concierge, Apple, Porsche, Maybach, Rolls-Royce **sans copie** ; pas esthétique IA générique ; pas vidéo V1.
 
 ---
 
@@ -563,7 +565,7 @@ Noir profond, blanc, anthracite, `#FF5757`, photo auto premium nocturne, minimal
 | NFR-SEC-003 | Sécurité | Rate limit des **deux** endpoints publics de leads : Contact et Devis | Tests RECETTE sur les deux contrats | Absent PROD sur l’un ou l’autre |
 | NFR-PRIV-001 | Vie privée | DATA-* à jour | Audit | Écart non doc |
 | NFR-A11Y-001 | A11y | 0 violation **critique** non résolue ; 0 violation **sérieuse** non résolue sur parcours critiques ; pas de blocage clavier ; dérogation = Kyria | axe + checklist §10.4 | Gate GRD-003 |
-| NFR-A11Y-002 | A11y | Contrastes §10.4 dont `#FF5757` | Checker | Seuils non atteints |
+| NFR-A11Y-002 | A11y | Contrastes §10.4 dont `#DC2626` | Checker | Seuils non atteints |
 | NFR-SEO-001 | SEO | Title + description uniques | Crawl | Vide/doublon PROD |
 | NFR-OBS-001 | Obs | Logs structurés sans PII claire | Revue | PII PROD |
 | NFR-COMP-001 | Compat | Chrome/Firefox/Safari/Edge + mobile | Matrice QA | Devis bloqué |
@@ -978,7 +980,7 @@ Passes exécutées sur **un seul** PRD (`docs/product/THL-PRD.md`), sans documen
 |---|---|---|---|
 | **Analyste métier** | Périmètre services, exclusions, parcours JRN-* | PARTIAL | OK exclusions ; TBD coordonnées et zones |
 | **Product Manager** | CAP/FR/BR, roadmap V1/V1.1/V2+ | PARTIAL | Portfolio conditionnel ; notification MUST |
-| **UX/UI** | §10, IA routes, DA #FF5757, matrice responsive | PARTIAL | THL-UX-001 = Home ; spec formulaire Devis **[À produire]** ; Hero mobile aligné FR-001 |
+| **UX/UI** | §10, IA routes, DA #DC2626, matrice responsive | PARTIAL | THL-UX-001 = Home ; spec formulaire Devis **[À produire]** ; Hero mobile aligné FR-001 |
 | **Architecte** | Stack, monolithe, sauvegardes Git vs archive médias | **READY_FOR_API_ARCHITECTURE** | TBD-003/004/008/023 clos (DEC-005–008) ; TBD-007 PREPROD ; **pas** READY_FOR_PRODUCTION |
 | **Sécurité** | SEC-001–018, Turnstile serveur V1, BR-009 | PARTIAL | Threat model avant PROD ; TBD-018 RECETTE |
 | **QA** | Matrice FR MUST §20.3, AC lab/terrain CWV | PARTIAL | WCAG cible AA ; pas certification sans audit |

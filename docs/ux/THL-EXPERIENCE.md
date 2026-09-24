@@ -1,5 +1,7 @@
 # THL-EXPERIENCE — Fondations d’expérience THE HIVE LOGISTICS
 
+[MAJ 20/09/2026] Accent rouge changé sur décision client (Jores) : #FF5757 → #DC2626.
+
 > **Ticket** = THL-UX-001 / **001A** / **001B** / **THL-UX-001C**
 > **Version** = 0.1.3
 > **Statut** = DRAFT_FOR_HUMAN_APPROVAL
@@ -16,7 +18,7 @@ THE HIVE LOGISTICS doit faire ressentir, en quelques secondes :
 
 - une **maîtrise opérationnelle** du déplacement automobile premium ;
 - une **clarté** sur ce qui est proposé et comment entrer en contact ;
-- une **discipline visuelle** (noir, anthracite, photographie nocturne, accent `#FF5757` mesuré) ;
+- une **discipline visuelle** (noir, anthracite, photographie nocturne, accent `#DC2626` mesuré) ;
 - l’absence de promesses instantanées ou automatisées non livrées en V1.
 
 **Formulation directrice :** *De la demande à la prise en charge humaine, chaque interaction est nette, lisible et digne de confiance.*
@@ -93,7 +95,7 @@ Pages légales : footer uniquement (mentions, confidentialité, cookies si besoi
 
 - Menu drawer : focus trap, Échap, retour focus, focus visible §7 `THL-DESIGN.md` ;
 - Scroll accueil : transparent → `color-bg-anthracite` + bordure basse (250 ms).
-- **Un seul bouton primaire rouge `#FF5757` visible dans le Hero** (pas de second P0 rouge dans le header).
+- **Un seul bouton primaire rouge `#DC2626` visible dans le Hero** (pas de second P0 rouge dans le header).
 
 ### 5.3 Fil d’Ariane
 
@@ -105,7 +107,7 @@ Non requis V1 sur vitrine plate ; titres de page et `<h1>` uniques par route.
 
 | Niveau | Libellé type | Destination | Règle |
 |---|---|---|---|
-| P0 | Demander un devis | `/demande-de-devis` | Bouton **rouge** `#FF5757` / texte `#0A0A0A` — **Hero** (et blocs conversion dédiés, ex. fin chapitre méthode, HOME-09) |
+| P0 | Demander un devis | `/demande-de-devis` | Bouton **rouge** `#DC2626` / texte `#0A0A0A` — **Hero** (et blocs conversion dédiés, ex. fin chapitre méthode, HOME-09) |
 | P0-header | Demander un devis | `/demande-de-devis` | **≥1280 px uniquement** : CTA **compact outline** (fond transparent, texte blanc, bordure blanche) — **ne pas** qualifier de primaire rouge |
 | P1 | Découvrir nos services | `#services` | Secondaire outline dans le Hero |
 | P2 | Nous contacter | `/contact` | Tertiaire texte ou outline discret |
@@ -156,7 +158,7 @@ Aligné PRD §10.4, NFR-A11Y-001, GRD-003 :
 - HTML sémantique (`header`, `nav`, `main`, `section`, `footer`) ;
 - un `<h1>` par page ; hiérarchie titres sans saut ;
 - contrastes 4,5:1 texte normal, 3:1 grand texte et UI ;
-- `#FF5757` : **jamais** seul vecteur d’information ; tester chaque usage sur fond noir/anthracite ;
+- `#DC2626` : **jamais** seul vecteur d’information ; tester chaque usage sur fond noir/anthracite ;
 - focus visible 2 px minimum, couleur distincte de l’accent si besoin ;
 - cibles interactives ≥ 24×24 px (WCAG) ; boutons nav/CTA ≥ 44×44 px objectif ;
 - images décoratives `alt=""` ; images porteuses de sens : `alt` descriptif validé Jores ;
@@ -264,7 +266,7 @@ Passes exécutées sur les livrables UX (un flux, pas sept documents séparés).
 | **UX strategist** | PASS | Promesse PRÉCISION EN MOUVEMENT ; CTA devis ; pas fausse instantanéité |
 | **Information architect** | PASS | Nav alignée PRD ; Réalisations conditionnelle ; hiérarchie CTA |
 | **Visual designer** | PASS | Système dans `THL-DESIGN.md` ; pas cartes SaaS génériques |
-| **Accessibility reviewer** | PASS | WCAG 2.2 AA cible ; focus ; reduced-motion ; contrastes #FF5757 à tester |
+| **Accessibility reviewer** | PASS | WCAG 2.2 AA cible ; focus ; reduced-motion ; contrastes #DC2626 à tester |
 | **Responsive reviewer** | PASS | 320–1920 ; HOME.md par breakpoint |
 | **Content reviewer** | PARTIAL | DRAFT_CONTENT partout ; zéro invention chiffrée ; validation Jores requise |
 | **Relecture Tech Lead (Kyria)** | EN ATTENTE | Cohérence PRD, perf hero, pas de dépendance GSAP imposée |

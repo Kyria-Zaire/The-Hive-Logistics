@@ -8,6 +8,7 @@ import { ROUTES } from "@/lib/routes";
 const links = [
   { href: ROUTES.home, label: homeContent.nav.home },
   { href: ROUTES.services, label: homeContent.nav.services },
+  { href: ROUTES.about, label: homeContent.nav.about },
   { href: ROUTES.contact, label: homeContent.nav.contact },
 ] as const;
 

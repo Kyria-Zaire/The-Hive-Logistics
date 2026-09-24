@@ -7,10 +7,20 @@
   --text-primary: #ffffff;
   --text-secondary: #a1a1a1;
   --text-muted: #8a8a8f;
-  --accent: #ff5757;
-  --accent-hover: #ff7070;
+  --accent: #dc2626;
+  --accent-hover: #b91c1c;
+  --accent-on-light: #b91c1c;
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Light sections */
+  --bg-light: #f5f5f3;
+  --bg-light-elevated: #ffffff;
+  --text-dark-primary: #1a1a1a;
+  --text-dark-secondary: #5a5a5a;
+  --text-dark-muted: #6e6e6e;
+  --border-light: rgba(0, 0, 0, 0.08);
+  --border-light-strong: rgba(0, 0, 0, 0.16);
 
   --space-1: 4px;
   --space-2: 8px;
@@ -29,19 +39,29 @@
   --duration-base: 400ms;
   --duration-slow: 800ms;
 
-  --font-size-display-xl: clamp(48px, 8vw, 96px);
+  /*
+   * The floors are what a phone actually gets: below the crossover each clamp stops scaling
+   * and sits on its minimum, and these minimums were set for a ~640px viewport. At 390px it
+   * left every H1, H2, H3 and tile title at the same 32px — no hierarchy left, and titles
+   * running onto two and three lines. Lowering only the floors changes nothing at or above
+   * 640px, where the vw term already wins; it gives the phone a scale instead of a plateau.
+   */
+  --font-size-display-xl: clamp(40px, 8vw, 96px);
   --line-height-display-xl: 1;
   --letter-spacing-display-xl: -0.04em;
-  --font-size-display-l: clamp(40px, 6vw, 72px);
+  --font-size-display-l: clamp(32px, 6vw, 72px);
   --line-height-display-l: 1.05;
   --letter-spacing-display-l: -0.03em;
-  --font-size-display-m: clamp(32px, 5vw, 56px);
+  --font-size-display-m: clamp(28px, 5vw, 56px);
   --line-height-display-m: 1.1;
   --letter-spacing-display-m: -0.02em;
-  --font-size-display-s: clamp(28px, 4vw, 44px);
+  --font-size-display-s: clamp(24px, 4vw, 44px);
   --line-height-display-s: 1.15;
   --letter-spacing-display-s: -0.015em;
-  --font-size-heading: 32px;
+  /* Was a flat 32px, the one step with no responsive behaviour at all: a section heading
+     stood as tall as the page title on a 360px screen. The 5vw term keeps it at exactly 32px
+     from 640px up, so nothing moves on tablet or desktop. */
+  --font-size-heading: clamp(22px, 5vw, 32px);
   --line-height-heading: 1.2;
   --font-weight-heading: 500;
   --font-size-body-l: 18px;
@@ -51,6 +71,8 @@
   --font-size-caption: 14px;
   --line-height-caption: 1.5;
   --letter-spacing-caption: 0.05em;
+
+  --font-display: var(--font-inter), system-ui, sans-serif;
 
   --container-max: 1440px;
   --container-padding: clamp(20px, 5vw, 80px);
@@ -67,8 +89,8 @@
   --color-thl-text-muted: var(--text-muted);
   --color-thl-accent: var(--accent);
   --color-thl-accent-hover: var(--accent-hover);
-  --color-thl-accent-active: #d94444;
-  --color-thl-on-accent: #0a0a0a;
+  --color-thl-accent-active: #991b1b;
+  --color-thl-on-accent: #ffffff;
   --color-thl-focus: #ffffff;
 
   --font-sans: var(--font-instrument-sans), system-ui, "Segoe UI", sans-serif;
@@ -82,14 +104,14 @@
 }
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
+  /* No `scroll-behavior: smooth`: Lenis animates anchor scrolling itself (TICKET 19).
+     Keeping it would smooth every anchor twice, and its reduced-motion override
+     only restored the `auto` default. */
 
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
+  /* The header is fixed (73px tall): without this, an anchor target lands underneath it.
+     Honoured both by the browser and by Lenis, which reads scrollMarginTop. */
+  [id] {
+    scroll-margin-top: 88px;
   }
 
   body {
@@ -116,13 +138,14 @@
 
   .thl-focus-primary:focus-visible {
     box-shadow:
-      0 0 0 2px var(--color-thl-on-accent),
+      0 0 0 2px var(--bg-primary),
       0 0 0 4px var(--color-thl-focus);
     outline: none;
   }
 
   .thl-btn-primary {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 px-6 text-sm font-medium;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 px-6 text-[13px] font-medium uppercase;
+    letter-spacing: 0.08em;
     background-color: var(--color-thl-accent);
     color: var(--color-thl-on-accent);
     transition: background-color var(--duration-fast) var(--ease-thl-out);
@@ -137,7 +160,8 @@
   }
 
   .thl-btn-outline {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 border px-6 text-sm font-medium;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 border px-6 text-[13px] font-medium uppercase;
+    letter-spacing: 0.08em;
     border-color: var(--color-thl-focus);
     color: var(--color-thl-text-primary);
     background: transparent;
@@ -151,7 +175,8 @@
   }
 
   .thl-btn-header-compact {
-    @apply hidden min-h-11 items-center justify-center gap-1.5 border px-4 text-sm font-medium xl:inline-flex;
+    @apply hidden min-h-11 items-center justify-center gap-1.5 border px-4 text-[13px] font-medium uppercase xl:inline-flex;
+    letter-spacing: 0.08em;
     border-color: var(--color-thl-focus);
     color: var(--color-thl-text-primary);
     background: transparent;
@@ -160,6 +185,28 @@
 
   .thl-btn-header-compact:hover {
     border-color: var(--color-thl-accent);
+  }
+
+  /* Light sections: the outline button, text links and focus ring are white by default. */
+  .section-light .thl-btn-outline {
+    border-color: var(--text-dark-primary);
+    color: var(--text-dark-primary);
+  }
+
+  .section-light .thl-btn-outline:hover {
+    border-color: var(--accent-on-light);
+  }
+
+  .section-light .thl-text-link {
+    color: var(--text-dark-secondary);
+  }
+
+  .section-light .thl-text-link:hover {
+    color: var(--text-dark-primary);
+  }
+
+  .section-light .thl-focus-dark:focus-visible {
+    outline-color: var(--text-dark-primary);
   }
 
   .thl-text-link {
@@ -176,7 +223,7 @@
   .thl-skip-link {
     @apply fixed left-4 top-4 z-[100] -translate-y-[200%] px-4 py-2 text-sm font-medium;
     background: var(--color-thl-focus);
-    color: var(--color-thl-on-accent);
+    color: var(--bg-primary);
   }
 
   .thl-skip-link:focus {
@@ -353,28 +400,388 @@
       animation: none;
     }
   }
+
+  /*
+   * Hero words. Here rather than in a `<style jsx global>` inside the section: styled-jsx
+   * injects its rules after hydration, so the HTML painted first had no `opacity: 0` and the
+   * whole block flashed at full opacity before being hidden again. Barely visible while the
+   * delay was 550ms; unmissable now that the words hold for 7.5s behind the clip.
+   * Each element carries its own --enter-y, --enter-delay and --enter-duration.
+   */
+  @keyframes thl-hero-enter {
+    from {
+      opacity: 0;
+      transform: translateY(var(--enter-y, 20px));
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero-enter {
+    opacity: 0;
+    animation: thl-hero-enter var(--enter-duration, 800ms) var(--ease-lux) forwards;
+    animation-delay: var(--enter-delay, 0ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-enter {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /*
+   * Engagements: the backdrop opens from a card to the full screen as the section is scrolled.
+   *
+   * The inset lives in custom properties for two reasons. GSAP then tweens three values
+   * instead of reparsing a clip-path string every frame; and the closed state ships in the
+   * stylesheet, so it is applied on the first paint rather than after hydration — the hero
+   * taught us what the other way looks like, a frame that flashes open before snapping shut.
+   * Each breakpoint carries its own opening: a 65%-wide card reads on a desktop, and would be
+   * a vertical ribbon on a phone.
+   */
+  /* The track's height lives here rather than in `h-[…] lg:h-[…] motion-reduce:h-auto`
+     utilities: those all carry the same specificity, and `lg:` won — the unpinned layout kept
+     1980px of empty track under it on a desktop. Here the reduced-motion rule is simply last. */
+  .thl-engagements-track {
+    height: 180vh;
+  }
+
+  .thl-engagements-frame {
+    --frame-inset-x: 4%;
+    --frame-inset-y: 10%;
+    --frame-radius: 16px;
+    clip-path: inset(
+      var(--frame-inset-y) var(--frame-inset-x) round var(--frame-radius)
+    );
+  }
+
+  @media (min-width: 768px) {
+    .thl-engagements-track {
+      height: 200vh;
+    }
+
+    .thl-engagements-frame {
+      --frame-inset-x: 12.5%;
+      --frame-inset-y: 14%;
+      --frame-radius: 24px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .thl-engagements-track {
+      height: 220vh;
+    }
+
+    .thl-engagements-frame {
+      --frame-inset-x: 17.5%;
+      --frame-inset-y: 15%;
+    }
+  }
+
+  /* No pinned screen, no opening: the photograph is simply a block, with the heading above it
+     and the three commitments below. The classes that build the scrolled version are undone
+     in the markup with motion-reduce: variants. */
+  @media (prefers-reduced-motion: reduce) {
+    .thl-engagements-track {
+      height: auto;
+    }
+
+    .thl-engagements-frame {
+      clip-path: none;
+    }
+  }
+
+  /*
+   * Vision: the statement is read out word by word while the screen is pinned. Same reason as
+   * the engagements track for keeping the heights here rather than in utilities — as
+   * utilities they tie on specificity and the breakpoint variant beats `motion-reduce:`.
+   */
+  .thl-vision-track {
+    height: 200vh;
+  }
+
+  @media (max-width: 767px) {
+    .thl-vision-track {
+      height: 180vh;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .thl-vision-track {
+      height: auto;
+    }
+
+    .thl-vision-stage {
+      position: static;
+    }
+
+    /* !important earns its place here: the preference can be turned on after the timeline was
+       built, and this overrides the inline opacity GSAP would have left behind. */
+    .thl-vision-body .word {
+      opacity: 1 !important;
+    }
+  }
+
+  /*
+   * Accordion gallery (TICKET 25). Here rather than in a component stylesheet: this project
+   * ships one sheet, imported from the layout, which is what gets the closed state painted
+   * before hydration instead of after it.
+   *
+   * The skeleton is ul > li > a, not a div carrying role="listitem": that role on an anchor
+   * takes its link semantics away, and these panels are links.
+   */
+  .accordion-gallery {
+    --ag-accent: #dc2626;
+    --ag-overlay: #0a0a0a;
+    --ag-text: #ffffff;
+    --ag-gap: 10px;
+    --ag-radius: 16px;
+    --ag-media-size: 320px;
+    --ag-height: 460px;
+
+    display: flex;
+    flex-direction: row;
+    gap: var(--ag-gap);
+    width: 100%;
+    max-width: 100%;
+    height: var(--ag-height);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    perspective: 1400px;
+    perspective-origin: 50% 50%;
+  }
+
+  .accordion-gallery--vertical {
+    flex-direction: column;
+  }
+
+  .ag-panel {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: var(--ag-radius);
+    transform-style: preserve-3d;
+    transform-origin: center center;
+    background: var(--bg-primary);
+    box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.8);
+    will-change: flex-grow, transform;
+  }
+
+  .ag-panel__link {
+    position: absolute;
+    inset: 0;
+    display: block;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: inherit;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ag-panel__link:focus-visible {
+    box-shadow:
+      0 0 0 2px var(--ag-accent),
+      0 10px 30px -18px rgba(0, 0, 0, 0.8);
+  }
+
+  .ag-panel__frame {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+
+  .ag-panel__media {
+    --ag-gray: 1;
+    --ag-dim: 0.35;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--ag-media-size);
+    height: 100%;
+    filter: grayscale(var(--ag-gray));
+    will-change: transform, filter;
+  }
+
+  .ag-panel__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .ag-panel__overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(
+        180deg,
+        transparent 45%,
+        color-mix(in srgb, var(--ag-overlay) 78%, transparent) 100%
+      ),
+      color-mix(in srgb, var(--ag-overlay) calc(var(--ag-dim, 0.35) * 100%), transparent);
+  }
+
+  .ag-panel__label {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .ag-panel__bar {
+    flex: 0 0 auto;
+    width: 3px;
+    height: 26px;
+    margin-top: 4px;
+    border-radius: 3px;
+    background: var(--ag-accent);
+    opacity: 0;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--ag-accent) 60%, transparent);
+  }
+
+  .ag-panel__text-wrap {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ag-panel__text {
+    color: var(--ag-text);
+    font-weight: 500;
+    font-size: clamp(1rem, 1.4vw, 1.4rem);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+  }
+
+  .ag-panel__desc {
+    max-width: 100%;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(8px);
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Below the tablet line the panels stack: an accordion 390px wide gives each folded panel
+     about 60px, which is not a photograph. */
+  @media (max-width: 767px) {
+    .accordion-gallery {
+      flex-direction: column;
+      height: auto;
+      perspective: none;
+    }
+
+    .ag-panel {
+      min-height: 160px;
+      transform: none !important;
+    }
+
+    .ag-panel__media {
+      width: 100%;
+      height: var(--ag-media-size);
+    }
+
+    /* Stacked, every panel is full width and has room for its name. Folding the label away
+       here left two of the three services as unlabelled photographs. !important because the
+       timeline writes these two properties inline on the folded panels. */
+    .ag-panel__text,
+    .ag-panel__desc {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .ag-panel__bar {
+      opacity: 1 !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ag-panel,
+    .ag-panel__media {
+      will-change: auto;
+    }
+  }
+
+  /* Service tiles: the photo zooms on hover, inside the tile's overflow-hidden box. */
+  .thl-tile-image {
+    transition: transform 600ms var(--ease-lux);
+  }
+
+  .thl-tile:hover .thl-tile-image {
+    transform: scale(1.05);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .thl-tile-image {
+      transition: none;
+    }
+
+    .thl-tile:hover .thl-tile-image {
+      transform: none;
+    }
+  }
 }
 
 @layer utilities {
+  .section-dark {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  .section-light {
+    background-color: var(--bg-light);
+    color: var(--text-dark-primary);
+  }
+
   .text-display-xl {
+    font-family: var(--font-display);
+    font-weight: 300;
     font-size: var(--font-size-display-xl);
     line-height: var(--line-height-display-xl);
     letter-spacing: var(--letter-spacing-display-xl);
   }
 
   .text-display-l {
+    font-family: var(--font-display);
+    font-weight: 300;
     font-size: var(--font-size-display-l);
     line-height: var(--line-height-display-l);
     letter-spacing: var(--letter-spacing-display-l);
   }
 
   .text-display-m {
+    font-family: var(--font-display);
+    font-weight: 300;
     font-size: var(--font-size-display-m);
     line-height: var(--line-height-display-m);
     letter-spacing: var(--letter-spacing-display-m);
   }
 
   .text-display-s {
+    font-family: var(--font-display);
+    font-weight: 300;
     font-size: var(--font-size-display-s);
     line-height: var(--line-height-display-s);
     letter-spacing: var(--letter-spacing-display-s);

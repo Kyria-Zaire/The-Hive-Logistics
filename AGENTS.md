@@ -89,11 +89,13 @@ Le script `.claude/hooks/agent_guard.py` et les sauvegardes `.cursor/hooks*.disa
 
 ## Frontend et expérience
 
-- Direction : noir profond, blanc, anthracite, accent `#FF5757`, photographie nocturne, espace généreux et mouvement retenu.
+- Direction : noir profond, blanc, anthracite, accent `#DC2626`, photographie nocturne, espace généreux et mouvement retenu.
 - Éviter l’apparence générique « site généré par IA » : pas de gradients gratuits, cartes répétitives, effets décoratifs arbitraires ou texte marketing inventé.
 - Responsive réel : desktop, medium et mobile. Aucun simple rétrécissement du desktop.
 - Accessibilité clavier, focus visible, HTML sémantique, contrastes, réduction des mouvements et états erreur/chargement/vide obligatoires.
 - Performance et lisibilité priment sur les animations.
+
+[MAJ 20/09/2026] Accent rouge changé sur décision client (Jores) : #FF5757 → #DC2626.
 
 ## Rapport de fin de ticket
 
