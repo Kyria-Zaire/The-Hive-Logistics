@@ -8,17 +8,17 @@ export function BrandStatementSection() {
   return (
     <section
       aria-labelledby="brand-statement-heading"
-      className="bg-thl-bg-deep py-16 md:py-20"
+      className="section-light py-16 md:py-20"
     >
       <div className="thl-container">
-        <div className="max-w-[680px] border-l-4 border-thl-accent pl-6 md:pl-8">
+        <div className="max-w-[680px] border-l-4 border-[var(--accent-on-light)] pl-6 md:pl-8">
           <h2
             id="brand-statement-heading"
             className="text-2xl font-semibold leading-tight md:text-3xl xl:text-4xl"
           >
             {brandStatement.title}
           </h2>
-          <p className="mt-6 text-base leading-relaxed text-thl-text-secondary md:text-lg">
+          <p className="mt-6 text-base leading-relaxed text-[var(--text-dark-secondary)] md:text-lg">
             {brandStatement.body}
           </p>
           <div className="mt-8">

@@ -6,3 +6,6 @@ export const SHOW_FOOTER_CONTACT_DETAILS = true;
 
 /** FR-041 — Liens réseaux sociaux footer. */
 export const SHOW_FOOTER_SOCIAL_LINKS = false;
+
+/** Bannière partenaires : structure prête, droits des logos en attente (mail Jores). */
+export const SHOW_TRUST_BANNER = false;

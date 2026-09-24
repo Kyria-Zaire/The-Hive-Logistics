@@ -1,5 +1,7 @@
 # Page d’accueil `/` — Spécification UX/UI
 
+[MAJ 20/09/2026] Accent rouge changé sur décision client (Jores) : #FF5757 → #DC2626.
+
 > **Ticket** = THL-UX-001 / **001A** / **001B** / **THL-UX-001C**
 > **Version** = 0.1.3
 > **Statut** = DRAFT_FOR_HUMAN_APPROVAL
@@ -102,7 +104,7 @@ Promesse FR-037/038 ; CTA devis ; ancrage `#services`.
 - **H1 (une phrase DOM, FR-037) :** Nous déplaçons plus que des véhicules.
   - Visuel : mots **plus que** en **Instrument Serif Italic** dans un `<span>` sans casser la phrase pour l’AT.
 - **Paragraphe :** Convoyage, gestion de flotte et logistique automobile, orchestrés avec précision.
-- **CTA P0 (primaire rouge) :** Demander un devis → `/demande-de-devis` — fond `#FF5757`, texte `#0A0A0A`
+- **CTA P0 (primaire rouge) :** Demander un devis → `/demande-de-devis` — fond `#DC2626`, texte `#0A0A0A`
 - **CTA P1 (secondaire outline) :** Découvrir nos services → `#services`
 
 ### Typographie H1 (verrouillée)
@@ -186,7 +188,7 @@ Chaque déplacement exige anticipation, clarté et respect du véhicule. Nous st
 
 | Viewport | Composition |
 |---|---|
-| 1280 px et plus | Prose max 680 px, colonne gauche dans max-width 1280 ; règle accent 48 px `#FF5757` à gauche du H2 |
+| 1280 px et plus | Prose max 680 px, colonne gauche dans max-width 1280 ; règle accent 48 px `#DC2626` à gauche du H2 |
 | 768–1279 px | Prose max 680 px, marge 24 px |
 | 320–767 px | Padding 16–24 px, body-lg |
 
@@ -370,7 +372,7 @@ Texte : Décrivez votre demande de devis ou contactez-nous.
 | HOME-05 | Timeline 2×2 ; horizontal &lt;1280 |
 | HOME-06 | Grille 4 cartes engagements |
 | HOME-08 | Paragraphe exclusion immobilier/chauffeur en copy |
-| Bouton primaire | Texte blanc sur `#FF5757` |
+| Bouton primaire | Texte blanc sur `#DC2626` |
 | Typo | Inter + Instrument Sans |
 | Focus | `:focus { outline: none }` global |
 | Chargement | Skeleton global pages marketing |

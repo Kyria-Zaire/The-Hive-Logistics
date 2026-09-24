@@ -4,7 +4,7 @@ import { ROUTES } from "@/lib/routes";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Contactez THE HIVE LOGISTICS pour votre projet de convoyage automobile, de gestion de flotte ou de logistique premium. Réponse via notre formulaire.",
+    "Contactez THE HIVE LOGISTICS pour votre projet de convoyage automobile, de gestion de flotte ou de logistique automobile. Réponse via notre formulaire.",
   alternates: { canonical: ROUTES.contact },
 };
 

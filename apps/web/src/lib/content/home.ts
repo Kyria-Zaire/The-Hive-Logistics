@@ -9,6 +9,17 @@ export const homeContent = {
       "Chaque déplacement exige anticipation, clarté et respect du véhicule. Nous structurons la demande, qualifions le besoin avec vous et organisons la prise en charge sans promesse automatisée.",
     linkLabel: "Découvrir notre approche",
   },
+  /** Chiffres fournis et validés par Jores (aucune valeur estimée). */
+  keyFigures: {
+    label: "Chiffres clés",
+    // Number and suffix apart, rather than "300+" as one string: the count-up animates the
+    // number and must never touch the sign, and a number is also what it needs to count to.
+    items: [
+      { value: 300, suffix: "+", label: "VÉHICULES CONVOYÉS / AN" },
+      { value: 25000, suffix: "+", label: "KILOMÈTRES PARCOURUS / AN" },
+      { value: 95, suffix: "%", label: "MISSIONS DANS LES DÉLAIS" },
+    ],
+  },
   services: {
     eyebrow: "NOS SERVICES",
     title: "Une offre complète",
@@ -27,7 +38,7 @@ export const homeContent = {
       },
       {
         id: "logistique",
-        title: "Logistique premium",
+        title: "Logistique automobile",
         description: "Solutions logistiques adaptées à votre besoin.",
         image: "/images/services/logistique.jpg",
       },
@@ -35,7 +46,7 @@ export const homeContent = {
   },
   engagements: {
     eyebrow: "NOTRE ENGAGEMENT",
-    title: "Le luxe, une exigence",
+    title: "La logistique, une exigence",
     items: [
       {
         title: "Excellence opérationnelle",
@@ -108,9 +119,30 @@ export const homeContent = {
   },
   vision: {
     eyebrow: "NOTRE VISION",
-    title: "Bâtir la référence du convoyage premium en France.",
+    title: "Bâtir la référence du convoyage automobile en France.",
     body:
-      "Faire de chaque déplacement une référence. Nous construisons une mobilité premium fondée sur la précision, la rigueur et la confiance. Notre ambition est de développer une présence nationale du convoyage haut de gamme, en accompagnant chaque véhicule avec le même niveau d’exigence. Le prestige ne tient pas à l’apparence seule : il se mesure à la qualité constante de chaque étape, à la clarté des échanges et au respect des engagements pris.",
+      "Faire de chaque déplacement une référence. Nous construisons une mobilité fondée sur la précision, la rigueur et la confiance. Notre ambition est de développer une présence nationale du convoyage automobile, en accompagnant chaque véhicule avec le même niveau d’exigence. Le prestige ne tient pas à l’apparence seule : il se mesure à la qualité constante de chaque étape, à la clarté des échanges et au respect des engagements pris.",
+  },
+  /**
+   * Bannière partenaires — structure seule.
+   * Les noms ne sont PAS rendus tant que `src` est null : afficher une marque
+   * tierce sans autorisation engagerait THE HIVE LOGISTICS.
+   * Activation : renseigner `src` avec le chemin dans /public/images/partners/
+   * puis passer SHOW_TRUST_BANNER à true. Droits à confirmer par Jores.
+   */
+  trustBanner: {
+    title: "Ils nous font confiance",
+    logos: [
+      { name: "DLM", src: null },
+      { name: "Sixt", src: null },
+      { name: "Europcar", src: null },
+      { name: "Audi", src: null },
+      { name: "Mercedes", src: null },
+      { name: "BMW", src: null },
+      { name: "Peugeot", src: null },
+      { name: "Renault", src: null },
+      { name: "Mosolf", src: null },
+    ],
   },
   conversion: {
     title: "Parlons de votre besoin",
@@ -134,6 +166,7 @@ export const homeContent = {
   nav: {
     home: "Accueil",
     services: "Services",
+    about: "À propos",
     contact: "Contact",
     quote: "Demander un devis",
     menuOpen: "Ouvrir le menu",

@@ -1,5 +1,7 @@
 # THL-DESIGN — Système visuel THE HIVE LOGISTICS
 
+[MAJ 20/09/2026] Accent rouge changé sur décision client (Jores) : #FF5757 → #DC2626.
+
 > **Ticket** = THL-UX-001 / **001A** / **001B** / **THL-UX-001C**
 > **Version** = 0.1.3
 > **Statut** = DRAFT_FOR_HUMAN_APPROVAL
@@ -22,17 +24,17 @@ Tokens pour implémentation Next.js. Aucune fonte payante sans validation Jores 
 | `color-text-primary` | `#FFFFFF` | Titres, texte principal sur fond sombre |
 | `color-text-secondary` | `#B8B8BC` | Corps, légendes |
 | `color-text-muted` | `#8A8A8F` | Eyebrows |
-| `color-accent` | `#FF5757` | Accent marque — usage restreint |
+| `color-accent` | `#DC2626` | Accent marque — usage restreint |
 | `color-accent-hover` | `#E64D4D` | Hover bouton primaire (voir §1.3) |
 | `color-focus-ring` | `#FFFFFF` | Anneau focus par défaut sur fond sombre |
 | `color-error` | `#FF6B6B` | Erreurs formulaire |
 | `color-success` | `#5CB88A` | Succès discret |
 
-### 1.2 Usages autorisés de `#FF5757`
+### 1.2 Usages autorisés de `#DC2626`
 
 | Autorisé | Interdit |
 |---|---|
-| Fond bouton primaire (texte `#0A0A0A` uniquement) | Texte blanc `#FFFFFF` sur fond `#FF5757` |
+| Fond bouton primaire (texte `#0A0A0A` uniquement) | Texte blanc `#FFFFFF` sur fond `#DC2626` |
 | Règle éditoriale 1–2 px | Grands aplats, glow néon |
 | Soulignement lien nav actif (avec texte blanc adjacent) | Paragraphes ou boutons secondaires en rouge plein |
 
@@ -40,12 +42,12 @@ Tokens pour implémentation Next.js. Aucune fonte payante sans validation Jores 
 
 | Combinaison | Ratio | Verdict |
 |---|---|---|
-| `#0A0A0A` sur `#FF5757` | ~6,37:1 | **CTA primaire — conforme** texte normal |
-| `#FFFFFF` sur `#FF5757` | ~3,11:1 | **Interdit** pour texte normal |
-| `#FF5757` sur `#0A0A0A` (lien, règle) | ~6,37:1 | Conforme pour petits éléments UI |
+| `#0A0A0A` sur `#DC2626` | ~6,37:1 | **CTA primaire — conforme** texte normal |
+| `#FFFFFF` sur `#DC2626` | ~3,11:1 | **Interdit** pour texte normal |
+| `#DC2626` sur `#0A0A0A` (lien, règle) | ~6,37:1 | Conforme pour petits éléments UI |
 | `#FFFFFF` sur `#0A0A0A` | >15:1 | Texte hero / corps |
 
-**Bouton primaire (obligatoire) :** fond `#FF5757`, texte `#0A0A0A`, icône `#0A0A0A`.
+**Bouton primaire (obligatoire) :** fond `#DC2626`, texte `#0A0A0A`, icône `#0A0A0A`.
 
 **Hover primaire :** fond `#E64D4D`, texte `#0A0A0A` — re-vérifier ratio (~6:1, rester ≥ 4,5:1).
 
@@ -136,7 +138,7 @@ Interdit : second sans-serif proche (ex. Inter + DM Sans). Interdit : serif pour
 
 | État | Fond | Texte | Bordure |
 |---|---|---|---|
-| Default | `#FF5757` | `#0A0A0A` | none |
+| Default | `#DC2626` | `#0A0A0A` | none |
 | Hover | `#E64D4D` | `#0A0A0A` | none |
 | Active | `#D94444` | `#0A0A0A` | none |
 | Disabled | `#2A2A2E` | `#8A8A8F` | none |
@@ -149,14 +151,14 @@ Min-height **44 px** ; padding horizontal 24 px. **Usage :** Hero P0, blocs conv
 | État | Fond | Texte | Bordure |
 |---|---|---|---|
 | Default | transparent | `#FFFFFF` | `1px #FFFFFF` |
-| Hover | transparent | `#FFFFFF` | `1px #FF5757` |
+| Hover | transparent | `#FFFFFF` | `1px #DC2626` |
 | Focus-visible | Double anneau §7 (adapté fond sombre header) | | |
 
-Libellé : **Demander un devis** ; icône Lucide **`ArrowUpRight`** 16 px, `aria-hidden="true"` ; pas de flèche Unicode textuelle si Lucide est utilisé ; fond transparent ; texte `#FFFFFF` ; bordure `1px #FFFFFF` ; **ne pas** utiliser `#FF5757` en fond.
+Libellé : **Demander un devis** ; icône Lucide **`ArrowUpRight`** 16 px, `aria-hidden="true"` ; pas de flèche Unicode textuelle si Lucide est utilisé ; fond transparent ; texte `#FFFFFF` ; bordure `1px #FFFFFF` ; **ne pas** utiliser `#DC2626` en fond.
 
 ### 6.3 Bouton secondaire (Hero / sections)
 
-Fond transparent ; texte `#FFFFFF` ; bordure `1px #FFFFFF` ; hover bordure `#FF5757`.
+Fond transparent ; texte `#FFFFFF` ; bordure `1px #FFFFFF` ; hover bordure `#DC2626`.
 
 ### 6.4 Liens, nav, champs, menu mobile
 
@@ -215,7 +217,7 @@ Pas de GSAP requis V1.
 
 ## 10. Checklist design (001A)
 
-- [x] Bouton primaire `#0A0A0A` sur `#FF5757`
+- [x] Bouton primaire `#0A0A0A` sur `#DC2626`
 - [x] Pas texte blanc sur accent pour CTA
 - [x] Instrument Sans + Serif Italic scope
 - [x] Focus policy §7
