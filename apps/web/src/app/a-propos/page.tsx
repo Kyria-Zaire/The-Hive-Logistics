@@ -4,7 +4,6 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { EngagementsSection } from "@/components/home/engagements-section";
 import { VisionSection } from "@/components/home/vision-section";
-import { VisionAnimated } from "@/components/home/vision-animated";
 import { homeContent } from "@/lib/content/home";
 import { ROUTES } from "@/lib/routes";
 
@@ -46,13 +45,12 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* The same two chapters as the home, animation included: the typographic variant
-            that used to stand here was there to avoid repeating the photograph, and that call
-            was reversed. It brings GSAP onto this route — see the TICKET 24-TER note, which
-            had kept the page static precisely to keep it out. */}
+        {/* Les deux mêmes chapitres que l'accueil. Engagements importe son animation en dur,
+            c'est donc lui qui amène GSAP sur cette route ; la Vision, depuis le TICKET 34,
+            n'a plus d'animation à injecter. */}
         <EngagementsSection />
 
-        <VisionSection animation={<VisionAnimated />} />
+        <VisionSection showFolders />
 
         <section aria-labelledby="about-cta-heading" className="bg-[var(--bg-secondary)] py-[var(--space-6)] lg:py-[var(--space-7)]">
           <div className="thl-container text-center">
