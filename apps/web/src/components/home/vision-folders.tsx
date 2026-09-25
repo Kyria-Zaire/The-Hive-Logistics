@@ -87,7 +87,11 @@ export function VisionFolders() {
   }, []);
 
   return (
-    <div className="thl-vision-folders">
+    <div
+      className={`thl-vision-folders ${
+        openIndex !== null ? "thl-vision-folders--has-open" : ""
+      }`}
+    >
       <ul className="thl-vision-folders__grid">
         {vision.folders.map((folder, index) => (
           <li
