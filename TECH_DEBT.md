@@ -278,3 +278,13 @@ La valeur de 280 px est calée sur la plus haute des quatre fiches, mesurée à 
 **Sévérité : Low**, tant que les quatre textes ne bougent pas.
 
 **Piste :** faire participer la fiche au flux (`grid-template-rows: 0fr → 1fr`) plutôt que de réserver une hauteur en dur — l'animation reste possible, la valeur magique et la distinction par point de rupture disparaissent toutes les deux.
+
+## 35. Même titre de section sur l'accueil et sur /services
+
+`MethodChapterSection` est monté par les deux pages. Depuis l'inversion de hiérarchie du TICKET 35, son libellé `NOTRE MÉTHODE` est devenu le H2 visible : les deux pages affichent donc le même grand titre de section, avec le même sous-titre « Un processus maîtrisé ».
+
+Le doublon existait déjà — c'est le même composant depuis l'origine — mais il était discret tant que le libellé n'était qu'un surtitre de 13 px. L'inversion l'a rendu voyant.
+
+**Sévérité : Low.** Aucune conséquence de référencement : les `h1` des deux pages restent distincts, et c'est eux qui portent le signal. C'est une répétition visuelle, pas une erreur.
+
+**Piste V3.1 :** donner au composant une prop de libellé, pour que /services puisse dire autre chose que l'accueil — par exemple `COMMENT NOUS TRAVAILLONS`. À faire valider par Jores, ce serait de la copie nouvelle.

@@ -13,8 +13,9 @@ export function ConversionSection() {
       <div className="thl-container">
         <div className="mx-auto max-w-[720px] text-center">
           <h2 id="conversion-heading" className="text-display-m">
-            {conversion.title}
+            {conversion.eyebrow}
           </h2>
+          <p className="text-section-subtitle mt-4">{conversion.title}</p>
           <p className="mt-4 text-base text-[var(--text-dark-secondary)] md:text-lg">
             {conversion.body}
           </p>

@@ -23,8 +23,8 @@ export default function AboutPage() {
       <main id="contenu-principal" className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
         <section aria-labelledby="about-heading" className="pt-32 pb-[var(--space-6)] lg:pt-[var(--space-7)]">
           <div className="thl-container">
-            <p className="text-caption text-[var(--text-muted)]">À PROPOS</p>
-            <h1 id="about-heading" className="text-display-m mt-4">THE HIVE LOGISTICS</h1>
+            <h1 id="about-heading" className="text-display-m">À propos</h1>
+            <p className="text-section-subtitle mt-4">THE HIVE LOGISTICS</p>
             <span aria-hidden className="mt-[var(--space-4)] block h-px w-16 bg-[var(--accent)]" />
             <p className="text-body-l mt-[var(--space-4)] max-w-2xl text-[var(--text-secondary)]">L&apos;exigence au service de la mobilité automobile.</p>
           </div>

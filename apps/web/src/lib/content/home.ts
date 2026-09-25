@@ -4,6 +4,7 @@ export const homeContent = {
     ctaSecondary: "Découvrir nos services",
   },
   brandStatement: {
+    eyebrow: "QUI NOUS SOMMES",
     title: "Une logistique automobile pensée avec rigueur",
     body:
       "Chaque déplacement exige anticipation, clarté et respect du véhicule. Nous structurons la demande, qualifions le besoin avec vous et organisons la prise en charge sans promesse automatisée.",
@@ -176,6 +177,7 @@ export const homeContent = {
     ],
   },
   conversion: {
+    eyebrow: "NOUS CONTACTER",
     title: "Parlons de votre besoin",
     body: "Décrivez votre demande de devis ou contactez-nous.",
     ctaPrimary: "Demander un devis",

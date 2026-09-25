@@ -62,13 +62,13 @@ export function EngagementsSection() {
                 photograph the grey measured 1.88:1. Holding it with the scrim instead would
                 mean taking the backdrop down to a luminance of 0.04 — a black rectangle, which
                 is the opposite of what opening the frame is for. */}
-            <p className="text-caption text-[var(--text-primary)]">{engagements.eyebrow}</p>
             <h2
               id="engagements-heading"
-              className="text-display-m mt-4 max-w-4xl text-[var(--text-primary)]"
+              className="text-display-m max-w-4xl text-[var(--text-primary)]"
             >
-              {engagements.title}
+              {engagements.eyebrow}
             </h2>
+            <p className="text-section-subtitle mt-4 max-w-4xl">{engagements.title}</p>
           </div>
 
           {/* The three commitments, stacked and centred — they arrive once the frame is open. */}

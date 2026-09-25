@@ -28,10 +28,12 @@ export function VisionSection({ showFolders = false }: VisionSectionProps) {
     >
       <div className="thl-container">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-caption text-[var(--text-secondary)]">{vision.eyebrow}</p>
-          <h2 id="vision-heading" className="text-display-m mt-4 text-[var(--text-primary)]">
-            {vision.title}
+          <h2 id="vision-heading" className="text-display-m text-[var(--text-primary)]">
+            {vision.eyebrow}
           </h2>
+          {/* En `.text-heading` (32 px) et non `.text-section-subtitle` (26 px) : c'est la
+              phrase la plus forte du site, elle garde du poids sous son libellé. */}
+          <p className="text-heading mt-4 text-[var(--text-secondary)]">{vision.title}</p>
           <p className="text-body-l mt-[var(--space-4)] text-[var(--text-secondary)]">
             {vision.intro}
           </p>
