@@ -23,7 +23,7 @@ export function MainNavLinks({
   id,
   className = "",
   onNavigate,
-  linkClassName = "thl-focus-dark block py-3 text-base text-thl-text-primary lg:inline-block lg:py-0 lg:text-sm lg:font-medium lg:text-thl-text-secondary lg:hover:text-thl-text-primary",
+  linkClassName = "thl-focus-dark block py-3 text-base uppercase tracking-[0.08em] text-thl-text-primary lg:inline-block lg:py-0 lg:text-sm lg:font-medium lg:text-thl-text-secondary lg:hover:text-thl-text-primary",
 }: MainNavLinksProps) {
   const pathname = usePathname();
 

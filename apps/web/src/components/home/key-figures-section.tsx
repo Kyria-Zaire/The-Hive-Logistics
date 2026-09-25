@@ -66,7 +66,7 @@ export function KeyFiguresSection() {
               {/* The final figure is what the HTML carries: without JavaScript the page still
                   says 300, not 0. The count-up resets it before the first paint and counts
                   back up to it. The suffix is a span of its own and is never animated. */}
-              <dd className="thl-figure-number text-display-l text-[var(--text-primary)]">
+              <dd className="thl-figure-number text-[var(--text-primary)]">
                 <span className="thl-figure-value" data-target={item.value}>
                   {formatFr(item.value)}
                 </span>

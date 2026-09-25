@@ -14,7 +14,7 @@ export function BrandStatementSection() {
         <div className="max-w-[680px] border-l-4 border-[var(--accent-on-light)] pl-6 md:pl-8">
           <h2
             id="brand-statement-heading"
-            className="text-2xl font-semibold leading-tight md:text-3xl xl:text-4xl"
+            className="text-display-m"
           >
             {brandStatement.title}
           </h2>

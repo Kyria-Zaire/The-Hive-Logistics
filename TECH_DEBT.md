@@ -248,3 +248,13 @@ C'est volontaire : `opentelemetry-sdk`, `-instrumentation` et `-instrumentation-
 `pip check` signale `postgrest`, `storage3`, `supabase` et `supafunc` qui demandent `httpx<0.28` alors que 0.28.1 est installé. **Antérieurs à Semgrep et sans rapport avec ce projet** : Semgrep ne dépend pas de `httpx` (seulement de `httpx-sse`). Documenté ici pour qu'on ne les impute pas à tort aux tickets 31 / 31-BIS / 31-TER lors d'un prochain `pip check`.
 
 **Sévérité : Low**, hors dépôt, hors périmètre THE HIVE LOGISTICS.
+
+## 33. « RÉSERVATION » rognée de 9 px à 320 px dans la timeline Méthode
+
+La première étape de la section Méthode (`h3` en `text-[20px] font-medium uppercase tracking-[0.12em]`) mesure 162 px de texte dans une colonne de 153 px. Le conteneur `.thl-method-steps` étant en `overflow-x: hidden`, la fin du mot est coupée sur un écran de 320 px.
+
+**Préexistant, et non introduit par le TICKET 33** : mesuré à l'identique sur la production servant le code antérieur (débord de 9 px des deux côtés, `font-size` 20 px et `letter-spacing` 2,4 px inchangés). Les titres de section passés en capitales à ce ticket n'y sont pour rien — ce `h3` portait déjà son propre `uppercase`.
+
+**Sévérité : Low.** Un seul mot, une seule largeur, texte partiellement lisible ; les trois autres étapes passent.
+
+**Piste V3.1 :** réduire le `tracking` sous 360 px, ou autoriser le retour à la ligne dans la colonne plutôt que de compter sur `overflow-x: hidden`.

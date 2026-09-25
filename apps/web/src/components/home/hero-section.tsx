@@ -54,7 +54,7 @@ export function HeroSection() {
               THE HIVE LOGISTICS
             </h1>
             <p
-              className="hero-enter thl-hero-lede text-display-m mt-6 max-w-5xl text-[var(--text-primary)]"
+              className="hero-enter thl-hero-lede mt-6 max-w-5xl text-[var(--text-primary)]"
               style={
                 {
                   "--enter-y": "20px",

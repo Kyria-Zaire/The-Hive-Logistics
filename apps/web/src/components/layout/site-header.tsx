@@ -49,7 +49,7 @@ export function SiteHeader() {
             aria-label={homeContent.nav.primary}
           >
             <MainNavLinks
-              linkClassName="thl-focus-dark text-sm font-medium text-thl-text-secondary transition-colors hover:text-thl-text-primary"
+              linkClassName="thl-focus-dark text-sm font-medium uppercase tracking-[0.08em] text-thl-text-secondary transition-colors hover:text-thl-text-primary"
             />
           </nav>
 
