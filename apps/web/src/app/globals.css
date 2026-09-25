@@ -46,18 +46,18 @@
    * running onto two and three lines. Lowering only the floors changes nothing at or above
    * 640px, where the vw term already wins; it gives the phone a scale instead of a plateau.
    */
-  --font-size-display-xl: clamp(40px, 8vw, 96px);
+  --font-size-display-xl: clamp(40px, 8vw, 106px);
   --line-height-display-xl: 1;
-  --letter-spacing-display-xl: -0.04em;
-  --font-size-display-l: clamp(32px, 6vw, 72px);
+  --letter-spacing-display-xl: 0.02em;
+  --font-size-display-l: clamp(32px, 6vw, 80px);
   --line-height-display-l: 1.05;
-  --letter-spacing-display-l: -0.03em;
-  --font-size-display-m: clamp(28px, 5vw, 56px);
+  --letter-spacing-display-l: 0.015em;
+  --font-size-display-m: clamp(28px, 5vw, 62px);
   --line-height-display-m: 1.1;
-  --letter-spacing-display-m: -0.02em;
-  --font-size-display-s: clamp(24px, 4vw, 44px);
+  --letter-spacing-display-m: 0.01em;
+  --font-size-display-s: clamp(24px, 4vw, 48px);
   --line-height-display-s: 1.15;
-  --letter-spacing-display-s: -0.015em;
+  --letter-spacing-display-s: 0.01em;
   /* Was a flat 32px, the one step with no responsive behaviour at all: a section heading
      stood as tall as the page title on a 360px screen. The 5vw term keeps it at exactly 32px
      from 640px up, so nothing moves on tablet or desktop. */
@@ -277,8 +277,16 @@
     margin-top: 0.375rem;
   }
 
+  /* Hors échelle display depuis le TICKET 33 : les titres sont passés en capitales
+     grasses, ce lede est une phrase et doit le rester. */
   .thl-hero-lede {
     margin-top: 0.625rem;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(20px, 3.5vw, 56px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    text-transform: none;
   }
 
   .thl-hero-actions {
@@ -323,11 +331,6 @@
   @media (max-width: 389px) {
     .thl-hero-h1 {
       font-size: 2.5rem;
-    }
-
-    .thl-hero-lede {
-      font-size: 0.9375rem;
-      line-height: 1.45;
     }
   }
 
@@ -772,7 +775,8 @@
 
   .text-display-xl {
     font-family: var(--font-display);
-    font-weight: 300;
+    font-weight: 600;
+    text-transform: uppercase;
     font-size: var(--font-size-display-xl);
     line-height: var(--line-height-display-xl);
     letter-spacing: var(--letter-spacing-display-xl);
@@ -780,7 +784,8 @@
 
   .text-display-l {
     font-family: var(--font-display);
-    font-weight: 300;
+    font-weight: 600;
+    text-transform: uppercase;
     font-size: var(--font-size-display-l);
     line-height: var(--line-height-display-l);
     letter-spacing: var(--letter-spacing-display-l);
@@ -788,7 +793,8 @@
 
   .text-display-m {
     font-family: var(--font-display);
-    font-weight: 300;
+    font-weight: 600;
+    text-transform: uppercase;
     font-size: var(--font-size-display-m);
     line-height: var(--line-height-display-m);
     letter-spacing: var(--letter-spacing-display-m);
@@ -796,10 +802,21 @@
 
   .text-display-s {
     font-family: var(--font-display);
-    font-weight: 300;
+    font-weight: 600;
+    text-transform: uppercase;
     font-size: var(--font-size-display-s);
     line-height: var(--line-height-display-s);
     letter-spacing: var(--letter-spacing-display-s);
+  }
+
+  /* Reprend l'ancienne `.text-display-l` : des chiffres ne se mettent pas en capitales,
+     et le Light leur va mieux que le 600 des titres (TICKET 33). */
+  .thl-figure-number {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(32px, 6vw, 72px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
   }
 
   .text-heading {

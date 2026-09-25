@@ -12,7 +12,7 @@ export function ConversionSection() {
     >
       <div className="thl-container">
         <div className="mx-auto max-w-[720px] text-center">
-          <h2 id="conversion-heading" className="text-2xl font-semibold md:text-3xl">
+          <h2 id="conversion-heading" className="text-display-m">
             {conversion.title}
           </h2>
           <p className="mt-4 text-base text-[var(--text-dark-secondary)] md:text-lg">
