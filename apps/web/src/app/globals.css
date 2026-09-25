@@ -1011,6 +1011,26 @@
     }
   }
 
+  /*
+   * Sous-titre de section (TICKET 35) : depuis l'inversion de hiérarchie, le libellé court
+   * est le titre et la phrase descend d'un cran. Bas-de-casse et gris, à l'opposé des
+   * capitales grasses de `.text-display-*`.
+   */
+  .text-section-subtitle {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: clamp(18px, 2.2vw, 26px);
+    line-height: 1.3;
+    letter-spacing: -0.005em;
+    text-transform: none;
+    color: var(--text-secondary);
+  }
+
+  /* Sur fond clair, `--text-secondary` tombe à 2,37:1 — illisible. Mesuré. */
+  .section-light .text-section-subtitle {
+    color: var(--text-dark-secondary);
+  }
+
   .text-heading {
     font-size: var(--font-size-heading);
     line-height: var(--line-height-heading);

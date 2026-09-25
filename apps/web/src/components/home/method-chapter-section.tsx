@@ -53,10 +53,10 @@ export function MethodChapterSection() {
           />
 
           <div className="thl-container absolute inset-x-0 top-16 z-40 lg:top-20">
-            <p className="text-caption text-[var(--text-secondary)]">{methodChapter.eyebrow}</p>
-            <h2 id="methode-hive" className="text-display-m mt-4 text-[var(--text-primary)]">
-              {methodChapter.chapterTitle}
+            <h2 id="methode-hive" className="text-display-m text-[var(--text-primary)]">
+              {methodChapter.eyebrow}
             </h2>
+            <p className="text-section-subtitle mt-4">{methodChapter.chapterTitle}</p>
           </div>
 
           {/* Runs past the bottom of the pinned screen: its own edge was appearing mid-page when

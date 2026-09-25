@@ -22,10 +22,10 @@ export function ServicesSection() {
       className="section-light py-[var(--space-6)] lg:py-[var(--space-7)]"
     >
       <div className="thl-container">
-        <p className="text-caption text-[var(--text-dark-muted)]">{services.eyebrow}</p>
-        <h2 id="services-heading" className="text-display-m mt-4 text-[var(--text-dark-primary)]">
-          {services.title}
+        <h2 id="services-heading" className="text-display-m text-[var(--text-dark-primary)]">
+          {services.eyebrow}
         </h2>
+        <p className="text-section-subtitle mt-4">{services.title}</p>
         <div className="mt-[var(--space-5)]">
           <AccordionGallery
             items={panels}
