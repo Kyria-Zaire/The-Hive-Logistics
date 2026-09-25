@@ -179,6 +179,10 @@ Mesuré à 55 i/s desktop et mobile sur la traversée avec survol des trois pann
 
 **Piste :** rendre l'ouverture par `transform: scaleX()` compensé sur le contenu, ou accepter les 55 i/s — c'est fluide à l'œil.
 
+**[MAJ TICKET 34]** La traversée complète de l'accueil en desktop 1440 mesure **42 i/s de médiane** (5 relevés : 37,3 · 41 · 42 · 44,4 · 44,9). Cette dette n'en explique qu'une part : le parcours cumule l'accordéon, le dépliage des Engagements, la voiture épinglée de la Méthode et le comptage des chiffres clés. Le retrait du ScrollReveal de la Vision au TICKET 34 ne l'a pas fait bouger — la mesure d'avant, 43,2 i/s, tombe dans l'étendue d'après. Mobile 390 reste à 60 i/s.
+
+**Piste V3.1 :** profiler le parcours section par section avant de toucher à quoi que ce soit ; l'accordéon est un suspect, pas une cause établie.
+
 ## 23. Liste blanche `images.qualities` à maintenir
 
 `next.config.ts` déclare `images: { qualities: [60, 75, 80] }`. Toute valeur absente de cette liste est **silencieusement ramenée à 75** : au ticket 22-TER, un `quality={80}` est resté sans effet jusqu'à ce que la mesure le révèle. Rien dans la sortie du build ne le signale.
@@ -258,3 +262,13 @@ La première étape de la section Méthode (`h3` en `text-[20px] font-medium upp
 **Sévérité : Low.** Un seul mot, une seule largeur, texte partiellement lisible ; les trois autres étapes passent.
 
 **Piste V3.1 :** réduire le `tracking` sous 360 px, ou autoriser le retour à la ligne dans la colonne plutôt que de compter sur `overflow-x: hidden`.
+
+## 34. Réserve de 270 px sous un dossier Vision ouvert
+
+La fiche d'un dossier est en position absolue, donc hors flux : la rangée de la grille ne grandit pas toute seule. `.thl-vision-folders__item--open` réserve **270 px** pendant l'ouverture, faute de quoi la fiche recouvre les dossiers du dessous en une ou deux colonnes, et la section suivante en quatre.
+
+La valeur est calée sur la plus haute des quatre fiches mesurée à la largeur la plus étroite (242 px à 320 px, plus la marge de déclenchement). **Une description sensiblement plus longue la ferait déborder à nouveau.**
+
+**Sévérité : Low**, tant que les quatre textes ne bougent pas.
+
+**Piste :** faire participer la fiche au flux (`grid-template-rows: 0fr → 1fr`) plutôt que de réserver une hauteur en dur — l'animation reste possible et la valeur magique disparaît.

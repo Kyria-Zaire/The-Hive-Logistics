@@ -7,7 +7,6 @@ import { ServicesSection } from "@/components/home/services-section";
 import { EngagementsSection } from "@/components/home/engagements-section";
 import { MethodChapterSection } from "@/components/home/method-chapter-section";
 import { VisionSection } from "@/components/home/vision-section";
-import { VisionAnimated } from "@/components/home/vision-animated";
 import { ConversionSection } from "@/components/home/conversion-section";
 import { TrustBannerSection } from "@/components/home/trust-banner-section";
 export default function HomePage() {
@@ -21,7 +20,7 @@ export default function HomePage() {
         <ServicesSection />
         <EngagementsSection />
         <MethodChapterSection />
-        <VisionSection animation={<VisionAnimated />} />
+        <VisionSection showFolders />
         <ConversionSection />
         <TrustBannerSection />
       </main>

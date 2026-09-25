@@ -117,11 +117,42 @@ export const homeContent = {
     ],
     cta: "Demander un devis",
   },
+  /**
+   * TICKET 34 — l'énoncé unique est redistribué en une intro et quatre dossiers. Les
+   * apostrophes typographiques (U+2019) sont celles de la copie d'origine, conservées telles
+   * quelles : le texte est identique, seule sa répartition change.
+   */
   vision: {
     eyebrow: "NOTRE VISION",
     title: "Bâtir la référence du convoyage automobile en France.",
-    body:
-      "Faire de chaque déplacement une référence. Nous construisons une mobilité fondée sur la précision, la rigueur et la confiance. Notre ambition est de développer une présence nationale du convoyage automobile, en accompagnant chaque véhicule avec le même niveau d’exigence. Le prestige ne tient pas à l’apparence seule : il se mesure à la qualité constante de chaque étape, à la clarté des échanges et au respect des engagements pris.",
+    intro:
+      "Faire de chaque déplacement une référence. Nous construisons une mobilité fondée sur la précision, la rigueur et la confiance.",
+    folders: [
+      {
+        label: "NOTRE MISSION",
+        icon: "target",
+        description:
+          "Devenir la référence du convoyage automobile en France. Le prestige ne tient pas à l’apparence seule : il se mesure à la qualité constante de chaque étape, à la clarté des échanges et au respect des engagements pris.",
+      },
+      {
+        label: "EXPANSION NATIONALE",
+        icon: "trending-up",
+        description:
+          "Développer une présence nationale du convoyage automobile, en accompagnant chaque véhicule avec le même niveau d’exigence.",
+      },
+      {
+        label: "MOBILITÉ INTÉGRÉE",
+        icon: "car",
+        description:
+          "Construire un écosystème complet autour du véhicule : convoyage, gestion de flotte et accompagnement personnalisé.",
+      },
+      {
+        label: "INNOVATION CONTINUE",
+        icon: "zap",
+        description:
+          "Renforcer la traçabilité et la clarté de chaque étape, en intégrant progressivement les outils les plus pertinents.",
+      },
+    ],
   },
   /**
    * Bannière partenaires — structure seule.

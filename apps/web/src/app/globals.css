@@ -503,31 +503,6 @@
    * the engagements track for keeping the heights here rather than in utilities — as
    * utilities they tie on specificity and the breakpoint variant beats `motion-reduce:`.
    */
-  .thl-vision-track {
-    height: 200vh;
-  }
-
-  @media (max-width: 767px) {
-    .thl-vision-track {
-      height: 180vh;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .thl-vision-track {
-      height: auto;
-    }
-
-    .thl-vision-stage {
-      position: static;
-    }
-
-    /* !important earns its place here: the preference can be turned on after the timeline was
-       built, and this overrides the inline opacity GSAP would have left behind. */
-    .thl-vision-body .word {
-      opacity: 1 !important;
-    }
-  }
 
   /*
    * Accordion gallery (TICKET 25). Here rather than in a component stylesheet: this project
@@ -817,6 +792,204 @@
     font-size: clamp(32px, 6vw, 72px);
     line-height: 1.05;
     letter-spacing: -0.03em;
+  }
+
+  /* === Vision : dossiers (TICKET 34) === */
+
+  .thl-vision-folders {
+    margin-top: var(--space-6);
+  }
+
+  .thl-vision-folders__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    align-items: start;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 640px) {
+    .thl-vision-folders__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .thl-vision-folders__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .thl-vision-folders__item {
+    display: flex;
+    justify-content: center;
+  }
+
+  /*
+   * La fiche est en position absolue, donc hors flux : sans réserve, la rangée ne grandit pas
+   * et la fiche recouvre ce qui suit — les dossiers du dessous en une ou deux colonnes, la
+   * section suivante en quatre. La réserve est portée par l'élément ouvert plutôt que par le
+   * conteneur : elle n'existe que pendant l'ouverture, et pousse exactement ce qu'il faut.
+   * L'état vient du composant, pas d'un `:has()` — même comportement sur tout navigateur.
+   * Valeur mesurée sur la plus longue des quatre fiches, à la largeur la plus étroite.
+   */
+  .thl-vision-folders__item--open {
+    padding-bottom: 270px;
+  }
+
+  .thl-folder {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  .thl-folder__button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: inherit;
+    transition: transform var(--duration-fast) var(--ease-in-out);
+    width: 100%;
+  }
+
+  .thl-folder__button:hover:not([aria-expanded="true"]) {
+    transform: translateY(-8px);
+  }
+
+  .thl-folder__button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 10px;
+  }
+
+  .thl-folder__back {
+    position: relative;
+    display: block;
+    width: 150px;
+    height: 110px;
+    background: var(--accent-hover);
+    border-radius: 0 14px 14px 14px;
+  }
+
+  /* L'onglet du dossier. */
+  .thl-folder__back::after {
+    content: "";
+    position: absolute;
+    bottom: 98%;
+    left: 0;
+    width: 45px;
+    height: 12px;
+    background: var(--accent-hover);
+    border-radius: 6px 6px 0 0;
+  }
+
+  .thl-folder__front {
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    border-radius: 5px 14px 14px 14px;
+    transform-origin: bottom;
+    transition: transform var(--duration-base) var(--ease-in-out);
+  }
+
+  .thl-folder__front--right {
+    z-index: 1;
+  }
+
+  /* Les deux rabats s'écartent quand le dossier s'ouvre. */
+  .thl-folder__button[aria-expanded="true"] .thl-folder__front {
+    transform: skew(15deg) scaleY(0.6);
+  }
+
+  .thl-folder__button[aria-expanded="true"] .thl-folder__front--right {
+    transform: skew(-15deg) scaleY(0.6);
+  }
+
+  .thl-folder__label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-primary);
+    text-align: center;
+    max-width: 180px;
+  }
+
+  /* La fiche sort vers le bas : vers le haut elle aurait recouvert l'énoncé. */
+  .thl-folder__paper {
+    position: absolute;
+    top: calc(110px + var(--space-5));
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    width: 280px;
+    max-width: 90vw;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: var(--space-4);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--duration-base) var(--ease-in-out),
+      transform var(--duration-base) var(--ease-in-out);
+    z-index: 5;
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    text-align: left;
+  }
+
+  .thl-folder--open .thl-folder__paper {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .thl-folder__icon {
+    color: var(--accent);
+    display: inline-flex;
+  }
+
+  .thl-folder__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #0a0a0a;
+    margin: 0;
+  }
+
+  .thl-folder__description {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #5a5a5a;
+    margin: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .thl-folder__button,
+    .thl-folder__front,
+    .thl-folder__paper {
+      transition: none;
+    }
+
+    .thl-folder__button:hover:not([aria-expanded="true"]) {
+      transform: none;
+    }
   }
 
   .text-heading {
