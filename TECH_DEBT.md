@@ -263,12 +263,18 @@ La première étape de la section Méthode (`h3` en `text-[20px] font-medium upp
 
 **Piste V3.1 :** réduire le `tracking` sous 360 px, ou autoriser le retour à la ligne dans la colonne plutôt que de compter sur `overflow-x: hidden`.
 
-## 34. Réserve de 270 px sous un dossier Vision ouvert
+## 34. Réserve de 280 px au-dessus d'un dossier Vision ouvert
 
-La fiche d'un dossier est en position absolue, donc hors flux : la rangée de la grille ne grandit pas toute seule. `.thl-vision-folders__item--open` réserve **270 px** pendant l'ouverture, faute de quoi la fiche recouvre les dossiers du dessous en une ou deux colonnes, et la section suivante en quatre.
+La fiche d'un dossier est en position absolue, donc hors flux : la grille ne fait pas de place toute seule. Depuis le TICKET 34-QUATER la fiche sort **vers le haut**, et la réserve dépend de la forme de la grille — les deux stratégies simples échouent chacune de leur côté, mesuré sur 20 ouvertures × 5 largeurs :
 
-La valeur est calée sur la plus haute des quatre fiches mesurée à la largeur la plus étroite (242 px à 320 px, plus la marge de déclenchement). **Une description sensiblement plus longue la ferait déborder à nouveau.**
+- réserver sur le **conteneur** ne protège que la première rangée : à 320, 390 et 768 px, les dossiers 1 à 3 recouvraient leur voisin du dessus ;
+- réserver sur **tous les éléments** tient partout, mais insère 1120 px de vide sur mobile — 280 px au-dessus de chacun des trois dossiers fermés ;
+- réserver sur **l'élément ouvert seul** tient en une colonne, mais dès deux colonnes le dossier ouvert descend seul sous son voisin de rangée.
+
+D'où la règle en place : élément ouvert seul en une colonne, tous les éléments dès 640 px.
+
+La valeur de 280 px est calée sur la plus haute des quatre fiches, mesurée à la largeur la plus étroite. **Une description sensiblement plus longue la ferait déborder à nouveau**, et il y a désormais deux endroits à corriger plutôt qu'un.
 
 **Sévérité : Low**, tant que les quatre textes ne bougent pas.
 
-**Piste :** faire participer la fiche au flux (`grid-template-rows: 0fr → 1fr`) plutôt que de réserver une hauteur en dur — l'animation reste possible et la valeur magique disparaît.
+**Piste :** faire participer la fiche au flux (`grid-template-rows: 0fr → 1fr`) plutôt que de réserver une hauteur en dur — l'animation reste possible, la valeur magique et la distinction par point de rupture disparaissent toutes les deux.

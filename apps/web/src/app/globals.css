@@ -825,18 +825,36 @@
   .thl-vision-folders__item {
     display: flex;
     justify-content: center;
+    transition: padding-top var(--duration-base) var(--ease-in-out);
   }
 
   /*
-   * La fiche est en position absolue, donc hors flux : sans réserve, la rangée ne grandit pas
-   * et la fiche recouvre ce qui suit — les dossiers du dessous en une ou deux colonnes, la
-   * section suivante en quatre. La réserve est portée par l'élément ouvert plutôt que par le
-   * conteneur : elle n'existe que pendant l'ouverture, et pousse exactement ce qu'il faut.
+   * La fiche sort vers le haut et reste hors flux : sans réserve elle recouvre l'énoncé, ou
+   * le dossier du dessus dès qu'on empile les rangées. Réserver sur le conteneur ne protège
+   * que la première rangée — mesuré : à 320, 390 et 768 px les dossiers 1 à 3 recouvraient
+   * leur voisin. La réserve dépend donc de la forme de la grille :
+   *
+   * — en une colonne, seul l'élément ouvert la porte. Réserver sur les quatre insérerait
+   *   280 px de vide au-dessus de chaque dossier fermé, soit 1120 px d'un coup : mesuré, et
+   *   franchement laid.
+   * — dès deux colonnes, tous les éléments la portent, sinon le dossier ouvert descendrait
+   *   seul sous son voisin de rangée.
+   *
    * L'état vient du composant, pas d'un `:has()` — même comportement sur tout navigateur.
-   * Valeur mesurée sur la plus longue des quatre fiches, à la largeur la plus étroite.
+   * Valeur mesurée sur la plus haute des quatre fiches, à la largeur la plus étroite.
    */
   .thl-vision-folders__item--open {
-    padding-bottom: 270px;
+    padding-top: 280px;
+  }
+
+  @media (min-width: 640px) {
+    .thl-vision-folders__item--open {
+      padding-top: 0;
+    }
+
+    .thl-vision-folders--has-open .thl-vision-folders__item {
+      padding-top: 280px;
+    }
   }
 
   .thl-folder {
@@ -926,12 +944,12 @@
     max-width: 180px;
   }
 
-  /* La fiche sort vers le bas : vers le haut elle aurait recouvert l'énoncé. */
+  /* La fiche sort vers le haut (décision client, TICKET 34-QUATER). */
   .thl-folder__paper {
     position: absolute;
-    top: calc(110px + var(--space-5));
+    bottom: calc(100% + var(--space-3));
     left: 50%;
-    transform: translateX(-50%) translateY(-20px);
+    transform: translateX(-50%) translateY(20px);
     width: 280px;
     max-width: 90vw;
     background: #ffffff;
@@ -981,6 +999,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .thl-vision-folders__item,
     .thl-folder__button,
     .thl-folder__front,
     .thl-folder__paper {
