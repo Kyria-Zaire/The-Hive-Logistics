@@ -27,7 +27,7 @@ export function VisionSection({ showFolders = false }: VisionSectionProps) {
       className="section-dark bg-[var(--bg-primary)] py-[var(--space-7)]"
     >
       <div className="thl-container">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto max-w-4xl text-center">
           <h2 id="vision-heading" className="text-display-m text-[var(--text-primary)]">
             {vision.eyebrow}
           </h2>
