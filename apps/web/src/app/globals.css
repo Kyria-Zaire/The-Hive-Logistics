@@ -46,16 +46,16 @@
    * running onto two and three lines. Lowering only the floors changes nothing at or above
    * 640px, where the vw term already wins; it gives the phone a scale instead of a plateau.
    */
-  --font-size-display-xl: clamp(40px, 8vw, 106px);
+  --font-size-display-xl: clamp(36px, 7vw, 92px);
   --line-height-display-xl: 1;
   --letter-spacing-display-xl: 0.02em;
-  --font-size-display-l: clamp(32px, 6vw, 80px);
+  --font-size-display-l: clamp(28px, 5.5vw, 68px);
   --line-height-display-l: 1.05;
   --letter-spacing-display-l: 0.015em;
-  --font-size-display-m: clamp(28px, 5vw, 62px);
+  --font-size-display-m: clamp(24px, 4.5vw, 54px);
   --line-height-display-m: 1.1;
   --letter-spacing-display-m: 0.01em;
-  --font-size-display-s: clamp(24px, 4vw, 48px);
+  --font-size-display-s: clamp(22px, 3.5vw, 42px);
   --line-height-display-s: 1.15;
   --letter-spacing-display-s: 0.01em;
   /* Was a flat 32px, the one step with no responsive behaviour at all: a section heading
