@@ -21,6 +21,13 @@ describe("HomePage", () => {
 
   it("expose la navigation principale et le menu mobile", () => {
     render(<HomePage />);
+    const homeLink = screen.getByRole("link", {
+      name: homeContent.footer.wordmark,
+    });
+    expect(homeLink).toHaveAttribute("href", ROUTES.home);
+    const logo = homeLink.querySelector('img[src*="logo.png"]');
+    expect(logo).toHaveAttribute("alt", "");
+    expect(logo).toHaveAttribute("aria-hidden", "true");
     expect(screen.getAllByRole("navigation", { name: homeContent.nav.primary }).length).toBeGreaterThanOrEqual(1);
     const menuButton = screen.getByRole("button", {
       name: homeContent.nav.menuOpen,

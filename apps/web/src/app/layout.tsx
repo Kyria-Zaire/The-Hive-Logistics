@@ -47,13 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     name: "THE HIVE LOGISTICS",
     description: "THE HIVE LOGISTICS — convoyage automobile, gestion de flotte et logistique automobile.",
     url: siteUrl,
-    /*
-     * TODO V3.1: remplacer par le logo officiel THE HIVE (abeille) quand Jores fournira les
-     * sources SVG/PNG haute résolution. Trois consommateurs à mettre à jour ensemble :
-     * app/icon.svg (favicon 32×32), app/apple-icon.svg (180×180) et le mot-symbole texte du
-     * header (components/layout/site-header.tsx), aujourd'hui un monogramme « H » provisoire.
-     */
-    logo: `${siteUrl}/icon.svg`,
+    logo: `${siteUrl}/images/logo.png`,
     email: company.email,
     telephone: company.phone.e164,
     vatID: company.vatId,
