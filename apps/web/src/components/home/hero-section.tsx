@@ -33,7 +33,7 @@ export function HeroSection() {
               style={
                 {
                   "--enter-y": "20px",
-                  "--enter-delay": "7500ms",
+                  "--enter-delay": "0ms",
                   "--enter-duration": "800ms",
                 } as React.CSSProperties
               }
@@ -46,7 +46,7 @@ export function HeroSection() {
               style={
                 {
                   "--enter-y": "30px",
-                  "--enter-delay": "7650ms",
+                  "--enter-delay": "150ms",
                   "--enter-duration": "900ms",
                 } as React.CSSProperties
               }
@@ -58,7 +58,7 @@ export function HeroSection() {
               style={
                 {
                   "--enter-y": "20px",
-                  "--enter-delay": "7850ms",
+                  "--enter-delay": "350ms",
                   "--enter-duration": "800ms",
                 } as React.CSSProperties
               }
@@ -74,7 +74,7 @@ export function HeroSection() {
               style={
                 {
                   "--enter-y": "20px",
-                  "--enter-delay": "7950ms",
+                  "--enter-delay": "450ms",
                   "--enter-duration": "700ms",
                 } as React.CSSProperties
               }
@@ -86,7 +86,7 @@ export function HeroSection() {
               style={
                 {
                   "--enter-y": "20px",
-                  "--enter-delay": "8050ms",
+                  "--enter-delay": "550ms",
                   "--enter-duration": "700ms",
                 } as React.CSSProperties
               }

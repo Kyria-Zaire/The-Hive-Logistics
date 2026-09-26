@@ -36,8 +36,9 @@ export default function AboutPage() {
           <div className="thl-container">
             <div className="max-w-3xl border-t border-[var(--border)] pt-[var(--space-6)] lg:pt-[var(--space-7)]">
               <h2 id="about-statement-heading" className="text-display-m text-[var(--text-primary)]">
-                {brandStatement.title}
+                {brandStatement.eyebrow}
               </h2>
+              <p className="text-section-subtitle mt-4">{brandStatement.title}</p>
               <p className="text-body-l mt-[var(--space-4)] text-[var(--text-secondary)]">
                 {brandStatement.body}
               </p>

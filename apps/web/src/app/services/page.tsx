@@ -23,8 +23,8 @@ export default function ServicesPage() {
       <main id="contenu-principal" className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
         <section aria-labelledby="services-page-heading" className="pt-32 pb-[var(--space-6)] lg:pt-[var(--space-7)]">
           <div className="thl-container">
-            <p className="text-caption text-[var(--text-muted)]">{services.eyebrow}</p>
-            <h1 id="services-page-heading" className="text-display-m mt-4 max-w-4xl">Convoyage et logistique automobile</h1>
+            <h1 id="services-page-heading" className="text-display-m max-w-4xl">{services.eyebrow}</h1>
+            <p className="text-section-subtitle mt-4 max-w-2xl">Convoyage et logistique automobile</p>
             <span aria-hidden className="mt-[var(--space-4)] block h-px w-16 bg-[var(--accent)]" />
             <p className="text-body-l mt-[var(--space-4)] max-w-2xl text-[var(--text-secondary)]">Une offre complète pour vos véhicules d&apos;exception.</p>
           </div>
