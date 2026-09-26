@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Menu } from "lucide-react";
 import { homeContent } from "@/lib/content/home";
@@ -39,9 +40,18 @@ export function SiteHeader() {
         <div className="thl-container flex h-16 items-center justify-between gap-4 md:h-[72px]">
           <Link
             href={ROUTES.home}
-            className="text-sm font-semibold tracking-[0.12em] thl-focus-dark xl:text-base"
+            className="inline-flex items-center gap-2 text-sm font-semibold tracking-[0.12em] thl-focus-dark xl:text-base"
           >
-            {homeContent.footer.wordmark}
+            <Image
+              src="/images/logo.png"
+              alt=""
+              width={32}
+              height={32}
+              priority
+              aria-hidden="true"
+              className="shrink-0"
+            />
+            <span>{homeContent.footer.wordmark}</span>
           </Link>
 
           <nav

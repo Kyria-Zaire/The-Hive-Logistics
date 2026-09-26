@@ -288,3 +288,9 @@ Le doublon existait déjà — c'est le même composant depuis l'origine — mai
 **Sévérité : Low.** Aucune conséquence de référencement : les `h1` des deux pages restent distincts, et c'est eux qui portent le signal. C'est une répétition visuelle, pas une erreur.
 
 **Piste V3.1 :** donner au composant une prop de libellé, pour que /services puisse dire autre chose que l'accueil — par exemple `COMMENT NOUS TRAVAILLONS`. À faire valider par Jores, ce serait de la copie nouvelle.
+
+## 37. Source vidéo Pixabay supprimée du dépôt
+
+La source 4K de 94 Mo utilisée pour générer `hero-desktop.mp4` et `hero-mobile.mp4` a été supprimée du dépôt après optimisation afin de ne pas l'alourdir.
+
+**Piste :** si Jores souhaite changer ou réencoder la vidéo, télécharger à nouveau la source depuis [Pixabay](https://pixabay.com/fr/videos/légères-traces-circulation-autoroute-21770/).
