@@ -52,7 +52,10 @@ export function MethodChapterSection() {
             }}
           />
 
-          <div className="thl-container absolute inset-x-0 top-16 z-40 lg:top-20">
+          {/* Décalé sous le header fixe, qui mesure 64 px puis 72 px à partir de `md` — d'où
+              le même point de rupture ici : en `lg`, le titre passait sous le header entre 768
+              et 1023 px. 24 px d'écart mesurés dans les deux cas. */}
+          <div className="thl-container absolute inset-x-0 top-[88px] z-40 md:top-24">
             <h2 id="methode-hive" className="text-display-m text-[var(--text-primary)]">
               {methodChapter.eyebrow}
             </h2>
@@ -158,7 +161,9 @@ export function MethodChapterSection() {
               the car drives it from one edge of the screen to the other. */}
           <div className="thl-principles-scroll relative h-[200vh] lg:h-[220vh]">
             <div className="sticky top-0 h-screen overflow-hidden">
-              <div className="thl-container absolute inset-x-0 top-20 lg:top-24">
+              {/* Même décalage que le titre du chapitre : 8 px sous le header entre 768 et
+                  1023 px avant correction. */}
+              <div className="thl-container absolute inset-x-0 top-[88px] md:top-24">
                 <h3 className="text-display-m text-[var(--text-primary)]">
                   {methodChapter.principlesTitle}
                 </h3>

@@ -12,13 +12,10 @@ export function BrandStatementSection() {
     >
       <div className="thl-container">
         <div className="max-w-[680px] border-l-4 border-[var(--accent-on-light)] pl-6 md:pl-8">
-          <p className="text-caption text-[var(--text-dark-muted)]">{brandStatement.eyebrow}</p>
-          <h2
-            id="brand-statement-heading"
-            className="text-display-m mt-4"
-          >
-            {brandStatement.title}
+          <h2 id="brand-statement-heading" className="text-display-m">
+            {brandStatement.eyebrow}
           </h2>
+          <p className="text-section-subtitle mt-4">{brandStatement.title}</p>
           <p className="mt-6 text-base leading-relaxed text-[var(--text-dark-secondary)] md:text-lg">
             {brandStatement.body}
           </p>
